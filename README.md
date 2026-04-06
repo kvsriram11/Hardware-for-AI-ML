@@ -1,14 +1,14 @@
 # Hardware for AI and Machine Learning
 
 ## Author
-Venkata Sriram Kamarajugadda
+Venkata Sriram Kamarajugadda, (MS., Electrical & Computer Engineering), Portland State University
 
 ## Course
 ECE510: Hardware for AI/ML  
 Spring 2026
 
 ## Instructor
-Prof. Christof Teuscher
+Prof. Christof Teuscher, Portland State University
 
 ## Tentative project topic
 Hardware accelerator for reservoir computing with focus on efficient reservoir state update for streaming data
