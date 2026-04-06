@@ -19,6 +19,8 @@ This repository contains my work for the ECE510 Hardware for AI/ML course, inclu
 ## Project overview
 The project is about building a hardware accelerator for a key part of a reservoir computing model called an Echo State Network.
 
+"Structured-Sparse Hardware Accelerator for Efficient Reservoir State Update in Streaming Inference"
+
 The main computation is:
 x(t) = f(W_res x(t-1) + W_in u(t))
 
