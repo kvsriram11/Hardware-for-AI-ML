@@ -263,12 +263,15 @@ This motivates the proposed hardware accelerator approach:
 
 # Summary
 
-- Largest raw single function: spectral-radius normalization (`eig`)
-- Selected acceleration target: recurring reservoir state-update kernel
-- Runtime share of recurring kernel: **27.9%**
-- FLOPs per timestep: **2,008,000**
-- Bytes per timestep: **8,032,016**
-- Arithmetic intensity: **0.25 FLOP/byte**
-- Classification: **memory-bound**
+Summary
+
+- Largest raw single initialization function: spectral-radius normalization (eig)
+- Selected hardware target: recurring reservoir state-update kernel
+- Python-visible runtime share of state-update phases: 27.9%
+- Additional compute may reside inside NumPy / BLAS native kernels
+- FLOPs per timestep: 2,008,000
+- Bytes per timestep: 8,032,016
+- Arithmetic intensity: 0.25 FLOP/byte
+- Classification: memory-bound
 
 This confirms that accelerating the repeated state-update path is more valuable than accelerating one-time initialization work.
