@@ -1,12 +1,12 @@
-# Arithmetic intensity calculation
+# Arithmetic Intensity Calculation
 
-## Dominant kernel selection
+## Dominant Kernel Selection
 
 The cleaned software baseline was profiled using `cProfile` after removing plotting overhead from the execution path. The largest single function in the raw profile is spectral-radius normalization through `scipy.linalg.eig()`, which is a one-time initialization step used during reservoir construction. Since the project targets streaming inference acceleration rather than offline setup, the selected hardware target is the **recurring reservoir state-update kernel** executed repeatedly during training-state collection and generative inference.
 
 Profiled recurring functions:
 
-- `collect_states()` = 1.228 s  
+- `collect_states()` = 1.228 s
 - `run_generative()` = 0.762 s
 
 Total recurring state-update time:
@@ -31,7 +31,7 @@ Therefore, the dominant operational kernel for acceleration is the **reservoir s
 
 ---
 
-## Kernel equation
+## Kernel Equation
 
 The Echo State Network updates its internal state each timestep as:
 
@@ -41,11 +41,11 @@ x(t) = (1-a)x(t-1) + a \tanh(W_{res}x(t-1) + W_{in}u(t))
 
 Where:
 
-- \(x(t)\) = current reservoir state  
-- \(x(t-1)\) = previous state  
-- \(u(t)\) = input sample  
-- \(W_{res}\) = recurrent reservoir matrix  
-- \(W_{in}\) = input matrix  
+- \(x(t)\) = current reservoir state
+- \(x(t-1)\) = previous state
+- \(u(t)\) = input sample
+- \(W_{res}\) = recurrent reservoir matrix
+- \(W_{in}\) = input matrix
 - \(a\) = leaking rate
 
 For this baseline:
@@ -57,11 +57,11 @@ For this baseline:
 
 ---
 
-## FLOP count per state update
+## FLOP Count Per State Update
 
 Arithmetic operations are counted analytically for one timestep.
 
-## 1. Recurrent matrix-vector multiply
+### 1. Recurrent Matrix-Vector Multiply
 
 \[
 W_{res}x(t-1)
@@ -81,9 +81,7 @@ For \(N=1000\):
 
 FLOPs.
 
----
-
-## 2. Input projection
+### 2. Input Projection
 
 \[
 W_{in}u(t)
@@ -103,9 +101,7 @@ For \(N=1000\):
 
 FLOPs.
 
----
-
-## 3. Vector accumulation
+### 3. Vector Accumulation
 
 Adding recurrent and input terms:
 
@@ -115,9 +111,7 @@ N = 1000
 
 FLOPs.
 
----
-
-## 4. tanh activation
+### 4. tanh Activation
 
 One nonlinear activation per element:
 
@@ -127,11 +121,9 @@ N = 1000
 
 operations.
 
-Note: for roofline-level modeling, tanh is counted as one elementwise operation per state entry. Exact floating-point micro-operation counts depend on software library implementation or hardware approximation method.
+**Note:** For roofline-level modeling, tanh is counted as one elementwise operation per state entry. Exact floating-point micro-operation counts depend on software library implementation or hardware approximation method.
 
----
-
-## 5. Leak integration
+### 5. Leak Integration
 
 \[
 (1-a)x(t-1)+a\tanh(\cdot)
@@ -180,41 +172,35 @@ Substitute \(N=1000\):
 
 ---
 
-## Byte count per state update
+## Byte Count Per State Update
 
 Following the assignment requirement, bytes are estimated assuming all operands are fetched from DRAM with no reuse. This is intentionally conservative. Actual cache reuse or on-chip SRAM buffering can reduce bandwidth demand significantly. :contentReference[oaicite:1]{index=1}
 
-## 1. Recurrent weights
+### 1. Recurrent Weights
 
 \[
-1000 \times 1000 \times 8
-=
-8{,}000{,}000
+1000 \times 1000 \times 8 = 8{,}000{,}000
 \]
 
 bytes.
 
-## 2. Input weights
+### 2. Input Weights
 
 \[
-1000 \times 2 \times 8
-=
-16{,}000
+1000 \times 2 \times 8 = 16{,}000
 \]
 
 bytes.
 
-## 3. Previous state vector
+### 3. Previous State Vector
 
 \[
-1000 \times 8
-=
-8{,}000
+1000 \times 8 = 8{,}000
 \]
 
 bytes.
 
-## 4. Input vector \([1,u]\)
+### 4. Input Vector \([1,u]\)
 
 \[
 2 \times 8 = 16
@@ -222,19 +208,17 @@ bytes.
 
 bytes.
 
-## 5. Output state vector writeback
+### 5. Output State Vector Writeback
 
 \[
-1000 \times 8
-=
-8{,}000
+1000 \times 8 = 8{,}000
 \]
 
 bytes.
 
 ---
 
-## Total bytes
+## Total Bytes
 
 \[
 8{,}000{,}000 + 16{,}000 + 8{,}000 + 16 + 8{,}000
@@ -250,7 +234,7 @@ bytes.
 
 ---
 
-## Arithmetic intensity
+## Arithmetic Intensity
 
 \[
 AI = \frac{\text{FLOPs}}{\text{Bytes}}
@@ -283,8 +267,8 @@ An arithmetic intensity of **0.25 FLOP/byte** is low, which indicates the dense 
 
 ## Summary
 
-- Largest raw single function: spectral-radius normalization (`eig`)  
-- Selected acceleration target: recurring reservoir state-update kernel  
+- Largest raw single function: spectral-radius normalization (`eig`)
+- Selected acceleration target: recurring reservoir state-update kernel
 - Runtime share of recurring kernel: **27.9%**
 - FLOPs per timestep: **2,008,000**
 - Bytes per timestep: **8,032,016**
