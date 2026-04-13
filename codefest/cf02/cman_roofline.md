@@ -44,7 +44,7 @@ where:
 Insert the generated labeled roofline figure here, for example:
 
 ```text
-[Insert roofline_clean.png here]
+![Roofline Diagram](cman_roofline.png)
 ```
 
 The plot should show:
