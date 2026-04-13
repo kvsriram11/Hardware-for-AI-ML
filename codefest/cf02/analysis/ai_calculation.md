@@ -1,12 +1,20 @@
 # Arithmetic Intensity Calculation
 
-## Dominant kernel selection
+## Purpose
 
-The cleaned software baseline was profiled using `cProfile` after removing plotting overhead from the execution path. The largest single function in the raw profile is spectral-radius normalization through `scipy.linalg.eig()`, which is a one-time initialization step used during reservoir construction.
+This document estimates the arithmetic intensity of the software baseline to identify whether the dominant ESN workload is compute-bound or memory-bound. The result is used for roofline analysis and hardware accelerator justification.
 
-Since the project targets streaming inference acceleration rather than offline setup, the selected hardware target is the **recurring reservoir state-update kernel** executed repeatedly during training-state collection and generative inference.
+---
 
-Profiled recurring functions:
+# Dominant Kernel Selection
+
+The cleaned software baseline was profiled using `cProfile` after removing plotting overhead from the execution path.
+
+The largest raw single function in the profile is spectral-radius normalization through `scipy.linalg.eig()`. However, this is a one-time initialization step used during reservoir construction and is not part of repeated streaming inference.
+
+The dominant recurring kernel is the **reservoir state-update computation**, accounting for approximately **27.9% of total profiled runtime** at the Python-visible level.
+
+Visible recurring phases:
 
 - `collect_states()` = 1.228 s
 - `run_generative()` = 0.762 s
@@ -19,15 +27,15 @@ Total profiled runtime:
 
 `7.144 s`
 
-Recurring kernel runtime share:
+Runtime share:
 
 `(1.990 / 7.144) × 100 = 27.9%`
 
-Therefore, the dominant operational kernel for acceleration is the **reservoir state update**, accounting for approximately **27.9%** of total profiled runtime in the current software baseline. One-time initialization functions remain outside the primary acceleration scope.
+**Note:** Additional execution time may reside inside optimized NumPy / BLAS native kernels called by these phases.
 
 ---
 
-## Kernel equation
+# Kernel Equation
 
 The Echo State Network updates its internal state each timestep as:
 
@@ -35,40 +43,44 @@ The Echo State Network updates its internal state each timestep as:
 
 Where:
 
-- `x(t)` = current reservoir state  
-- `x(t-1)` = previous state  
-- `u(t)` = input sample  
-- `Wres` = recurrent reservoir matrix  
-- `Win` = input matrix  
-- `a` = leaking rate  
+- `x(t)` = current reservoir state vector
+- `x(t-1)` = previous state vector
+- `u(t)` = input sample
+- `Wres` = recurrent reservoir matrix
+- `Win` = input matrix
+- `a` = leaking rate
 
-For this baseline:
+Software baseline parameters:
 
 - Reservoir size `N = 1000`
 - Input size = 1
-- NumPy / SciPy default datatype = FP64
-- Each FP64 value = 8 bytes
+- Arrays use FP64 precision
+- Each FP64 element = 8 bytes
 
 ---
 
-# FLOP count per state update
+# FLOP Count Per State Update
 
-Arithmetic operations are counted analytically for one timestep.
+Arithmetic operations are derived analytically for one timestep.
 
-## 1. Recurrent matrix-vector multiply
+---
+
+## 1. Recurrent Matrix-Vector Multiply
 
 `Wres * x(t-1)`
 
-Dense `N x N` matrix-vector multiply:
+Dense matrix size:
 
-Each row performs:
+`N x N`
 
-- `N` multiplies
-- `(N - 1)` adds
+Each output row performs:
+
+- `N` multiplications
+- `(N - 1)` additions
 
 Approximation:
 
-`≈ 2N²`
+`N × (N + N - 1) ≈ 2N²`
 
 For `N = 1000`:
 
@@ -76,16 +88,18 @@ For `N = 1000`:
 
 ---
 
-## 2. Input projection
+## 2. Input Projection
 
 `Win * u(t)`
 
-The implementation stacks `[1, u]`, so `Win` is `N x 2`
+The implementation stacks `[1, u]`, so `Win` has size:
 
-Per row:
+`N x 2`
 
-- 2 multiplies
-- 1 add
+Each row performs:
+
+- 2 multiplications
+- 1 addition
 
 Total:
 
@@ -97,32 +111,40 @@ For `N = 1000`:
 
 ---
 
-## 3. Vector accumulation
+## 3. Vector Accumulation
 
 Add recurrent term and input term:
 
-`N = 1000 FLOPs`
+`N`
+
+For `N = 1000`:
+
+`1,000 FLOPs`
 
 ---
 
-## 4. tanh activation
+## 4. tanh Activation
 
 One nonlinear activation per state element:
 
-`N = 1000 operations`
+`N`
 
-**Modeling note:** For roofline-level analysis, tanh is counted as one operation per element. Exact floating-point internal cost depends on software implementation or hardware approximation method.
+For `N = 1000`:
+
+`1,000 operations`
+
+**Modeling Note:** For roofline-level analysis, tanh is counted as one abstract elementwise operation. Exact internal floating-point cost depends on software library implementation or hardware approximation method.
 
 ---
 
-## 5. Leak integration
+## 5. Leak Integration
 
 `(1-a)x(t-1) + a*tanh(...)`
 
 Per element:
 
-- 2 multiplies
-- 1 add
+- 2 multiplications
+- 1 addition
 
 Total:
 
@@ -136,7 +158,7 @@ For `N = 1000`:
 
 # Total FLOPs
 
-Total per timestep:
+Total operations per timestep:
 
 `2N² + 3N + N + N + 3N`
 
@@ -152,17 +174,23 @@ Substitute `N = 1000`
 
 `= 2,008,000 FLOPs`
 
-**Final result:**
+## Final FLOP Count
 
-`≈ 2.008 × 10^6 FLOPs per state update`
+**≈ 2.008 × 10^6 FLOPs per state update**
 
 ---
 
-# Byte count per state update
+# Byte Transfer Per State Update
 
-Following the assignment requirement, bytes are estimated assuming all operands are fetched from DRAM with no reuse. This is conservative. Real cache reuse or on-chip SRAM buffering can reduce bandwidth significantly.
+Following the assignment requirement, all operands are assumed to be fetched from DRAM with no reuse. This is intentionally conservative.
 
-## 1. Recurrent weights
+Real implementations using cache reuse or on-chip SRAM buffering can reduce external bandwidth significantly.
+
+---
+
+## Weights
+
+### Recurrent Weights
 
 Matrix size:
 
@@ -172,9 +200,7 @@ Bytes:
 
 `1000 × 1000 × 8 = 8,000,000 bytes`
 
----
-
-## 2. Input weights
+### Input Weights
 
 Matrix size:
 
@@ -186,7 +212,9 @@ Bytes:
 
 ---
 
-## 3. Previous state vector
+## Inputs
+
+### Previous State Vector
 
 Size:
 
@@ -196,9 +224,7 @@ Bytes:
 
 `1000 × 8 = 8,000 bytes`
 
----
-
-## 4. Input vector `[1,u]`
+### Input Vector `[1,u]`
 
 Size:
 
@@ -210,7 +236,9 @@ Bytes:
 
 ---
 
-## 5. Output state vector writeback
+## Outputs
+
+### Updated State Vector Writeback
 
 Size:
 
@@ -222,19 +250,19 @@ Bytes:
 
 ---
 
-# Total bytes
+# Total Bytes
 
 `8,000,000 + 16,000 + 8,000 + 16 + 8,000`
 
 `= 8,032,016 bytes`
 
-**Final result:**
+## Final Byte Count
 
-`≈ 8.032 × 10^6 bytes`
+**≈ 8.032 × 10^6 bytes per state update**
 
 ---
 
-# Arithmetic intensity
+# Arithmetic Intensity
 
 Definition:
 
@@ -246,32 +274,32 @@ Substitute values:
 
 `AI = 0.25 FLOP/byte`
 
+## Final Arithmetic Intensity
+
+**0.25 FLOP/byte**
+
 ---
 
 # Interpretation
 
-An arithmetic intensity of **0.25 FLOP/byte** is low. This means the dense software kernel is strongly **memory-bound** under the no-reuse DRAM model.
+An arithmetic intensity of **0.25 FLOP/byte** is low. Under the no-reuse DRAM model, the dense software kernel is strongly **memory-bound**.
 
-This motivates the proposed hardware accelerator approach:
+This motivates the proposed hardware accelerator direction:
 
 - structured sparsity to reduce weight traffic
-- on-chip SRAM / buffering for reuse
+- on-chip SRAM buffering for reuse
 - parallel MAC datapath for higher throughput
-- better effective arithmetic intensity than dense software baseline
+- improved effective arithmetic intensity relative to the dense software baseline
 
 ---
 
 # Summary
 
-Summary
-
-- Largest raw single initialization function: spectral-radius normalization (eig)
-- Selected hardware target: recurring reservoir state-update kernel
-- Python-visible runtime share of state-update phases: 27.9%
-- Additional compute may reside inside NumPy / BLAS native kernels
+- Dominant recurring kernel: reservoir state-update computation
+- Runtime share: 27.9% of total profiled runtime
 - FLOPs per timestep: 2,008,000
 - Bytes per timestep: 8,032,016
 - Arithmetic intensity: 0.25 FLOP/byte
 - Classification: memory-bound
 
-This confirms that accelerating the repeated state-update path is more valuable than accelerating one-time initialization work.
+This confirms that accelerating the repeated reservoir state-update path is more valuable than accelerating one-time initialization work.
