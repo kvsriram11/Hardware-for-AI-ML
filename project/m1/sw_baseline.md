@@ -19,7 +19,7 @@ Prof. Christof Teuscher
 
 ---
 
-# Overview
+## Overview
 
 This document summarizes the software baseline used to study the computational behavior of an Echo State Network (ESN) before hardware acceleration.
 
@@ -36,13 +36,15 @@ The implementation is based on the `minimalESN` Python reference model using Num
 
 ---
 
-# Workload Description
+## Workload Description
 
 The ESN is evaluated using the Mackey-Glass chaotic time-series benchmark.
 
 Core reservoir update equation:
 
-`x(t) = (1-a)x(t-1) + a * tanh(Wres*x(t-1) + Win*u(t))`
+```text
+x(t) = (1-a)x(t-1) + a * tanh(Wres*x(t-1) + Win*u(t))
+```
 
 Where:
 
@@ -58,9 +60,9 @@ Reservoir size used in this baseline:
 
 ---
 
-# Platform and Configuration
+## Platform and Configuration
 
-## Hardware Platform
+### Hardware Platform
 
 - System Manufacturer: HP
 - System Model: HP Spectre x360 Convertible 14-ea0xxx
@@ -70,18 +72,18 @@ Reservoir size used in this baseline:
 - GPU: Not used for software baseline benchmark
 - System Type: x64-based PC
 
-## Software Platform
+### Software Platform
 
 - OS: Microsoft Windows 11 Home
 - OS Version: 10.0.26200 Build 26200
 - Python Version: 3.14.3
 - Libraries: NumPy, SciPy, Matplotlib
 
-## Dataset
+### Dataset
 
-- `MackeyGlass_t17.txt`
+- MackeyGlass_t17.txt
 
-## Simulation Parameters
+### Simulation Parameters
 
 - Training length: 2000 timesteps
 - Testing length: 2000 timesteps
@@ -93,33 +95,36 @@ Reservoir size used in this baseline:
 
 ---
 
-# Functional Accuracy
+## Functional Accuracy
 
 Measured prediction quality:
 
-- Mean Squared Error (MSE): **1.026e-06**
+- Mean Squared Error (MSE): `1.026e-06`
 
 This confirms that the software baseline is functioning correctly and producing stable predictions.
 
 ---
 
-# Execution Time Benchmark
+## Execution Time Benchmark
 
-Wall-clock runtime was measured over **10 repeated runs**.
+Wall-clock runtime was measured over 10 repeated runs.
+
+The first run showed startup overhead from Python process launch, library initialization, and file/cache warmup. Since the project focuses on sustained kernel performance rather than one-time startup cost, steady-state runs 2–10 are used as the primary baseline for later comparison.
 
 | Metric | Value |
-|------|------|
-| Mean Runtime | 8.13 s |
-| Median Runtime | 7.86 s |
-| Minimum Runtime | 7.09 s |
-| Maximum Runtime | 10.02 s |
+|---|---|
+| Full 10-run Mean Runtime | 3.74 s |
+| Full 10-run Median Runtime | 2.91 s |
+| Full 10-run Minimum Runtime | 2.60 s |
+| Full 10-run Maximum Runtime | 11.95 s |
+| Steady-State Median Runtime (Runs 2–10) | 2.85 s |
 | Number of Runs | 10 |
 
-The **median runtime** is used as the primary baseline metric for later speedup comparison.
+The steady-state median runtime is used as the primary software baseline metric for later speedup comparison.
 
 ---
 
-# Throughput
+## Throughput
 
 Each full execution performs:
 
@@ -128,63 +133,64 @@ Each full execution performs:
 
 Total:
 
-- **4000 reservoir state updates per run**
+- 4000 reservoir state updates per run
 
-Using median runtime:
+Using the steady-state median runtime of `2.85 s`:
 
-## Runtime Throughput
+### Runtime Throughput
 
 | Metric | Value |
-|------|------|
-| Full Runs / Second | 0.127 runs/s |
-| State Updates / Second | ~509 updates/s |
+|---|---|
+| Full Runs / Second | 0.351 runs/s |
+| State Updates / Second | 1403 updates/s |
 
-## Estimated Compute Throughput
+### Estimated Compute Throughput
 
 Using the arithmetic model derived separately:
 
-- FLOPs per state update ≈ 2,008,000
+- FLOPs per state update ≈ `2,008,000`
 
 Estimated compute rate:
 
-`(2,008,000 × 4000) / 7.86`
+```text
+(2,008,000 × 4000) / 2.85
+```
 
-≈ **1.02 GFLOPs/s**
+≈ `2.82 GFLOPs/s`
 
 ---
 
-# Memory Usage
+## Memory Usage
 
 | Metric | Value |
-|------|------|
-| Wrapper Benchmark RSS | 4.46 MB |
-| Peak ESN Process RSS | Not yet directly instrumented |
+|---|---|
+| Peak Child RSS Across Runs | 4.28 MB |
+| Mean Peak Child RSS Across Runs | 3.94 MB |
+| Wrapper Process RSS | 22.70 MB |
 | GPU Memory Usage | Not applicable |
 
-**Note:** Current memory value corresponds to the benchmark wrapper process. Future milestones may use direct process instrumentation for peak runtime memory.
+Note: Peak child RSS was measured by monitoring the spawned `minimalESN.py` process during execution. Reported RSS may still underestimate short-lived native library allocations on Windows, but it is more relevant than wrapper-only process memory.
 
 ---
 
-# Profiling Summary
+## Profiling Summary
 
 Python `cProfile` was used to identify runtime hotspots.
 
 | Function | Contribution |
-|------|------|
+|---|---|
 | Spectral radius normalization (`eig`) | High one-time setup cost |
 | Reservoir state collection | Major recurring cost |
 | Generative inference loop | Major recurring cost |
 | Ridge regression training | Moderate cost |
 
----
-
-# Key Observation
+### Key Observation
 
 The most important recurring workload is the reservoir state-update loop, which repeatedly performs:
 
 - Matrix-vector multiplication
 - Accumulation
-- tanh activation
+- `tanh` activation
 - Leak-rate blending
 - State writeback
 
@@ -192,9 +198,9 @@ This recurring kernel is the best target for hardware acceleration rather than o
 
 ---
 
-# Why Acceleration is Needed
+## Why Acceleration is Needed
 
-The baseline uses a dense `1000 x 1000` recurrent matrix.
+The baseline uses a dense `1000 × 1000` recurrent matrix.
 
 This creates:
 
@@ -205,25 +211,25 @@ This creates:
 
 ---
 
-# Hardware Direction
+## Hardware Direction
 
 Planned accelerator target:
 
-## Reservoir State Update Engine
+- Reservoir State Update Engine
 
 Likely features:
 
 - Structured sparse weight storage
 - Parallel MAC array
 - Streaming interface
-- tanh approximation hardware
+- `tanh` approximation hardware
 - On-chip state memory
 - Synthesizable SystemVerilog RTL
 - OpenLane compatible implementation path
 
 ---
 
-# Baseline Importance
+## Baseline Importance
 
 This software model serves as the golden reference for:
 
@@ -236,7 +242,7 @@ This software model serves as the golden reference for:
 
 ---
 
-# Next Steps
+## Next Steps
 
 - Sweep reservoir sizes (128 / 256 / 512 / 1024)
 - Measure scaling behavior
@@ -247,6 +253,6 @@ This software model serves as the golden reference for:
 
 ---
 
-# License
+## License
 
 MIT License (inherits original `minimalESN` reference implementation where applicable)
