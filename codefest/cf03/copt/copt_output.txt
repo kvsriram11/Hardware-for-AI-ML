@@ -1,0 +1,8 @@
+CUDA GPU is available.
+Device name: Tesla T4
+
+Input tensor shape:  torch.Size([16, 4])
+Output tensor shape: torch.Size([16, 1])
+
+Input is on GPU:  True
+Output is on GPU: True
