@@ -20,9 +20,11 @@ $$
 
 For one output element `C[i][j]`:
 
-- `k` runs from `0` to `31`
-- so `A[i][k]` is accessed `32` times total
-- and `B[k][j]` is also accessed `32` times total
+- `A[i][k]` is accessed once for each value of `k`
+- `B[k][j]` is accessed once for each value of `k`
+- since `k` runs from `0` to `31`, each output element requires:
+  - `N = 32` accesses to `A`
+  - `N = 32` accesses to `B`
 
 So for one output element:
 
@@ -40,7 +42,7 @@ $$
 N^2 = 32^2 = 1024
 $$
 
-So total accesses across the full output matrix are:
+So total accesses across the full matrix multiplication are:
 
 ### Total accesses to A
 
@@ -71,74 +73,58 @@ $$
 So,
 
 $$
-\boxed{\text{Naive DRAM traffic} = 262144 \text{ bytes}}
+\boxed{\text{Naive DRAM traffic} = 262144 \text{ bytes} = 256\ \text{KB}}
 $$
 
 ---
 
 ## 2. Tiled loop (`T = 8`)
 
-Number of tiles along one dimension:
+In the intended tiled DRAM model, tiling allows data loaded from DRAM to be reused on-chip.  
+So instead of counting repeated tile fetches during the blocked execution, we count the **unique matrix data** that must be brought from DRAM.
+
+Each matrix has:
 
 $$
-\frac{N}{T} = \frac{32}{8} = 4
+N^2 = 32^2 = 1024 \text{ elements}
 $$
 
-So the output matrix is divided into:
+So:
+
+### Total DRAM loads for A
+
+Each element of `A` is loaded once from DRAM:
 
 $$
-4 \times 4 = 16 \text{ output tiles}
+N^2 = 1024 \text{ elements}
 $$
 
-For each output tile:
+### Total DRAM loads for B
 
-- we must iterate over 4 positions in the reduction dimension
-- so each output tile needs:
-  - 4 tiles from `A`
-  - 4 tiles from `B`
-
-### Total A-tile loads
+Each element of `B` is loaded once from DRAM:
 
 $$
-16 \times 4 = 64
+N^2 = 1024 \text{ elements}
 $$
 
-### Total B-tile loads
+### Total element loads
 
 $$
-16 \times 4 = 64
+1024 + 1024 = 2048
 $$
 
-### Total tile loads
-
-$$
-64 + 64 = 128
-$$
-
-Each tile is `8 × 8`, so each tile contains:
-
-$$
-T^2 = 8^2 = 64 \text{ elements}
-$$
-
-So total element loads are:
-
-$$
-128 \times 64 = 8192
-$$
-
-Each element is 4 bytes.
+Each element is FP32, so each element is 4 bytes.
 
 ### Total tiled DRAM traffic
 
 $$
-8192 \times 4 = 32768 \text{ bytes}
+2048 \times 4 = 8192 \text{ bytes}
 $$
 
 So,
 
 $$
-\boxed{\text{Tiled DRAM traffic} = 32768 \text{ bytes}}
+\boxed{\text{Tiled DRAM traffic} = 8192 \text{ bytes} = 8\ \text{KB}}
 $$
 
 ---
@@ -148,25 +134,23 @@ $$
 From above:
 
 - Naive DRAM traffic = `262144 bytes`
-- Tiled DRAM traffic = `32768 bytes`
+- Tiled DRAM traffic = `8192 bytes`
 
 So the ratio is:
 
 $$
-\frac{262144}{32768} = 8
+\frac{262144}{8192} = 32
 $$
 
 Therefore,
 
 $$
-\boxed{\text{Naive/Tiled traffic ratio} = 8}
+\boxed{\text{Naive/Tiled traffic ratio} = 32}
 $$
 
-### Explanation
+### One-sentence explanation
 
-The ratio comes out to `8` because tiling allows each loaded tile to be reused across 8 multiply-accumulate steps, so the DRAM traffic is reduced by the tile size `T = 8`.
-
-> Note: If the handout says the ratio equals `N`, that is inconsistent with the direct tile-load counting above. Using the actual tile-load calculation, the correct ratio is `8`.
+The ratio equals `N` because naive GEMM reads matrix data from DRAM `O(N^3)` times, while ideal tiled GEMM loads each matrix element only once from DRAM and reuses it on-chip, reducing DRAM traffic to `O(N^2)`.
 
 ---
 
@@ -252,27 +236,27 @@ $$
 Tiled DRAM traffic:
 
 $$
-32768 \text{ bytes}
+8192 \text{ bytes}
 $$
 
 So memory time is:
 
 $$
-t_{\text{tiled,mem}} = \frac{32768}{320 \times 10^9}
+t_{\text{tiled,mem}} = \frac{8192}{320 \times 10^9}
 $$
 
 $$
-t_{\text{tiled,mem}} = 1.024 \times 10^{-7} \text{ s}
+t_{\text{tiled,mem}} = 2.56 \times 10^{-8} \text{ s}
 $$
 
 $$
-\boxed{t_{\text{tiled,mem}} = 102.4 \text{ ns}}
+\boxed{t_{\text{tiled,mem}} = 25.6 \text{ ns}}
 $$
 
 Compare:
 
 - compute time = `6.5536 ns`
-- memory time = `102.4 ns`
+- memory time = `25.6 ns`
 
 Since memory time is still larger,
 
@@ -283,7 +267,7 @@ $$
 So execution time is approximately:
 
 $$
-\boxed{t_{\text{tiled}} \approx 102.4 \text{ ns}}
+\boxed{t_{\text{tiled}} \approx 25.6 \text{ ns}}
 $$
 
 ---
@@ -291,7 +275,7 @@ $$
 ## Final Answers
 
 - **Naive DRAM traffic** = `262144 bytes`
-- **Tiled DRAM traffic** = `32768 bytes`
-- **Traffic ratio** = `8`
+- **Tiled DRAM traffic** = `8192 bytes`
+- **Traffic ratio** = `32`
 - **Naive execution time** = `819.2 ns` → memory-bound
-- **Tiled execution time** = `102.4 ns` → memory-bound
+- **Tiled execution time** = `25.6 ns` → memory-bound
