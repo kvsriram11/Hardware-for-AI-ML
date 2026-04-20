@@ -1,6 +1,6 @@
 # CMAN — DRAM Traffic Analysis: Naive vs. Tiled Matrix Multiply
 
-Given:
+## Given
 
 - Matrix size: `N = 32`
 - Tile size: `T = 8`
@@ -8,222 +8,290 @@ Given:
 - DRAM bandwidth = `320 GB/s`
 - Peak compute = `10 TFLOP/s`
 
-## (a) Naive DRAM traffic calculation with formula and values
+---
 
-For naive matrix multiplication,
+## 1. Naive triple loop (`ijk` order)
 
-\[
-C[i][j] = \sum_{k=0}^{N-1} A[i][k] \times B[k][j]
-\]
+For matrix multiplication,
+
+$$
+C[i][j] = \sum_{k=0}^{N-1} A[i][k]\times B[k][j]
+$$
 
 For one output element `C[i][j]`:
 
-- accesses to `A` = `N = 32`
-- accesses to `B` = `N = 32`
+- `k` runs from `0` to `31`
+- so `A[i][k]` is accessed `32` times total
+- and `B[k][j]` is also accessed `32` times total
 
-Total number of output elements:
+So for one output element:
 
-\[
+$$
+\text{A accesses per output} = N = 32
+$$
+
+$$
+\text{B accesses per output} = N = 32
+$$
+
+Now total number of output elements is:
+
+$$
 N^2 = 32^2 = 1024
-\]
+$$
 
-So total element accesses are:
+So total accesses across the full output matrix are:
 
-\[
-\text{Total A accesses} = N^2 \cdot N = N^3 = 32^3 = 32768
-\]
+### Total accesses to A
 
-\[
-\text{Total B accesses} = N^2 \cdot N = N^3 = 32^3 = 32768
-\]
+$$
+N^2 \cdot N = N^3 = 32^3 = 32768
+$$
 
-Total element accesses:
+### Total accesses to B
 
-\[
+$$
+N^2 \cdot N = N^3 = 32^3 = 32768
+$$
+
+### Total element accesses
+
+$$
 32768 + 32768 = 65536
-\]
+$$
 
-Since each FP32 access is 4 bytes:
+Each access is FP32, so each access is 4 bytes.
 
-\[
-\text{Naive DRAM traffic} = 65536 \times 4 = 262144 \text{ bytes}
-\]
+### Total naive DRAM traffic
 
-\[
-\boxed{\text{Naive DRAM traffic} = 262144 \text{ bytes} = 256 \text{ KB}}
-\]
+$$
+65536 \times 4 = 262144 \text{ bytes}
+$$
 
-## (b) Tiled DRAM traffic calculation
+So,
 
-For tiled GEMM with `T = 8`:
+$$
+\boxed{\text{Naive DRAM traffic} = 262144 \text{ bytes}}
+$$
+
+---
+
+## 2. Tiled loop (`T = 8`)
 
 Number of tiles along one dimension:
 
-\[
+$$
 \frac{N}{T} = \frac{32}{8} = 4
-\]
+$$
 
-So the number of output tiles is:
+So the output matrix is divided into:
 
-\[
-4 \times 4 = 16
-\]
+$$
+4 \times 4 = 16 \text{ output tiles}
+$$
 
-For each output tile, the computation iterates over 4 tile positions in the reduction dimension, so it loads:
+For each output tile:
 
-- 4 tiles of `A`
-- 4 tiles of `B`
+- we must iterate over 4 positions in the reduction dimension
+- so each output tile needs:
+  - 4 tiles from `A`
+  - 4 tiles from `B`
 
-Therefore total tile loads are:
+### Total A-tile loads
 
-\[
-\text{A tile loads} = 16 \times 4 = 64
-\]
+$$
+16 \times 4 = 64
+$$
 
-\[
-\text{B tile loads} = 16 \times 4 = 64
-\]
+### Total B-tile loads
 
-Total tile loads:
+$$
+16 \times 4 = 64
+$$
 
-\[
+### Total tile loads
+
+$$
 64 + 64 = 128
-\]
+$$
 
-Each tile contains:
+Each tile is `8 × 8`, so each tile contains:
 
-\[
+$$
 T^2 = 8^2 = 64 \text{ elements}
-\]
+$$
 
-So total element loads:
+So total element loads are:
 
-\[
+$$
 128 \times 64 = 8192
-\]
+$$
 
-Since each element is 4 bytes:
+Each element is 4 bytes.
 
-\[
-\text{Tiled DRAM traffic} = 8192 \times 4 = 32768 \text{ bytes}
-\]
+### Total tiled DRAM traffic
 
-\[
-\boxed{\text{Tiled DRAM traffic} = 32768 \text{ bytes} = 32 \text{ KB}}
-\]
+$$
+8192 \times 4 = 32768 \text{ bytes}
+$$
 
-## (c) Traffic ratio with one-sentence explanation
+So,
 
-\[
-\text{Ratio} = \frac{\text{Naive DRAM traffic}}{\text{Tiled DRAM traffic}}
-= \frac{262144}{32768} = 8
-\]
+$$
+\boxed{\text{Tiled DRAM traffic} = 32768 \text{ bytes}}
+$$
 
-\[
+---
+
+## 3. Ratio of naive DRAM traffic to tiled DRAM traffic
+
+From above:
+
+- Naive DRAM traffic = `262144 bytes`
+- Tiled DRAM traffic = `32768 bytes`
+
+So the ratio is:
+
+$$
+\frac{262144}{32768} = 8
+$$
+
+Therefore,
+
+$$
 \boxed{\text{Naive/Tiled traffic ratio} = 8}
-\]
+$$
 
-**One-sentence explanation:** The ratio is 8 because tiling allows each loaded tile to be reused across 8 multiply-accumulate steps, so the DRAM traffic is reduced by the tile size `T = 8`.
+### Explanation
 
-> Note: The handout says the ratio equals `N`, but with the direct full-computation tile-load count above, the mathematically consistent result is `8`, not `32`.
+The ratio comes out to `8` because tiling allows each loaded tile to be reused across 8 multiply-accumulate steps, so the DRAM traffic is reduced by the tile size `T = 8`.
 
-## (d) Execution time for naive and tiled cases with bound classification
+> Note: If the handout says the ratio equals `N`, that is inconsistent with the direct tile-load counting above. Using the actual tile-load calculation, the correct ratio is `8`.
 
-Total GEMM floating-point work:
+---
 
-\[
+## 4. Execution time and bottleneck classification
+
+Total floating-point work for GEMM:
+
+$$
 2N^3 = 2(32^3) = 2(32768) = 65536 \text{ FLOPs}
-\]
+$$
+
+Peak compute is:
+
+$$
+10 \text{ TFLOP/s} = 10 \times 10^{12} \text{ FLOP/s}
+$$
 
 ### Compute time
 
-\[
+$$
 t_{\text{compute}} = \frac{65536}{10 \times 10^{12}}
-= 6.5536 \times 10^{-9} \text{ s}
-\]
+$$
 
-\[
+$$
+t_{\text{compute}} = 6.5536 \times 10^{-9} \text{ s}
+$$
+
+$$
 \boxed{t_{\text{compute}} = 6.5536 \text{ ns}}
-\]
+$$
+
+---
 
 ### Naive case
 
 Naive DRAM traffic:
 
-\[
+$$
 262144 \text{ bytes}
-\]
+$$
 
-Memory time:
+DRAM bandwidth:
 
-\[
+$$
+320 \text{ GB/s} = 320 \times 10^9 \text{ bytes/s}
+$$
+
+So memory time is:
+
+$$
 t_{\text{naive,mem}} = \frac{262144}{320 \times 10^9}
-= 8.192 \times 10^{-7} \text{ s}
-\]
+$$
 
-\[
+$$
+t_{\text{naive,mem}} = 8.192 \times 10^{-7} \text{ s}
+$$
+
+$$
 \boxed{t_{\text{naive,mem}} = 819.2 \text{ ns}}
-\]
+$$
 
-Since:
+Compare:
 
-\[
-819.2 \text{ ns} > 6.5536 \text{ ns}
-\]
+- compute time = `6.5536 ns`
+- memory time = `819.2 ns`
 
-the naive case is:
+Since memory time is much larger,
 
-\[
+$$
 \boxed{\text{Naive case is memory-bound}}
-\]
+$$
 
-Execution time:
+So execution time is approximately:
 
-\[
+$$
 \boxed{t_{\text{naive}} \approx 819.2 \text{ ns}}
-\]
+$$
+
+---
 
 ### Tiled case
 
 Tiled DRAM traffic:
 
-\[
+$$
 32768 \text{ bytes}
-\]
+$$
 
-Memory time:
+So memory time is:
 
-\[
+$$
 t_{\text{tiled,mem}} = \frac{32768}{320 \times 10^9}
-= 1.024 \times 10^{-7} \text{ s}
-\]
+$$
 
-\[
+$$
+t_{\text{tiled,mem}} = 1.024 \times 10^{-7} \text{ s}
+$$
+
+$$
 \boxed{t_{\text{tiled,mem}} = 102.4 \text{ ns}}
-\]
+$$
 
-Since:
+Compare:
 
-\[
-102.4 \text{ ns} > 6.5536 \text{ ns}
-\]
+- compute time = `6.5536 ns`
+- memory time = `102.4 ns`
 
-the tiled case is also:
+Since memory time is still larger,
 
-\[
-\boxed{\text{Tiled case is memory-bound}}
-\]
+$$
+\boxed{\text{Tiled case is also memory-bound}}
+$$
 
-Execution time:
+So execution time is approximately:
 
-\[
+$$
 \boxed{t_{\text{tiled}} \approx 102.4 \text{ ns}}
-\]
+$$
 
-## Final Answers Summary
+---
 
-- **Naive DRAM traffic:** `262144 bytes`
-- **Tiled DRAM traffic:** `32768 bytes`
-- **Traffic ratio:** `8`
-- **Naive execution time:** `819.2 ns` → **memory-bound**
-- **Tiled execution time:** `102.4 ns` → **memory-bound**
+## Final Answers
+
+- **Naive DRAM traffic** = `262144 bytes`
+- **Tiled DRAM traffic** = `32768 bytes`
+- **Traffic ratio** = `8`
+- **Naive execution time** = `819.2 ns` → memory-bound
+- **Tiled execution time** = `102.4 ns` → memory-bound
