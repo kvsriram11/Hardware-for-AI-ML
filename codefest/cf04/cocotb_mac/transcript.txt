@@ -1,0 +1,41 @@
+rm -f results.xml
+"C:/MinGW/bin/mingw32-make" -f Makefile results.xml
+mingw32-make[1]: Entering directory 'D:/PSU/Q3/HW_AI-ML/codefest/cf04_sv'
+C:/iverilog/bin/iverilog.exe -o sim_build/sim.vvp -s mac_correct -g2012 -g2012 -f sim_build/cmds.f -s cocotb_iverilog_dump  D:/PSU/Q3/HW_AI-ML/codefest/cf04_sv/mac_correct.sv sim_build/cocotb_iverilog_dump.v
+C:/Users/amogh/AppData/Local/Programs/Python/Python311/Lib/site-packages/cocotb_tools/makefiles/simulators/Makefile.icarus:65: Using MODULE is deprecated, please use COCOTB_TEST_MODULES instead.
+rm -f results.xml
+COCOTB_TEST_MODULES=test_mac COCOTB_TESTCASE= COCOTB_TEST_FILTER= COCOTB_TOPLEVEL=mac_correct TOPLEVEL_LANG=verilog \
+         C:/iverilog/bin/vvp -M C:/Users/amogh/AppData/Local/Programs/Python/Python311/Lib/site-packages/cocotb/libs -m cocotbvpi_icarus   sim_build/sim.vvp -fst  
+     -.--ns INFO     gpi                                ..mbed\gpi_embed.cpp:94   in _embed_init_python              Using Python 3.11.9 interpreter at C:/Users/amogh/AppData/Local/Programs/Python/Python311/python.exe
+     -.--ns ERROR    gpi                                ..mbed\gpi_embed.cpp:155  in _embed_init_python              Unexpected sys.executable value (expected 'C:/Users/amogh/AppData/Local/Programs/Python/Python311/python.exe', got 'C:\iverilog\bin\vvp.exe')
+     -.--ns INFO     gpi                                ..\gpi\GpiCommon.cpp:79   in gpi_print_registered_impl       VPI registered
+     0.00ns INFO     cocotb                             Running on Icarus Verilog version 11.0 (devel)
+     0.00ns WARNING  gpi                                vpi_iterate returned NULL for type vpiInstance for object NULL
+     0.00ns INFO     cocotb                             Seeding Python random module with 1777273336
+     0.00ns INFO     cocotb                             Initialized cocotb v2.0.1 from C:\Users\amogh\AppData\Local\Programs\Python\Python311\Lib\site-packages\cocotb
+     0.00ns INFO     cocotb.regression                  pytest not found, install it to enable better AssertionError messages
+     0.00ns INFO     cocotb                             Running tests
+     0.00ns INFO     cocotb.regression                  running test_mac.test_mac_basic (1/2)
+                                                            Apply a=3, b=4 for 3 cycles, assert reset,
+FST info: dumpfile sim_build/mac_correct.fst opened for output.
+    11.00ns INFO     test                               PASS | after_reset                  | out = 0
+    21.00ns INFO     test                               PASS | p1_cycle1 (exp:  12)         | out = 12
+    31.00ns INFO     test                               PASS | p1_cycle2 (exp:  24)         | out = 24
+    41.00ns INFO     test                               PASS | p1_cycle3 (exp:  36)         | out = 36
+    51.00ns INFO     test                               PASS | mid_reset   (exp:   0)       | out = 0
+    61.00ns INFO     test                               PASS | p2_cycle1 (exp: -10)         | out = -10
+    71.00ns INFO     test                               PASS | p2_cycle2 (exp: -20)         | out = -20
+    71.00ns INFO     cocotb.regression                  test_mac.test_mac_basic passed
+    71.00ns INFO     cocotb.regression                  running test_mac.test_mac_overflow (2/2)
+                                                            Drive accumulator to overflow using a=127, b=127 (16129/cycle).
+1331552.00ns INFO     test                               After 133146 cycles: DUT = -2147455462, model = -2147455462
+1331552.00ns INFO     test                               PASS | overflow_wrap | Accumulator wraps (two's complement) - no saturation.
+1331552.00ns INFO     cocotb.regression                  test_mac.test_mac_overflow passed
+1331552.00ns INFO     cocotb.regression                  **************************************************************************************
+                                                         ** TEST                          STATUS  SIM TIME (ns)  REAL TIME (s)  RATIO (ns/s) **
+                                                         **************************************************************************************
+                                                         ** test_mac.test_mac_basic        PASS          71.00           0.01       8648.30  **
+                                                         ** test_mac.test_mac_overflow     PASS     1331481.00          11.05     120507.66  **
+                                                         **************************************************************************************
+                                                         ** TESTS=2 PASS=2 FAIL=0 SKIP=0            1331552.00          11.06     120384.22  **
+                                                         **************************************************************************************
