@@ -1,0 +1,39 @@
+rm -f results.xml
+"C:/ProgramData/chocolatey/lib/make/tools/install/bin/make.exe" -f Makefile.interface results.xml
+make[1]: Entering directory 'C:/Users/kvsri/OneDrive/Desktop/ECE510/Github/Hardware-for-AI-ML/project/m2/tb'
+C:/Python314/Lib/site-packages/cocotb_tools/makefiles/simulators/Makefile.icarus:66: Using MODULE is deprecated, please use COCOTB_TEST_MODULES instead.
+rm -f results.xml
+COCOTB_TEST_MODULES=test_interface COCOTB_TESTCASE= COCOTB_TEST_FILTER= COCOTB_TOPLEVEL=interface_axi TOPLEVEL_LANG=verilog \
+         /c/iverilog/bin/vvp -M C:/Python314/Lib/site-packages/cocotb/libs -m cocotbvpi_icarus   sim_build_interface/sim.vvp   
+     -.--ns INFO     gpi                                ..mbed\gpi_embed.cpp:94   in _embed_init_python              Using Python 3.14.4 interpreter at C:/Python314/python.exe
+     -.--ns ERROR    gpi                                ..mbed\gpi_embed.cpp:155  in _embed_init_python              Unexpected sys.executable value (expected 'C:/Python314/python.exe', got 'C:\iverilog\bin\vvp.exe')
+     -.--ns INFO     gpi                                ..\gpi\GpiCommon.cpp:79   in gpi_print_registered_impl       VPI registered
+     0.00ns INFO     cocotb                             Running on Icarus Verilog version 12.0 (devel)
+     0.00ns INFO     cocotb                             Seeding Python random module with 1777867453
+     0.00ns INFO     cocotb                             Initialized cocotb v2.0.1 from C:\Python314\Lib\site-packages\cocotb
+     0.00ns INFO     cocotb.regression                  pytest not found, install it to enable better AssertionError messages
+     0.00ns INFO     cocotb                             Running tests
+     0.00ns INFO     cocotb.regression                  running test_interface.test_axil_write_read_basic (1/2)
+                                                            Multiple complete write transactions and read transactions using
+    60.00ns INFO     test                               PASS | axil_write_N_MINUS_1
+    90.00ns INFO     test                               PASS | axil_write_LEAK_RATE
+   120.00ns INFO     test                               PASS | axil_write_WIN_U
+   150.00ns INFO     test                               PASS | axil_write_X_PREV
+   180.00ns INFO     test                               PASS | axil_read_STATUS_idle  | status = 0x00000000
+   210.00ns INFO     test                               PASS | axil_read_X_NEW_zero
+   210.00ns INFO     cocotb.regression                  test_interface.test_axil_write_read_basic passed
+   210.00ns INFO     cocotb.regression                  running test_interface.test_full_neuron_via_axi (2/2)
+                                                            End-to-end M2 demonstration:
+   250.00ns INFO     test                               NumPy golden: expected x_new = 3335
+   790.00ns INFO     test                               PASS | sticky_done_via_axil_status
+   820.00ns INFO     test                               PASS | end_to_end_axi_neuron_update | x_new = 3335
+   820.00ns INFO     cocotb.regression                  test_interface.test_full_neuron_via_axi passed
+   820.00ns INFO     cocotb.regression                  ***************************************************************************************************
+                                                        ** TEST                                       STATUS  SIM TIME (ns)  REAL TIME (s)  RATIO (ns/s) **
+                                                        ***************************************************************************************************
+                                                        ** test_interface.test_axil_write_read_basic   PASS         210.00           0.00      50990.15  **
+                                                        ** test_interface.test_full_neuron_via_axi     PASS         610.00           0.01     101111.50  **
+                                                        ***************************************************************************************************
+                                                        ** TESTS=2 PASS=2 FAIL=0 SKIP=0                             820.00           0.01      69674.32  **
+                                                        ***************************************************************************************************
+make[1]: Leaving directory 'C:/Users/kvsri/OneDrive/Desktop/ECE510/Github/Hardware-for-AI-ML/project/m2/tb'
