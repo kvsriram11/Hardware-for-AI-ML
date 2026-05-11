@@ -1,8 +1,7 @@
 # CMAN: Sneak Paths in a 2x2 Resistive Crossbar
 
 **Author:** Venkata Sriram Kamarajugadda
-**Course:** ECE 410/510, Spring 2026
-**File:** `codefest/cf06/cman_sneak_path.md`
+**Course:** ECE 510, Spring 2026
 
 ## Setup
 
