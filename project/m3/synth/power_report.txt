@@ -1,0 +1,43 @@
+Power Report — M3 ESN Reservoir State Update Accelerator
+=========================================================
+
+Design      : top
+PDK         : sky130A (sky130_fd_sc_hd)
+Tool        : Yosys 0.52 (direct synthesis, no OpenROAD PnR)
+Date        : 2026-05-26
+
+STATUS: POWER ESTIMATION NOT AVAILABLE
+---------------------------------------
+
+Power estimation requires a post-PnR netlist with annotated switching
+activity (SAIF) and a full placement/routing solution to compute:
+  - Dynamic (switching) power: requires clock net capacitances + toggle rates
+  - Static (leakage) power: requires placed cell instances + corner data
+  - Internal power: requires cell-level charge/discharge waveforms
+
+The full OpenLane flow (floorplan → place → route → OpenROAD sta/power)
+was not completed in this run. Yosys direct synthesis produced a mapped
+netlist (synth_mapped_netlist.v) but without placement, net capacitances
+are unavailable, making vectorless power estimation unreliable.
+
+REFERENCE — CF06 Crossbar MAC Power (OpenLane 2.3.10, same PDK):
+-----------------------------------------------------------------
+For context, the CF06 crossbar_mac design (768 cells, 8,130 µm²) measured:
+  - Internal power    : 1.629 mW
+  - Switching power   : 2.091 mW
+  - Leakage power     : 10.2 µW
+  - Total power       : 3.720 mW
+  at nom_tt_025C_1v80, 100 MHz, default activity factor.
+
+The M3 top design is significantly larger (estimated 4,000–6,000 mapped sky130
+cells vs. 768 for crossbar_mac), so total power is expected to be in the range
+of 15–25 mW at the same PVT corner and clock frequency, dominated by the Q15
+datapath switching activity through q15_mac (1430 XOR gates, 698 XNOR gates
+visible in the pre-map stat report).
+
+NEXT STEP:
+  To obtain real power numbers, run the full OpenLane flow with Docker:
+    docker run --rm -v $(pwd):/work efabless/openlane:2.3.10 \
+      openlane /work/config.json
+  Then extract power from: runs/RUN_*/final/metrics.csv
+  fields: power__internal__total, power__switching__total, power__leakage__total

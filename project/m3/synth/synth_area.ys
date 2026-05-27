@@ -1,0 +1,23 @@
+# Area-only synthesis using techmap — skips long abc optimization
+# Gets real sky130 cell counts and chip area quickly
+
+read_verilog -sv ../rtl/top.sv
+read_verilog -sv ../../m2/rtl/interface.sv
+read_verilog -sv ../../m2/rtl/compute_core.sv
+read_verilog -sv ../../m2/rtl/q15_mac.sv
+read_verilog -sv ../../m2/rtl/q15_tanh.sv
+read_verilog -sv ../../m2/rtl/q15_blend.sv
+
+hierarchy -check -top top
+
+# Synthesize to generic gates
+synth -top top
+
+# Map FFs to sky130 (fast, no abc needed)
+dfflibmap -liberty /home/kvsri/.volare/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+# Map combinational logic with abc minimum effort
+abc -liberty /home/kvsri/.volare/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib -fast -D 10000 -script "+strash;map"
+
+# Get area with real sky130 cell areas
+stat -liberty /home/kvsri/.volare/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib -top top

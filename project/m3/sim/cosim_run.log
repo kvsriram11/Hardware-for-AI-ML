@@ -1,0 +1,46 @@
+rm -f results.xml
+"C:/ProgramData/chocolatey/lib/make/tools/install/bin/make.exe" -f Makefile results.xml
+make[1]: Entering directory 'C:/Users/kvsri/OneDrive/Desktop/ECE510/Github/Hardware-for-AI-ML/project/m3/tb'
+mkdir -p sim_build
+/c/iverilog/bin/iverilog -o sim_build/sim.vvp -s top -g2012 -g2012 -f sim_build/cmds.f -s cocotb_iverilog_dump  ../rtl/top.sv ../../m2/rtl/interface.sv ../../m2/rtl/compute_core.sv ../../m2/rtl/q15_mac.sv ../../m2/rtl/q15_tanh.sv ../../m2/rtl/q15_blend.sv sim_build/cocotb_iverilog_dump.v
+../../m2/rtl/q15_blend.sv:114: sorry: constant selects in always_* processes are not currently supported (all bits will be included).
+../../m2/rtl/compute_core.sv:227: vvp.tgt sorry: Case unique/unique0 qualities are ignored.
+../../m2/rtl/compute_core.sv:267: vvp.tgt sorry: Case unique/unique0 qualities are ignored.
+../../m2/rtl/interface.sv:256: vvp.tgt sorry: Case unique/unique0 qualities are ignored.
+../../m2/rtl/interface.sv:302: vvp.tgt sorry: Case unique/unique0 qualities are ignored.
+C:/Python314/Lib/site-packages/cocotb_tools/makefiles/simulators/Makefile.icarus:66: Using MODULE is deprecated, please use COCOTB_TEST_MODULES instead.
+rm -f results.xml
+COCOTB_TEST_MODULES=test_top COCOTB_TESTCASE= COCOTB_TEST_FILTER= COCOTB_TOPLEVEL=top TOPLEVEL_LANG=verilog \
+         /c/iverilog/bin/vvp -M C:/Python314/Lib/site-packages/cocotb/libs -m cocotbvpi_icarus   sim_build/sim.vvp -fst  
+     -.--ns INFO     gpi                                ..mbed\gpi_embed.cpp:94   in _embed_init_python              Using Python 3.14.4 interpreter at C:/Python314/python.exe
+     -.--ns ERROR    gpi                                ..mbed\gpi_embed.cpp:155  in _embed_init_python              Unexpected sys.executable value (expected 'C:/Python314/python.exe', got 'C:\iverilog\bin\vvp.exe')
+     -.--ns INFO     gpi                                ..\gpi\GpiCommon.cpp:79   in gpi_print_registered_impl       VPI registered
+     0.00ns INFO     cocotb                             Running on Icarus Verilog version 12.0 (devel)
+     0.00ns INFO     cocotb                             Seeding Python random module with 1779851102
+     0.00ns INFO     cocotb                             Initialized cocotb v2.0.1 from C:\Python314\Lib\site-packages\cocotb
+     0.00ns INFO     cocotb.regression                  pytest not found, install it to enable better AssertionError messages
+     0.00ns INFO     cocotb                             Running tests
+     0.00ns INFO     cocotb.regression                  running test_top.test_cosim_end_to_end (1/1)
+                                                            M3 co-simulation: drive top.sv from the host side through AXI ONLY,
+    30.00ns INFO     test                               GOLDEN | x_new_q15 = -2022 (0xF81A)
+    30.00ns INFO     test                               REGION A | host write transaction starts
+   150.00ns INFO     test                               REGION A | configuration writes complete
+   180.00ns INFO     test                               REGION A | start pulse issued via CTRL
+   180.00ns INFO     test                               REGION B | internal compute starts (streaming N=64 beats)
+  1465.00ns INFO     test                               REGION B | all 64 operand beats accepted by FSM
+  1465.00ns INFO     test                               REGION C | host read transaction starts
+  1520.00ns INFO     test                               REGION C | STATUS.done observed after 2 polls (status=0x00000002)
+  1550.00ns INFO     test                               REGION C | X_NEW read: dut=-2022 (0xF81A)
+  1550.00ns INFO     test                               ============================================================
+  1550.00ns INFO     test                               PASS | cosim_end_to_end | dut=-2022 golden=-2022
+  1550.00ns INFO     test                               ============================================================
+  1550.00ns INFO     cocotb.regression                  test_top.test_cosim_end_to_end passed
+  1550.00ns INFO     cocotb.regression                  ****************************************************************************************
+                                                        ** TEST                            STATUS  SIM TIME (ns)  REAL TIME (s)  RATIO (ns/s) **
+                                                        ****************************************************************************************
+                                                        ** test_top.test_cosim_end_to_end   PASS        1550.00           0.03      59674.98  **
+                                                        ****************************************************************************************
+                                                        ** TESTS=1 PASS=1 FAIL=0 SKIP=0                 1550.00           0.03      56989.82  **
+                                                        ****************************************************************************************
+FST info: dumpfile sim_build/top.fst opened for output.
+make[1]: Leaving directory 'C:/Users/kvsri/OneDrive/Desktop/ECE510/Github/Hardware-for-AI-ML/project/m3/tb'

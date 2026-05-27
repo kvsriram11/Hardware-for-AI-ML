@@ -1,0 +1,1973 @@
+
+ /----------------------------------------------------------------------------\
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+ |  Copyright (C) 2012 - 2025  Claire Xenia Wolf <claire@yosyshq.com>         |
+ |  Distributed under an ISC-like license, type "license" to see terms        |
+ \----------------------------------------------------------------------------/
+ Yosys 0.52 (git sha1 fee39a3284c90249e1d9684cf6944ffbbcbb8f90)
+
+-- Executing script file `synth_fast.ys' --
+
+1. Executing Verilog-2005 frontend: ../rtl/top.sv
+Parsing SystemVerilog input from `../rtl/top.sv' to AST representation.
+Generating RTLIL representation for module `\top'.
+Successfully finished Verilog frontend.
+
+2. Executing Verilog-2005 frontend: ../../m2/rtl/interface.sv
+Parsing SystemVerilog input from `../../m2/rtl/interface.sv' to AST representation.
+Generating RTLIL representation for module `\interface_axi'.
+Successfully finished Verilog frontend.
+
+3. Executing Verilog-2005 frontend: ../../m2/rtl/compute_core.sv
+Parsing SystemVerilog input from `../../m2/rtl/compute_core.sv' to AST representation.
+Generating RTLIL representation for module `\compute_core'.
+Successfully finished Verilog frontend.
+
+4. Executing Verilog-2005 frontend: ../../m2/rtl/q15_mac.sv
+Parsing SystemVerilog input from `../../m2/rtl/q15_mac.sv' to AST representation.
+Generating RTLIL representation for module `\q15_mac'.
+Successfully finished Verilog frontend.
+
+5. Executing Verilog-2005 frontend: ../../m2/rtl/q15_tanh.sv
+Parsing SystemVerilog input from `../../m2/rtl/q15_tanh.sv' to AST representation.
+Generating RTLIL representation for module `\q15_tanh'.
+Successfully finished Verilog frontend.
+
+6. Executing Verilog-2005 frontend: ../../m2/rtl/q15_blend.sv
+Parsing SystemVerilog input from `../../m2/rtl/q15_blend.sv' to AST representation.
+Generating RTLIL representation for module `\q15_blend'.
+Successfully finished Verilog frontend.
+
+7. Executing HIERARCHY pass (managing design hierarchy).
+
+7.1. Analyzing design hierarchy..
+Top module:  \top
+Used module:     \interface_axi
+Used module:         \compute_core
+Used module:             \q15_blend
+Used module:             \q15_tanh
+Used module:             \q15_mac
+Parameter \AXIL_ADDR_W = 8
+Parameter \AXIL_DATA_W = 32
+Parameter \AXIS_DATA_W = 32
+
+7.2. Executing AST frontend in derive mode using pre-parsed AST for module `\interface_axi'.
+Parameter \AXIL_ADDR_W = 8
+Parameter \AXIL_DATA_W = 32
+Parameter \AXIS_DATA_W = 32
+Generating RTLIL representation for module `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi'.
+
+7.3. Analyzing design hierarchy..
+Top module:  \top
+Used module:     $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi
+Used module:         \compute_core
+Used module:             \q15_blend
+Used module:             \q15_tanh
+Used module:             \q15_mac
+
+7.4. Analyzing design hierarchy..
+Top module:  \top
+Used module:     $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi
+Used module:         \compute_core
+Used module:             \q15_blend
+Used module:             \q15_tanh
+Used module:             \q15_mac
+Removing unused module `\interface_axi'.
+Removed 1 unused modules.
+
+8. Executing SYNTH pass.
+
+8.1. Executing HIERARCHY pass (managing design hierarchy).
+
+8.1.1. Analyzing design hierarchy..
+Top module:  \top
+Used module:     $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi
+Used module:         \compute_core
+Used module:             \q15_blend
+Used module:             \q15_tanh
+Used module:             \q15_mac
+
+8.1.2. Analyzing design hierarchy..
+Top module:  \top
+Used module:     $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi
+Used module:         \compute_core
+Used module:             \q15_blend
+Used module:             \q15_tanh
+Used module:             \q15_mac
+Removed 0 unused modules.
+
+8.2. Executing PROC pass (convert processes to netlists).
+
+8.2.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+8.2.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Marked 2 switch rules as full_case in process $proc$../../m2/rtl/q15_blend.sv:0$73 in module q15_blend.
+Marked 6 switch rules as full_case in process $proc$../../m2/rtl/q15_tanh.sv:0$57 in module q15_tanh.
+Marked 2 switch rules as full_case in process $proc$../../m2/rtl/q15_mac.sv:90$50 in module q15_mac.
+Marked 1 switch rules as full_case in process $proc$../../m2/rtl/compute_core.sv:259$47 in module compute_core.
+Marked 2 switch rules as full_case in process $proc$../../m2/rtl/compute_core.sv:0$44 in module compute_core.
+Marked 1 switch rules as full_case in process $proc$../../m2/rtl/compute_core.sv:215$43 in module compute_core.
+Marked 1 switch rules as full_case in process $proc$../../m2/rtl/compute_core.sv:186$36 in module compute_core.
+Marked 1 switch rules as full_case in process $proc$../../m2/rtl/compute_core.sv:150$33 in module compute_core.
+Marked 1 switch rules as full_case in process $proc$../../m2/rtl/interface.sv:293$100 in module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.
+Marked 1 switch rules as full_case in process $proc$../../m2/rtl/interface.sv:224$92 in module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.
+Marked 2 switch rules as full_case in process $proc$../../m2/rtl/interface.sv:165$76 in module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.
+Removed a total of 0 dead cases.
+
+8.2.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 4 redundant assignments.
+Promoted 3 assignments to connections.
+
+8.2.4. Executing PROC_INIT pass (extract init attributes).
+
+8.2.5. Executing PROC_ARST pass (detect async resets in processes).
+
+8.2.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+<suppressed ~39 debug messages>
+
+8.2.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `\q15_blend.$proc$../../m2/rtl/q15_blend.sv:0$73'.
+     1/2: $2\x_new[15:0]
+     2/2: $1\x_new[15:0]
+Creating decoders for process `\q15_tanh.$proc$../../m2/rtl/q15_tanh.sv:0$57'.
+     1/6: $6\tanh_out[15:0]
+     2/6: $5\tanh_out[15:0]
+     3/6: $4\tanh_out[15:0]
+     4/6: $3\tanh_out[15:0]
+     5/6: $2\tanh_out[15:0]
+     6/6: $1\tanh_out[15:0]
+Creating decoders for process `\q15_mac.$proc$../../m2/rtl/q15_mac.sv:90$50'.
+     1/1: $0\acc[31:0]
+Creating decoders for process `\compute_core.$proc$../../m2/rtl/compute_core.sv:259$47'.
+     1/5: $0\N_minus_1_reg[15:0]
+     2/5: $0\k_counter[15:0]
+     3/5: $0\x_prev_self_reg[15:0]
+     4/5: $0\win_u_reg[31:0]
+     5/5: $0\leak_rate_reg[15:0]
+Creating decoders for process `\compute_core.$proc$../../m2/rtl/compute_core.sv:0$44'.
+     1/3: $3\next_state[2:0]
+     2/3: $2\next_state[2:0]
+     3/3: $1\next_state[2:0]
+Creating decoders for process `\compute_core.$proc$../../m2/rtl/compute_core.sv:215$43'.
+     1/1: $0\state[2:0]
+Creating decoders for process `\compute_core.$proc$../../m2/rtl/compute_core.sv:186$36'.
+     1/3: $0\done_reg[0:0]
+     2/3: $0\x_new_valid_reg[0:0]
+     3/3: $0\x_new_reg[15:0]
+Creating decoders for process `\compute_core.$proc$../../m2/rtl/compute_core.sv:150$33'.
+     1/1: $0\pre_act[31:0]
+Creating decoders for process `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.$proc$../../m2/rtl/interface.sv:293$100'.
+     1/4: $0\r_pending[0:0]
+     2/4: $0\s_axil_rvalid[0:0]
+     3/4: $0\s_axil_rresp[1:0]
+     4/4: $0\s_axil_rdata[31:0]
+Creating decoders for process `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.$proc$../../m2/rtl/interface.sv:224$92'.
+     1/12: $0\start_pulse[0:0]
+     2/12: $0\b_pending[0:0]
+     3/12: $0\w_q_valid[0:0]
+     4/12: $0\wdata_q[31:0]
+     5/12: $0\aw_q_valid[0:0]
+     6/12: $0\awaddr_q[7:0]
+     7/12: $0\reg_x_prev[15:0]
+     8/12: $0\reg_win_u[31:0]
+     9/12: $0\reg_leak_rate[15:0]
+    10/12: $0\reg_n_minus_1[15:0]
+    11/12: $0\s_axil_bvalid[0:0]
+    12/12: $0\s_axil_bresp[1:0]
+Creating decoders for process `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.$proc$../../m2/rtl/interface.sv:165$76'.
+     1/2: $0\sticky_done[0:0]
+     2/2: $0\reg_x_new[15:0]
+
+8.2.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+No latch inferred for signal `\q15_blend.\x_new' from process `\q15_blend.$proc$../../m2/rtl/q15_blend.sv:0$73'.
+No latch inferred for signal `\q15_tanh.\tanh_out' from process `\q15_tanh.$proc$../../m2/rtl/q15_tanh.sv:0$57'.
+No latch inferred for signal `\compute_core.\next_state' from process `\compute_core.$proc$../../m2/rtl/compute_core.sv:0$44'.
+
+8.2.9. Executing PROC_DFF pass (convert process syncs to FFs).
+Creating register for signal `\q15_mac.\acc' using process `\q15_mac.$proc$../../m2/rtl/q15_mac.sv:90$50'.
+  created $dff cell `$procdff$418' with positive edge clock.
+Creating register for signal `\compute_core.\leak_rate_reg' using process `\compute_core.$proc$../../m2/rtl/compute_core.sv:259$47'.
+  created $dff cell `$procdff$419' with positive edge clock.
+Creating register for signal `\compute_core.\win_u_reg' using process `\compute_core.$proc$../../m2/rtl/compute_core.sv:259$47'.
+  created $dff cell `$procdff$420' with positive edge clock.
+Creating register for signal `\compute_core.\x_prev_self_reg' using process `\compute_core.$proc$../../m2/rtl/compute_core.sv:259$47'.
+  created $dff cell `$procdff$421' with positive edge clock.
+Creating register for signal `\compute_core.\k_counter' using process `\compute_core.$proc$../../m2/rtl/compute_core.sv:259$47'.
+  created $dff cell `$procdff$422' with positive edge clock.
+Creating register for signal `\compute_core.\N_minus_1_reg' using process `\compute_core.$proc$../../m2/rtl/compute_core.sv:259$47'.
+  created $dff cell `$procdff$423' with positive edge clock.
+Creating register for signal `\compute_core.\state' using process `\compute_core.$proc$../../m2/rtl/compute_core.sv:215$43'.
+  created $dff cell `$procdff$424' with positive edge clock.
+Creating register for signal `\compute_core.\x_new_reg' using process `\compute_core.$proc$../../m2/rtl/compute_core.sv:186$36'.
+  created $dff cell `$procdff$425' with positive edge clock.
+Creating register for signal `\compute_core.\x_new_valid_reg' using process `\compute_core.$proc$../../m2/rtl/compute_core.sv:186$36'.
+  created $dff cell `$procdff$426' with positive edge clock.
+Creating register for signal `\compute_core.\done_reg' using process `\compute_core.$proc$../../m2/rtl/compute_core.sv:186$36'.
+  created $dff cell `$procdff$427' with positive edge clock.
+Creating register for signal `\compute_core.\pre_act' using process `\compute_core.$proc$../../m2/rtl/compute_core.sv:150$33'.
+  created $dff cell `$procdff$428' with positive edge clock.
+Creating register for signal `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.\s_axil_rdata' using process `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.$proc$../../m2/rtl/interface.sv:293$100'.
+  created $dff cell `$procdff$429' with positive edge clock.
+Creating register for signal `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.\s_axil_rresp' using process `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.$proc$../../m2/rtl/interface.sv:293$100'.
+  created $dff cell `$procdff$430' with positive edge clock.
+Creating register for signal `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.\s_axil_rvalid' using process `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.$proc$../../m2/rtl/interface.sv:293$100'.
+  created $dff cell `$procdff$431' with positive edge clock.
+Creating register for signal `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.\r_pending' using process `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.$proc$../../m2/rtl/interface.sv:293$100'.
+  created $dff cell `$procdff$432' with positive edge clock.
+Creating register for signal `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.\s_axil_bresp' using process `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.$proc$../../m2/rtl/interface.sv:224$92'.
+  created $dff cell `$procdff$433' with positive edge clock.
+Creating register for signal `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.\s_axil_bvalid' using process `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.$proc$../../m2/rtl/interface.sv:224$92'.
+  created $dff cell `$procdff$434' with positive edge clock.
+Creating register for signal `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.\reg_n_minus_1' using process `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.$proc$../../m2/rtl/interface.sv:224$92'.
+  created $dff cell `$procdff$435' with positive edge clock.
+Creating register for signal `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.\reg_leak_rate' using process `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.$proc$../../m2/rtl/interface.sv:224$92'.
+  created $dff cell `$procdff$436' with positive edge clock.
+Creating register for signal `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.\reg_win_u' using process `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.$proc$../../m2/rtl/interface.sv:224$92'.
+  created $dff cell `$procdff$437' with positive edge clock.
+Creating register for signal `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.\reg_x_prev' using process `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.$proc$../../m2/rtl/interface.sv:224$92'.
+  created $dff cell `$procdff$438' with positive edge clock.
+Creating register for signal `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.\start_pulse' using process `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.$proc$../../m2/rtl/interface.sv:224$92'.
+  created $dff cell `$procdff$439' with positive edge clock.
+Creating register for signal `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.\awaddr_q' using process `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.$proc$../../m2/rtl/interface.sv:224$92'.
+  created $dff cell `$procdff$440' with positive edge clock.
+Creating register for signal `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.\aw_q_valid' using process `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.$proc$../../m2/rtl/interface.sv:224$92'.
+  created $dff cell `$procdff$441' with positive edge clock.
+Creating register for signal `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.\wdata_q' using process `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.$proc$../../m2/rtl/interface.sv:224$92'.
+  created $dff cell `$procdff$442' with positive edge clock.
+Creating register for signal `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.\w_q_valid' using process `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.$proc$../../m2/rtl/interface.sv:224$92'.
+  created $dff cell `$procdff$443' with positive edge clock.
+Creating register for signal `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.\b_pending' using process `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.$proc$../../m2/rtl/interface.sv:224$92'.
+  created $dff cell `$procdff$444' with positive edge clock.
+Creating register for signal `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.\reg_x_new' using process `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.$proc$../../m2/rtl/interface.sv:165$76'.
+  created $dff cell `$procdff$445' with positive edge clock.
+Creating register for signal `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.\sticky_done' using process `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.$proc$../../m2/rtl/interface.sv:165$76'.
+  created $dff cell `$procdff$446' with positive edge clock.
+
+8.2.10. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+8.2.11. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Found and cleaned up 2 empty switches in `\q15_blend.$proc$../../m2/rtl/q15_blend.sv:0$73'.
+Removing empty process `q15_blend.$proc$../../m2/rtl/q15_blend.sv:0$73'.
+Found and cleaned up 6 empty switches in `\q15_tanh.$proc$../../m2/rtl/q15_tanh.sv:0$57'.
+Removing empty process `q15_tanh.$proc$../../m2/rtl/q15_tanh.sv:0$57'.
+Found and cleaned up 3 empty switches in `\q15_mac.$proc$../../m2/rtl/q15_mac.sv:90$50'.
+Removing empty process `q15_mac.$proc$../../m2/rtl/q15_mac.sv:90$50'.
+Found and cleaned up 4 empty switches in `\compute_core.$proc$../../m2/rtl/compute_core.sv:259$47'.
+Removing empty process `compute_core.$proc$../../m2/rtl/compute_core.sv:259$47'.
+Found and cleaned up 3 empty switches in `\compute_core.$proc$../../m2/rtl/compute_core.sv:0$44'.
+Removing empty process `compute_core.$proc$../../m2/rtl/compute_core.sv:0$44'.
+Found and cleaned up 1 empty switch in `\compute_core.$proc$../../m2/rtl/compute_core.sv:215$43'.
+Removing empty process `compute_core.$proc$../../m2/rtl/compute_core.sv:215$43'.
+Found and cleaned up 3 empty switches in `\compute_core.$proc$../../m2/rtl/compute_core.sv:186$36'.
+Removing empty process `compute_core.$proc$../../m2/rtl/compute_core.sv:186$36'.
+Found and cleaned up 2 empty switches in `\compute_core.$proc$../../m2/rtl/compute_core.sv:150$33'.
+Removing empty process `compute_core.$proc$../../m2/rtl/compute_core.sv:150$33'.
+Found and cleaned up 4 empty switches in `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.$proc$../../m2/rtl/interface.sv:293$100'.
+Removing empty process `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.$proc$../../m2/rtl/interface.sv:293$100'.
+Found and cleaned up 7 empty switches in `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.$proc$../../m2/rtl/interface.sv:224$92'.
+Removing empty process `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.$proc$../../m2/rtl/interface.sv:224$92'.
+Found and cleaned up 4 empty switches in `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.$proc$../../m2/rtl/interface.sv:165$76'.
+Removing empty process `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.$proc$../../m2/rtl/interface.sv:165$76'.
+Cleaned up 39 empty switches.
+
+8.2.12. Executing OPT_EXPR pass (perform const folding).
+Optimizing module q15_blend.
+<suppressed ~1 debug messages>
+Optimizing module q15_tanh.
+<suppressed ~4 debug messages>
+Optimizing module q15_mac.
+Optimizing module compute_core.
+<suppressed ~8 debug messages>
+Optimizing module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.
+<suppressed ~1 debug messages>
+Optimizing module top.
+
+8.3. Executing OPT_EXPR pass (perform const folding).
+Optimizing module q15_blend.
+Optimizing module q15_tanh.
+Optimizing module q15_mac.
+Optimizing module compute_core.
+Optimizing module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.
+Optimizing module top.
+
+8.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \q15_blend..
+Finding unused cells or wires in module \q15_tanh..
+Finding unused cells or wires in module \q15_mac..
+Finding unused cells or wires in module \compute_core..
+Finding unused cells or wires in module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi..
+Finding unused cells or wires in module \top..
+Removed 0 unused cells and 165 unused wires.
+<suppressed ~5 debug messages>
+
+8.5. Executing CHECK pass (checking for obvious problems).
+Checking module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi...
+Checking module compute_core...
+Checking module q15_blend...
+Checking module q15_mac...
+Checking module q15_tanh...
+Checking module top...
+Found and reported 0 problems.
+
+8.6. Executing OPT pass (performing simple optimizations).
+
+8.6.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.
+Optimizing module compute_core.
+Optimizing module q15_blend.
+Optimizing module q15_mac.
+Optimizing module q15_tanh.
+Optimizing module top.
+
+8.6.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi'.
+<suppressed ~12 debug messages>
+Finding identical cells in module `\compute_core'.
+<suppressed ~39 debug messages>
+Finding identical cells in module `\q15_blend'.
+Finding identical cells in module `\q15_mac'.
+Finding identical cells in module `\q15_tanh'.
+Finding identical cells in module `\top'.
+Removed a total of 17 cells.
+
+8.6.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \compute_core..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+    dead port 2/2 on $mux $procmux$238.
+    dead port 2/2 on $mux $procmux$249.
+Running muxtree optimizer on module \q15_blend..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+    dead port 1/2 on $mux $procmux$108.
+Running muxtree optimizer on module \q15_mac..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \q15_tanh..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+    dead port 1/2 on $mux $procmux$117.
+    dead port 1/2 on $mux $procmux$120.
+    dead port 1/2 on $mux $procmux$123.
+    dead port 1/2 on $mux $procmux$126.
+    dead port 1/2 on $mux $procmux$129.
+    dead port 1/2 on $mux $procmux$135.
+    dead port 1/2 on $mux $procmux$138.
+    dead port 1/2 on $mux $procmux$141.
+    dead port 1/2 on $mux $procmux$144.
+    dead port 1/2 on $mux $procmux$150.
+    dead port 1/2 on $mux $procmux$153.
+    dead port 1/2 on $mux $procmux$156.
+    dead port 1/2 on $mux $procmux$162.
+    dead port 1/2 on $mux $procmux$165.
+    dead port 1/2 on $mux $procmux$171.
+Running muxtree optimizer on module \top..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Removed 18 multiplexer ports.
+<suppressed ~33 debug messages>
+
+8.6.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.
+  Optimizing cells in module \compute_core.
+  Optimizing cells in module \q15_blend.
+  Optimizing cells in module \q15_mac.
+  Optimizing cells in module \q15_tanh.
+  Optimizing cells in module \top.
+Performed a total of 0 changes.
+
+8.6.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi'.
+Finding identical cells in module `\compute_core'.
+<suppressed ~9 debug messages>
+Finding identical cells in module `\q15_blend'.
+Finding identical cells in module `\q15_mac'.
+Finding identical cells in module `\q15_tanh'.
+Finding identical cells in module `\top'.
+Removed a total of 3 cells.
+
+8.6.6. Executing OPT_DFF pass (perform DFF optimizations).
+
+8.6.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi..
+Finding unused cells or wires in module \compute_core..
+Finding unused cells or wires in module \q15_blend..
+Finding unused cells or wires in module \q15_mac..
+Finding unused cells or wires in module \q15_tanh..
+Finding unused cells or wires in module \top..
+Removed 0 unused cells and 36 unused wires.
+<suppressed ~4 debug messages>
+
+8.6.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.
+Optimizing module compute_core.
+Optimizing module q15_blend.
+Optimizing module q15_mac.
+Optimizing module q15_tanh.
+Optimizing module top.
+
+8.6.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+8.6.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \compute_core..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \q15_blend..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \q15_mac..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \q15_tanh..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \top..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Removed 0 multiplexer ports.
+<suppressed ~32 debug messages>
+
+8.6.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.
+  Optimizing cells in module \compute_core.
+  Optimizing cells in module \q15_blend.
+  Optimizing cells in module \q15_mac.
+  Optimizing cells in module \q15_tanh.
+  Optimizing cells in module \top.
+Performed a total of 0 changes.
+
+8.6.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi'.
+Finding identical cells in module `\compute_core'.
+Finding identical cells in module `\q15_blend'.
+Finding identical cells in module `\q15_mac'.
+Finding identical cells in module `\q15_tanh'.
+Finding identical cells in module `\top'.
+Removed a total of 0 cells.
+
+8.6.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+8.6.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi..
+Finding unused cells or wires in module \compute_core..
+Finding unused cells or wires in module \q15_blend..
+Finding unused cells or wires in module \q15_mac..
+Finding unused cells or wires in module \q15_tanh..
+Finding unused cells or wires in module \top..
+
+8.6.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.
+Optimizing module compute_core.
+Optimizing module q15_blend.
+Optimizing module q15_mac.
+Optimizing module q15_tanh.
+Optimizing module top.
+
+8.6.16. Finished OPT passes. (There is nothing left to do.)
+
+8.7. Executing FSM pass (extract and optimize FSM).
+
+8.7.1. Executing FSM_DETECT pass (finding FSMs in design).
+Not marking $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.s_axil_bresp as FSM state register:
+    Register is connected to module port.
+    Users of register don't seem to benefit from recoding.
+Not marking $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.s_axil_rresp as FSM state register:
+    Register is connected to module port.
+    Users of register don't seem to benefit from recoding.
+Not marking compute_core.state as FSM state register:
+    Users of register don't seem to benefit from recoding.
+
+8.7.2. Executing FSM_EXTRACT pass (extracting FSM from design).
+
+8.7.3. Executing FSM_OPT pass (simple optimizations of FSMs).
+
+8.7.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi..
+Finding unused cells or wires in module \compute_core..
+Finding unused cells or wires in module \q15_blend..
+Finding unused cells or wires in module \q15_mac..
+Finding unused cells or wires in module \q15_tanh..
+Finding unused cells or wires in module \top..
+
+8.7.5. Executing FSM_OPT pass (simple optimizations of FSMs).
+
+8.7.6. Executing FSM_RECODE pass (re-assigning FSM state encoding).
+
+8.7.7. Executing FSM_INFO pass (dumping all available information on FSM cells).
+
+8.7.8. Executing FSM_MAP pass (mapping FSMs to basic logic).
+
+8.8. Executing OPT pass (performing simple optimizations).
+
+8.8.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.
+Optimizing module compute_core.
+Optimizing module q15_blend.
+Optimizing module q15_mac.
+Optimizing module q15_tanh.
+Optimizing module top.
+
+8.8.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi'.
+Finding identical cells in module `\compute_core'.
+Finding identical cells in module `\q15_blend'.
+Finding identical cells in module `\q15_mac'.
+Finding identical cells in module `\q15_tanh'.
+Finding identical cells in module `\top'.
+Removed a total of 0 cells.
+
+8.8.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \compute_core..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \q15_blend..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \q15_mac..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \q15_tanh..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \top..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Removed 0 multiplexer ports.
+<suppressed ~32 debug messages>
+
+8.8.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.
+  Optimizing cells in module \compute_core.
+  Optimizing cells in module \q15_blend.
+  Optimizing cells in module \q15_mac.
+  Optimizing cells in module \q15_tanh.
+  Optimizing cells in module \top.
+Performed a total of 0 changes.
+
+8.8.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi'.
+Finding identical cells in module `\compute_core'.
+Finding identical cells in module `\q15_blend'.
+Finding identical cells in module `\q15_mac'.
+Finding identical cells in module `\q15_tanh'.
+Finding identical cells in module `\top'.
+Removed a total of 0 cells.
+
+8.8.6. Executing OPT_DFF pass (perform DFF optimizations).
+Adding SRST signal on $procdff$446 ($dff) from module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi (D = $procmux$408_Y, Q = \sticky_done, rval = 1'0).
+Adding EN signal on $auto$ff.cc:266:slice$447 ($sdff) from module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi (D = $procmux$408_Y, Q = \sticky_done).
+Adding SRST signal on $procdff$445 ($dff) from module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi (D = $procmux$413_Y, Q = \reg_x_new, rval = 16'0000000000000000).
+Adding EN signal on $auto$ff.cc:266:slice$451 ($sdff) from module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi (D = \core_x_new, Q = \reg_x_new).
+Adding SRST signal on $procdff$444 ($dff) from module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi (D = $procmux$324_Y, Q = \b_pending, rval = 1'0).
+Adding EN signal on $auto$ff.cc:266:slice$453 ($sdff) from module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi (D = 1'1, Q = \b_pending).
+Adding SRST signal on $procdff$443 ($dff) from module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi (D = $procmux$331_Y, Q = \w_q_valid, rval = 1'0).
+Adding EN signal on $auto$ff.cc:266:slice$457 ($sdff) from module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi (D = 1'1, Q = \w_q_valid).
+Adding SRST signal on $procdff$442 ($dff) from module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi (D = $procmux$338_Y, Q = \wdata_q, rval = 0).
+Adding EN signal on $auto$ff.cc:266:slice$461 ($sdff) from module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi (D = \s_axil_wdata, Q = \wdata_q).
+Adding SRST signal on $procdff$441 ($dff) from module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi (D = $procmux$343_Y, Q = \aw_q_valid, rval = 1'0).
+Adding EN signal on $auto$ff.cc:266:slice$463 ($sdff) from module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi (D = 1'1, Q = \aw_q_valid).
+Adding SRST signal on $procdff$440 ($dff) from module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi (D = $procmux$350_Y, Q = \awaddr_q, rval = 8'00000000).
+Adding EN signal on $auto$ff.cc:266:slice$467 ($sdff) from module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi (D = \s_axil_awaddr, Q = \awaddr_q).
+Adding SRST signal on $procdff$439 ($dff) from module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi (D = $procmux$315_Y, Q = \start_pulse, rval = 1'0).
+Adding SRST signal on $procdff$438 ($dff) from module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi (D = $procmux$358_Y, Q = \reg_x_prev, rval = 16'0000000000000000).
+Adding EN signal on $auto$ff.cc:266:slice$476 ($sdff) from module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi (D = \write_data [15:0], Q = \reg_x_prev).
+Adding SRST signal on $procdff$437 ($dff) from module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi (D = $procmux$367_Y, Q = \reg_win_u, rval = 0).
+Adding EN signal on $auto$ff.cc:266:slice$480 ($sdff) from module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi (D = \write_data, Q = \reg_win_u).
+Adding SRST signal on $procdff$436 ($dff) from module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi (D = $procmux$377_Y, Q = \reg_leak_rate, rval = 16'0000000000000000).
+Adding EN signal on $auto$ff.cc:266:slice$484 ($sdff) from module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi (D = \write_data [15:0], Q = \reg_leak_rate).
+Adding SRST signal on $procdff$435 ($dff) from module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi (D = $procmux$388_Y, Q = \reg_n_minus_1, rval = 16'0000000000000000).
+Adding EN signal on $auto$ff.cc:266:slice$488 ($sdff) from module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi (D = \write_data [15:0], Q = \reg_n_minus_1).
+Adding SRST signal on $procdff$434 ($dff) from module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi (D = $procmux$393_Y, Q = \s_axil_bvalid, rval = 1'0).
+Adding EN signal on $auto$ff.cc:266:slice$492 ($sdff) from module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi (D = 1'1, Q = \s_axil_bvalid).
+Adding SRST signal on $procdff$433 ($dff) from module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi (D = $procmux$400_Y, Q = \s_axil_bresp, rval = 2'00).
+Adding EN signal on $auto$ff.cc:266:slice$496 ($sdff) from module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi (D = 2'00, Q = \s_axil_bresp).
+Adding SRST signal on $procdff$432 ($dff) from module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi (D = $procmux$282_Y, Q = \r_pending, rval = 1'0).
+Adding EN signal on $auto$ff.cc:266:slice$498 ($sdff) from module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi (D = 1'1, Q = \r_pending).
+Adding SRST signal on $procdff$431 ($dff) from module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi (D = $procmux$289_Y, Q = \s_axil_rvalid, rval = 1'0).
+Adding EN signal on $auto$ff.cc:266:slice$502 ($sdff) from module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi (D = 1'1, Q = \s_axil_rvalid).
+Adding SRST signal on $procdff$430 ($dff) from module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi (D = $procmux$296_Y, Q = \s_axil_rresp, rval = 2'00).
+Adding EN signal on $auto$ff.cc:266:slice$506 ($sdff) from module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi (D = 2'00, Q = \s_axil_rresp).
+Adding SRST signal on $procdff$429 ($dff) from module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi (D = $procmux$305_Y, Q = \s_axil_rdata, rval = 0).
+Adding EN signal on $auto$ff.cc:266:slice$508 ($sdff) from module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi (D = $procmux$302_Y, Q = \s_axil_rdata).
+Setting constant 0-bit at position 0 on $auto$ff.cc:266:slice$507 ($sdffe) from module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.
+Setting constant 0-bit at position 1 on $auto$ff.cc:266:slice$507 ($sdffe) from module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.
+Setting constant 0-bit at position 0 on $auto$ff.cc:266:slice$497 ($sdffe) from module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.
+Setting constant 0-bit at position 1 on $auto$ff.cc:266:slice$497 ($sdffe) from module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.
+Adding SRST signal on $procdff$428 ($dff) from module compute_core (D = $procmux$277_Y, Q = \pre_act, rval = 0).
+Adding EN signal on $auto$ff.cc:266:slice$510 ($sdff) from module compute_core (D = $add$../../m2/rtl/compute_core.sv:154$35_Y, Q = \pre_act).
+Adding SRST signal on $procdff$426 ($dff) from module compute_core (D = $procmux$262_Y, Q = \x_new_valid_reg, rval = 1'0).
+Adding SRST signal on $procdff$425 ($dff) from module compute_core (D = $procmux$272_Y, Q = \x_new_reg, rval = 16'0000000000000000).
+Adding EN signal on $auto$ff.cc:266:slice$513 ($sdff) from module compute_core (D = \blend_out, Q = \x_new_reg).
+Adding SRST signal on $procdff$424 ($dff) from module compute_core (D = \next_state, Q = \state, rval = 3'000).
+Adding EN signal on $auto$ff.cc:266:slice$515 ($sdff) from module compute_core (D = \next_state, Q = \state).
+Adding SRST signal on $procdff$423 ($dff) from module compute_core (D = $procmux$188_Y, Q = \N_minus_1_reg, rval = 16'0000000000000000).
+Adding EN signal on $auto$ff.cc:266:slice$523 ($sdff) from module compute_core (D = \N_minus_1, Q = \N_minus_1_reg).
+Adding SRST signal on $procdff$422 ($dff) from module compute_core (D = $procmux$196_Y, Q = \k_counter, rval = 16'0000000000000000).
+Adding EN signal on $auto$ff.cc:266:slice$527 ($sdff) from module compute_core (D = $procmux$196_Y, Q = \k_counter).
+Adding SRST signal on $procdff$421 ($dff) from module compute_core (D = $procmux$208_Y, Q = \x_prev_self_reg, rval = 16'0000000000000000).
+Adding EN signal on $auto$ff.cc:266:slice$537 ($sdff) from module compute_core (D = \x_prev_self, Q = \x_prev_self_reg).
+Adding SRST signal on $procdff$420 ($dff) from module compute_core (D = $procmux$217_Y, Q = \win_u_reg, rval = 0).
+Adding EN signal on $auto$ff.cc:266:slice$541 ($sdff) from module compute_core (D = \win_u, Q = \win_u_reg).
+Adding SRST signal on $procdff$419 ($dff) from module compute_core (D = $procmux$226_Y, Q = \leak_rate_reg, rval = 16'0000000000000000).
+Adding EN signal on $auto$ff.cc:266:slice$545 ($sdff) from module compute_core (D = \leak_rate, Q = \leak_rate_reg).
+Adding SRST signal on $procdff$418 ($dff) from module q15_mac (D = $procmux$176_Y, Q = \acc, rval = 0).
+Adding EN signal on $auto$ff.cc:266:slice$549 ($sdff) from module q15_mac (D = $add$../../m2/rtl/q15_mac.sv:96$51_Y, Q = \acc).
+
+8.8.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi..
+Finding unused cells or wires in module \compute_core..
+Finding unused cells or wires in module \q15_blend..
+Finding unused cells or wires in module \q15_mac..
+Finding unused cells or wires in module \q15_tanh..
+Finding unused cells or wires in module \top..
+Removed 68 unused cells and 68 unused wires.
+<suppressed ~71 debug messages>
+
+8.8.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.
+<suppressed ~1 debug messages>
+Optimizing module compute_core.
+<suppressed ~1 debug messages>
+Optimizing module q15_blend.
+Optimizing module q15_mac.
+Optimizing module q15_tanh.
+Optimizing module top.
+
+8.8.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+8.8.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \compute_core..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \q15_blend..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \q15_mac..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Running muxtree optimizer on module \q15_tanh..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \top..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Removed 0 multiplexer ports.
+<suppressed ~10 debug messages>
+
+8.8.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.
+  Optimizing cells in module \compute_core.
+  Optimizing cells in module \q15_blend.
+  Optimizing cells in module \q15_mac.
+  Optimizing cells in module \q15_tanh.
+  Optimizing cells in module \top.
+Performed a total of 0 changes.
+
+8.8.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi'.
+<suppressed ~15 debug messages>
+Finding identical cells in module `\compute_core'.
+<suppressed ~12 debug messages>
+Finding identical cells in module `\q15_blend'.
+Finding identical cells in module `\q15_mac'.
+Finding identical cells in module `\q15_tanh'.
+Finding identical cells in module `\top'.
+Removed a total of 9 cells.
+
+8.8.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+8.8.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi..
+Finding unused cells or wires in module \compute_core..
+Finding unused cells or wires in module \q15_blend..
+Finding unused cells or wires in module \q15_mac..
+Finding unused cells or wires in module \q15_tanh..
+Finding unused cells or wires in module \top..
+Removed 0 unused cells and 7 unused wires.
+<suppressed ~2 debug messages>
+
+8.8.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.
+Optimizing module compute_core.
+Optimizing module q15_blend.
+Optimizing module q15_mac.
+Optimizing module q15_tanh.
+Optimizing module top.
+
+8.8.16. Rerunning OPT passes. (Maybe there is more to do..)
+
+8.8.17. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \compute_core..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \q15_blend..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \q15_mac..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Running muxtree optimizer on module \q15_tanh..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \top..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Removed 0 multiplexer ports.
+<suppressed ~10 debug messages>
+
+8.8.18. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.
+  Optimizing cells in module \compute_core.
+  Optimizing cells in module \q15_blend.
+  Optimizing cells in module \q15_mac.
+  Optimizing cells in module \q15_tanh.
+  Optimizing cells in module \top.
+Performed a total of 0 changes.
+
+8.8.19. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi'.
+Finding identical cells in module `\compute_core'.
+Finding identical cells in module `\q15_blend'.
+Finding identical cells in module `\q15_mac'.
+Finding identical cells in module `\q15_tanh'.
+Finding identical cells in module `\top'.
+Removed a total of 0 cells.
+
+8.8.20. Executing OPT_DFF pass (perform DFF optimizations).
+
+8.8.21. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi..
+Finding unused cells or wires in module \compute_core..
+Finding unused cells or wires in module \q15_blend..
+Finding unused cells or wires in module \q15_mac..
+Finding unused cells or wires in module \q15_tanh..
+Finding unused cells or wires in module \top..
+
+8.8.22. Executing OPT_EXPR pass (perform const folding).
+Optimizing module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.
+Optimizing module compute_core.
+Optimizing module q15_blend.
+Optimizing module q15_mac.
+Optimizing module q15_tanh.
+Optimizing module top.
+
+8.8.23. Finished OPT passes. (There is nothing left to do.)
+
+8.9. Executing WREDUCE pass (reducing word size of cells).
+Removed top 3 bits (of 8) from port B of cell $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.$procmux$303_CMP0 ($eq).
+Removed top 5 bits (of 8) from port B of cell $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.$procmux$304_CMP0 ($eq).
+Removed top 3 bits (of 8) from port B of cell $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.$procmux$357_CMP0 ($eq).
+Removed top 3 bits (of 8) from port B of cell $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.$procmux$366_CMP0 ($eq).
+Removed top 4 bits (of 8) from port B of cell $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.$procmux$376_CMP0 ($eq).
+Removed top 4 bits (of 8) from port B of cell $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.$procmux$387_CMP0 ($eq).
+Removed top 1 bits (of 3) from port B of cell compute_core.$eq$../../m2/rtl/compute_core.sv:130$29 ($eq).
+Removed top 2 bits (of 3) from port B of cell compute_core.$eq$../../m2/rtl/compute_core.sv:132$32 ($eq).
+Removed top 1 bits (of 3) from port B of cell compute_core.$eq$../../m2/rtl/compute_core.sv:153$34 ($eq).
+Removed top 15 bits (of 16) from port B of cell compute_core.$add$../../m2/rtl/compute_core.sv:280$48 ($add).
+Removed top 1 bits (of 2) from port B of cell compute_core.$auto$opt_dff.cc:195:make_patterns_logic$534 ($ne).
+Removed top 1 bits (of 2) from port B of cell compute_core.$auto$opt_dff.cc:195:make_patterns_logic$520 ($ne).
+Removed top 15 bits (of 32) from port A of cell q15_blend.$gt$../../m2/rtl/q15_blend.sv:115$74 ($gt).
+Removed top 16 bits (of 32) from port B of cell q15_blend.$gt$../../m2/rtl/q15_blend.sv:115$74 ($gt).
+Removed top 15 bits (of 32) from port A of cell q15_blend.$lt$../../m2/rtl/q15_blend.sv:117$75 ($lt).
+Removed top 16 bits (of 32) from port B of cell q15_blend.$lt$../../m2/rtl/q15_blend.sv:117$75 ($lt).
+Removed top 2 bits (of 16) from port B of cell q15_tanh.$add$../../m2/rtl/q15_tanh.sv:125$56 ($add).
+Removed top 1 bits (of 16) from port A of cell q15_tanh.$add$../../m2/rtl/q15_tanh.sv:137$60 ($add).
+Removed top 1 bits (of 32) from port B of cell q15_tanh.$ge$../../m2/rtl/q15_tanh.sv:139$61 ($ge).
+Removed top 3 bits (of 16) from port B of cell q15_tanh.$add$../../m2/rtl/q15_tanh.sv:141$62 ($add).
+Removed top 2 bits (of 32) from port B of cell q15_tanh.$gt$../../m2/rtl/q15_tanh.sv:143$63 ($gt).
+Removed top 1 bits (of 32) from port B of cell q15_tanh.$gt$../../m2/rtl/q15_tanh.sv:147$64 ($gt).
+Removed top 3 bits (of 16) from port B of cell q15_tanh.$add$../../m2/rtl/q15_tanh.sv:149$65 ($add).
+Converting cell q15_tanh.$add$../../m2/rtl/q15_tanh.sv:153$67 ($add) from unsigned to signed.
+Removed top 1 bits (of 16) from port A of cell q15_tanh.$add$../../m2/rtl/q15_tanh.sv:153$67 ($add).
+Removed top 1 bits (of 16) from port B of cell q15_tanh.$add$../../m2/rtl/q15_tanh.sv:153$67 ($add).
+
+8.10. Executing PEEPOPT pass (run peephole optimizers).
+
+8.11. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi..
+Finding unused cells or wires in module \compute_core..
+Finding unused cells or wires in module \q15_blend..
+Finding unused cells or wires in module \q15_mac..
+Finding unused cells or wires in module \q15_tanh..
+Finding unused cells or wires in module \top..
+
+8.12. Executing ALUMACC pass (create $alu and $macc cells).
+Extracting $alu and $macc cells in module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi:
+  created 0 $alu and 0 $macc cells.
+Extracting $alu and $macc cells in module compute_core:
+  creating $macc model for $add$../../m2/rtl/compute_core.sv:154$35 ($add).
+  creating $macc model for $add$../../m2/rtl/compute_core.sv:280$48 ($add).
+  creating $alu model for $macc $add$../../m2/rtl/compute_core.sv:280$48.
+  creating $alu model for $macc $add$../../m2/rtl/compute_core.sv:154$35.
+  creating $alu cell for $add$../../m2/rtl/compute_core.sv:154$35: $auto$alumacc.cc:495:replace_alu$553
+  creating $alu cell for $add$../../m2/rtl/compute_core.sv:280$48: $auto$alumacc.cc:495:replace_alu$556
+  created 2 $alu and 0 $macc cells.
+Extracting $alu and $macc cells in module q15_blend:
+  creating $macc model for $add$../../m2/rtl/q15_blend.sv:107$71 ($add).
+  creating $macc model for $mul$../../m2/rtl/q15_blend.sv:96$69 ($mul).
+  creating $macc model for $mul$../../m2/rtl/q15_blend.sv:97$70 ($mul).
+  creating $macc model for $sub$../../m2/rtl/q15_blend.sv:88$68 ($sub).
+  merging $macc model for $mul$../../m2/rtl/q15_blend.sv:96$69 into $add$../../m2/rtl/q15_blend.sv:107$71.
+  merging $macc model for $mul$../../m2/rtl/q15_blend.sv:97$70 into $add$../../m2/rtl/q15_blend.sv:107$71.
+  creating $alu model for $macc $sub$../../m2/rtl/q15_blend.sv:88$68.
+  creating $macc cell for $add$../../m2/rtl/q15_blend.sv:107$71: $auto$alumacc.cc:365:replace_macc$559
+  creating $alu model for $gt$../../m2/rtl/q15_blend.sv:115$74 ($gt): new $alu
+  creating $alu model for $lt$../../m2/rtl/q15_blend.sv:117$75 ($lt): new $alu
+  creating $alu cell for $lt$../../m2/rtl/q15_blend.sv:117$75: $auto$alumacc.cc:495:replace_alu$562
+  creating $alu cell for $gt$../../m2/rtl/q15_blend.sv:115$74: $auto$alumacc.cc:495:replace_alu$569
+  creating $alu cell for $sub$../../m2/rtl/q15_blend.sv:88$68: $auto$alumacc.cc:495:replace_alu$582
+  created 3 $alu and 1 $macc cells.
+Extracting $alu and $macc cells in module q15_mac:
+  creating $macc model for $add$../../m2/rtl/q15_mac.sv:96$51 ($add).
+  creating $macc model for $mul$../../m2/rtl/q15_mac.sv:77$49 ($mul).
+  merging $macc model for $mul$../../m2/rtl/q15_mac.sv:77$49 into $add$../../m2/rtl/q15_mac.sv:96$51.
+  creating $macc cell for $add$../../m2/rtl/q15_mac.sv:96$51: $auto$alumacc.cc:365:replace_macc$585
+  created 0 $alu and 1 $macc cells.
+Extracting $alu and $macc cells in module q15_tanh:
+  creating $macc model for $add$../../m2/rtl/q15_tanh.sv:125$56 ($add).
+  creating $macc model for $add$../../m2/rtl/q15_tanh.sv:137$60 ($add).
+  creating $macc model for $add$../../m2/rtl/q15_tanh.sv:141$62 ($add).
+  creating $macc model for $add$../../m2/rtl/q15_tanh.sv:149$65 ($add).
+  creating $macc model for $add$../../m2/rtl/q15_tanh.sv:153$67 ($add).
+  creating $alu model for $macc $add$../../m2/rtl/q15_tanh.sv:153$67.
+  creating $alu model for $macc $add$../../m2/rtl/q15_tanh.sv:149$65.
+  creating $alu model for $macc $add$../../m2/rtl/q15_tanh.sv:141$62.
+  creating $alu model for $macc $add$../../m2/rtl/q15_tanh.sv:137$60.
+  creating $alu model for $macc $add$../../m2/rtl/q15_tanh.sv:125$56.
+  creating $alu model for $ge$../../m2/rtl/q15_tanh.sv:131$58 ($ge): new $alu
+  creating $alu model for $ge$../../m2/rtl/q15_tanh.sv:135$59 ($ge): new $alu
+  creating $alu model for $ge$../../m2/rtl/q15_tanh.sv:139$61 ($ge): new $alu
+  creating $alu model for $gt$../../m2/rtl/q15_tanh.sv:143$63 ($gt): new $alu
+  creating $alu model for $gt$../../m2/rtl/q15_tanh.sv:147$64 ($gt): new $alu
+  creating $alu model for $gt$../../m2/rtl/q15_tanh.sv:151$66 ($gt): new $alu
+  creating $alu cell for $gt$../../m2/rtl/q15_tanh.sv:151$66: $auto$alumacc.cc:495:replace_alu$592
+  creating $alu cell for $gt$../../m2/rtl/q15_tanh.sv:147$64: $auto$alumacc.cc:495:replace_alu$605
+  creating $alu cell for $gt$../../m2/rtl/q15_tanh.sv:143$63: $auto$alumacc.cc:495:replace_alu$618
+  creating $alu cell for $ge$../../m2/rtl/q15_tanh.sv:139$61: $auto$alumacc.cc:495:replace_alu$631
+  creating $alu cell for $ge$../../m2/rtl/q15_tanh.sv:135$59: $auto$alumacc.cc:495:replace_alu$646
+  creating $alu cell for $ge$../../m2/rtl/q15_tanh.sv:131$58: $auto$alumacc.cc:495:replace_alu$661
+  creating $alu cell for $add$../../m2/rtl/q15_tanh.sv:125$56: $auto$alumacc.cc:495:replace_alu$676
+  creating $alu cell for $add$../../m2/rtl/q15_tanh.sv:137$60: $auto$alumacc.cc:495:replace_alu$679
+  creating $alu cell for $add$../../m2/rtl/q15_tanh.sv:141$62: $auto$alumacc.cc:495:replace_alu$682
+  creating $alu cell for $add$../../m2/rtl/q15_tanh.sv:149$65: $auto$alumacc.cc:495:replace_alu$685
+  creating $alu cell for $add$../../m2/rtl/q15_tanh.sv:153$67: $auto$alumacc.cc:495:replace_alu$688
+  created 11 $alu and 0 $macc cells.
+Extracting $alu and $macc cells in module top:
+  created 0 $alu and 0 $macc cells.
+
+8.13. Executing SHARE pass (SAT-based resource sharing).
+Found 2 cells in module q15_blend that may be considered for resource sharing.
+  Analyzing resource sharing options for $mul$../../m2/rtl/q15_blend.sv:97$70 ($mul):
+    Found cell that is never activated: $mul$../../m2/rtl/q15_blend.sv:97$70
+    Cell is never active. Sharing is pointless, we simply remove it.
+  Analyzing resource sharing options for $mul$../../m2/rtl/q15_blend.sv:96$69 ($mul):
+    Found cell that is never activated: $mul$../../m2/rtl/q15_blend.sv:96$69
+    Cell is never active. Sharing is pointless, we simply remove it.
+Removing 2 cells in module q15_blend:
+  Removing cell $mul$../../m2/rtl/q15_blend.sv:96$69 ($mul).
+  Removing cell $mul$../../m2/rtl/q15_blend.sv:97$70 ($mul).
+
+8.14. Executing OPT pass (performing simple optimizations).
+
+8.14.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.
+Optimizing module compute_core.
+Optimizing module q15_blend.
+<suppressed ~1 debug messages>
+Optimizing module q15_mac.
+Optimizing module q15_tanh.
+<suppressed ~3 debug messages>
+Optimizing module top.
+
+8.14.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi'.
+Finding identical cells in module `\compute_core'.
+Finding identical cells in module `\q15_blend'.
+Finding identical cells in module `\q15_mac'.
+Finding identical cells in module `\q15_tanh'.
+Finding identical cells in module `\top'.
+Removed a total of 0 cells.
+
+8.14.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \compute_core..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \q15_blend..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \q15_mac..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Running muxtree optimizer on module \q15_tanh..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \top..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Removed 0 multiplexer ports.
+<suppressed ~10 debug messages>
+
+8.14.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.
+  Optimizing cells in module \compute_core.
+  Optimizing cells in module \q15_blend.
+  Optimizing cells in module \q15_mac.
+  Optimizing cells in module \q15_tanh.
+  Optimizing cells in module \top.
+Performed a total of 0 changes.
+
+8.14.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi'.
+Finding identical cells in module `\compute_core'.
+Finding identical cells in module `\q15_blend'.
+Finding identical cells in module `\q15_mac'.
+Finding identical cells in module `\q15_tanh'.
+Finding identical cells in module `\top'.
+Removed a total of 0 cells.
+
+8.14.6. Executing OPT_DFF pass (perform DFF optimizations).
+
+8.14.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi..
+Finding unused cells or wires in module \compute_core..
+Finding unused cells or wires in module \q15_blend..
+Finding unused cells or wires in module \q15_mac..
+Finding unused cells or wires in module \q15_tanh..
+Finding unused cells or wires in module \top..
+Removed 5 unused cells and 13 unused wires.
+<suppressed ~8 debug messages>
+
+8.14.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.
+Optimizing module compute_core.
+Optimizing module q15_blend.
+Optimizing module q15_mac.
+Optimizing module q15_tanh.
+Optimizing module top.
+
+8.14.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+8.14.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \compute_core..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \q15_blend..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \q15_mac..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Running muxtree optimizer on module \q15_tanh..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \top..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Removed 0 multiplexer ports.
+<suppressed ~10 debug messages>
+
+8.14.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.
+  Optimizing cells in module \compute_core.
+  Optimizing cells in module \q15_blend.
+  Optimizing cells in module \q15_mac.
+  Optimizing cells in module \q15_tanh.
+  Optimizing cells in module \top.
+Performed a total of 0 changes.
+
+8.14.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi'.
+Finding identical cells in module `\compute_core'.
+Finding identical cells in module `\q15_blend'.
+Finding identical cells in module `\q15_mac'.
+Finding identical cells in module `\q15_tanh'.
+Finding identical cells in module `\top'.
+Removed a total of 0 cells.
+
+8.14.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+8.14.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi..
+Finding unused cells or wires in module \compute_core..
+Finding unused cells or wires in module \q15_blend..
+Finding unused cells or wires in module \q15_mac..
+Finding unused cells or wires in module \q15_tanh..
+Finding unused cells or wires in module \top..
+
+8.14.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.
+Optimizing module compute_core.
+Optimizing module q15_blend.
+Optimizing module q15_mac.
+Optimizing module q15_tanh.
+Optimizing module top.
+
+8.14.16. Finished OPT passes. (There is nothing left to do.)
+
+8.15. Executing MEMORY pass.
+
+8.15.1. Executing OPT_MEM pass (optimize memories).
+Performed a total of 0 transformations.
+
+8.15.2. Executing OPT_MEM_PRIORITY pass (removing unnecessary memory write priority relations).
+Performed a total of 0 transformations.
+
+8.15.3. Executing OPT_MEM_FEEDBACK pass (finding memory read-to-write feedback paths).
+
+8.15.4. Executing MEMORY_BMUX2ROM pass (converting muxes to ROMs).
+
+8.15.5. Executing MEMORY_DFF pass (merging $dff cells to $memrd).
+
+8.15.6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi..
+Finding unused cells or wires in module \compute_core..
+Finding unused cells or wires in module \q15_blend..
+Finding unused cells or wires in module \q15_mac..
+Finding unused cells or wires in module \q15_tanh..
+Finding unused cells or wires in module \top..
+
+8.15.7. Executing MEMORY_SHARE pass (consolidating $memrd/$memwr cells).
+
+8.15.8. Executing OPT_MEM_WIDEN pass (optimize memories where all ports are wide).
+Performed a total of 0 transformations.
+
+8.15.9. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi..
+Finding unused cells or wires in module \compute_core..
+Finding unused cells or wires in module \q15_blend..
+Finding unused cells or wires in module \q15_mac..
+Finding unused cells or wires in module \q15_tanh..
+Finding unused cells or wires in module \top..
+
+8.15.10. Executing MEMORY_COLLECT pass (generating $mem cells).
+
+8.16. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi..
+Finding unused cells or wires in module \compute_core..
+Finding unused cells or wires in module \q15_blend..
+Finding unused cells or wires in module \q15_mac..
+Finding unused cells or wires in module \q15_tanh..
+Finding unused cells or wires in module \top..
+
+8.17. Executing OPT pass (performing simple optimizations).
+
+8.17.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.
+<suppressed ~4 debug messages>
+Optimizing module compute_core.
+<suppressed ~6 debug messages>
+Optimizing module q15_blend.
+<suppressed ~2 debug messages>
+Optimizing module q15_mac.
+Optimizing module q15_tanh.
+<suppressed ~10 debug messages>
+Optimizing module top.
+
+8.17.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi'.
+Finding identical cells in module `\compute_core'.
+Finding identical cells in module `\q15_blend'.
+Finding identical cells in module `\q15_mac'.
+Finding identical cells in module `\q15_tanh'.
+<suppressed ~354 debug messages>
+Finding identical cells in module `\top'.
+Removed a total of 118 cells.
+
+8.17.3. Executing OPT_DFF pass (perform DFF optimizations).
+
+8.17.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi..
+Finding unused cells or wires in module \compute_core..
+Finding unused cells or wires in module \q15_blend..
+Finding unused cells or wires in module \q15_mac..
+Finding unused cells or wires in module \q15_tanh..
+Finding unused cells or wires in module \top..
+Removed 15 unused cells and 188 unused wires.
+<suppressed ~19 debug messages>
+
+8.17.5. Finished fast OPT passes.
+
+8.18. Executing MEMORY_MAP pass (converting memories to logic and flip-flops).
+
+8.19. Executing OPT pass (performing simple optimizations).
+
+8.19.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.
+Optimizing module compute_core.
+Optimizing module q15_blend.
+Optimizing module q15_mac.
+Optimizing module q15_tanh.
+Optimizing module top.
+
+8.19.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi'.
+Finding identical cells in module `\compute_core'.
+Finding identical cells in module `\q15_blend'.
+Finding identical cells in module `\q15_mac'.
+Finding identical cells in module `\q15_tanh'.
+Finding identical cells in module `\top'.
+Removed a total of 0 cells.
+
+8.19.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \compute_core..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \q15_blend..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \q15_mac..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Running muxtree optimizer on module \q15_tanh..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \top..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Removed 0 multiplexer ports.
+<suppressed ~7 debug messages>
+
+8.19.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.
+    Consolidated identical input bits for $pmux cell $procmux$302:
+      Old ports: A=0, B={ 30'000000000000000000000000000000 \sticky_done \core_busy \reg_x_new [15] \reg_x_new [15] \reg_x_new [15] \reg_x_new [15] \reg_x_new [15] \reg_x_new [15] \reg_x_new [15] \reg_x_new [15] \reg_x_new [15] \reg_x_new [15] \reg_x_new [15] \reg_x_new [15] \reg_x_new [15] \reg_x_new [15] \reg_x_new [15] \reg_x_new [15] \reg_x_new }, Y=$procmux$302_Y
+      New ports: A=16'0000000000000000, B={ 14'00000000000000 \sticky_done \core_busy \reg_x_new }, Y=$procmux$302_Y [15:0]
+      New connections: $procmux$302_Y [31:16] = { $procmux$302_Y [15] $procmux$302_Y [15] $procmux$302_Y [15] $procmux$302_Y [15] $procmux$302_Y [15] $procmux$302_Y [15] $procmux$302_Y [15] $procmux$302_Y [15] $procmux$302_Y [15] $procmux$302_Y [15] $procmux$302_Y [15] $procmux$302_Y [15] $procmux$302_Y [15] $procmux$302_Y [15] $procmux$302_Y [15] $procmux$302_Y [15] }
+  Optimizing cells in module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.
+  Optimizing cells in module \compute_core.
+  Optimizing cells in module \q15_blend.
+  Optimizing cells in module \q15_mac.
+  Optimizing cells in module \q15_tanh.
+  Optimizing cells in module \top.
+Performed a total of 1 changes.
+
+8.19.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi'.
+Finding identical cells in module `\compute_core'.
+Finding identical cells in module `\q15_blend'.
+Finding identical cells in module `\q15_mac'.
+Finding identical cells in module `\q15_tanh'.
+Finding identical cells in module `\top'.
+Removed a total of 0 cells.
+
+8.19.6. Executing OPT_SHARE pass.
+
+8.19.7. Executing OPT_DFF pass (perform DFF optimizations).
+
+8.19.8. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi..
+Finding unused cells or wires in module \compute_core..
+Finding unused cells or wires in module \q15_blend..
+Finding unused cells or wires in module \q15_mac..
+Finding unused cells or wires in module \q15_tanh..
+Finding unused cells or wires in module \top..
+
+8.19.9. Executing OPT_EXPR pass (perform const folding).
+Optimizing module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.
+Optimizing module compute_core.
+Optimizing module q15_blend.
+Optimizing module q15_mac.
+Optimizing module q15_tanh.
+Optimizing module top.
+
+8.19.10. Rerunning OPT passes. (Maybe there is more to do..)
+
+8.19.11. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \compute_core..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \q15_blend..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \q15_mac..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Running muxtree optimizer on module \q15_tanh..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \top..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Removed 0 multiplexer ports.
+<suppressed ~7 debug messages>
+
+8.19.12. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.
+  Optimizing cells in module \compute_core.
+  Optimizing cells in module \q15_blend.
+  Optimizing cells in module \q15_mac.
+  Optimizing cells in module \q15_tanh.
+  Optimizing cells in module \top.
+Performed a total of 0 changes.
+
+8.19.13. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi'.
+Finding identical cells in module `\compute_core'.
+Finding identical cells in module `\q15_blend'.
+Finding identical cells in module `\q15_mac'.
+Finding identical cells in module `\q15_tanh'.
+Finding identical cells in module `\top'.
+Removed a total of 0 cells.
+
+8.19.14. Executing OPT_SHARE pass.
+
+8.19.15. Executing OPT_DFF pass (perform DFF optimizations).
+
+8.19.16. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi..
+Finding unused cells or wires in module \compute_core..
+Finding unused cells or wires in module \q15_blend..
+Finding unused cells or wires in module \q15_mac..
+Finding unused cells or wires in module \q15_tanh..
+Finding unused cells or wires in module \top..
+
+8.19.17. Executing OPT_EXPR pass (perform const folding).
+Optimizing module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.
+Optimizing module compute_core.
+Optimizing module q15_blend.
+Optimizing module q15_mac.
+Optimizing module q15_tanh.
+Optimizing module top.
+
+8.19.18. Finished OPT passes. (There is nothing left to do.)
+
+8.20. Executing TECHMAP pass (map to technology primitives).
+
+8.20.1. Executing Verilog-2005 frontend: /usr/bin/../share/yosys/techmap.v
+Parsing Verilog input from `/usr/bin/../share/yosys/techmap.v' to AST representation.
+Generating RTLIL representation for module `\_90_simplemap_bool_ops'.
+Generating RTLIL representation for module `\_90_simplemap_reduce_ops'.
+Generating RTLIL representation for module `\_90_simplemap_logic_ops'.
+Generating RTLIL representation for module `\_90_simplemap_compare_ops'.
+Generating RTLIL representation for module `\_90_simplemap_various'.
+Generating RTLIL representation for module `\_90_simplemap_registers'.
+Generating RTLIL representation for module `\_90_shift_ops_shr_shl_sshl_sshr'.
+Generating RTLIL representation for module `\_90_shift_shiftx'.
+Generating RTLIL representation for module `\_90_fa'.
+Generating RTLIL representation for module `\_90_lcu_brent_kung'.
+Generating RTLIL representation for module `\_90_alu'.
+Generating RTLIL representation for module `\_90_macc'.
+Generating RTLIL representation for module `\_90_alumacc'.
+Generating RTLIL representation for module `\$__div_mod_u'.
+Generating RTLIL representation for module `\$__div_mod_trunc'.
+Generating RTLIL representation for module `\_90_div'.
+Generating RTLIL representation for module `\_90_mod'.
+Generating RTLIL representation for module `\$__div_mod_floor'.
+Generating RTLIL representation for module `\_90_divfloor'.
+Generating RTLIL representation for module `\_90_modfloor'.
+Generating RTLIL representation for module `\_90_pow'.
+Generating RTLIL representation for module `\_90_pmux'.
+Generating RTLIL representation for module `\_90_demux'.
+Generating RTLIL representation for module `\_90_lut'.
+Successfully finished Verilog frontend.
+
+8.20.2. Continuing TECHMAP pass.
+Using extmapper simplemap for cells of type $reduce_and.
+Using extmapper simplemap for cells of type $mux.
+Using extmapper simplemap for cells of type $or.
+Using extmapper simplemap for cells of type $xor.
+Using extmapper simplemap for cells of type $not.
+Using template $paramod$0cf90cc92a8a726f7480da3c1dd521ff92701be4\_90_alu for cells of type $alu.
+Using template $paramod$0bf04506aae5af81fd59b23c0850afdf0e51a7c4\_90_alu for cells of type $alu.
+Using template $paramod$2653f68ddb8eab7b1907b4a20767b72a824a7a36\_90_alu for cells of type $alu.
+Using template $paramod$15f3a93b9e62ddae997695e652df4c9823984c4a\_90_alu for cells of type $alu.
+Using template $paramod$418b96f4892c9e1a6a74526184651c8ae040d0c0\_90_alu for cells of type $alu.
+Using template $paramod$acf5ee781c77b898d3bdc54c59bb9c663376a7a9\_90_alu for cells of type $alu.
+Using template $paramod$af987c41eb15cea3e227fb6b88cf36e74f01ad31\_90_alu for cells of type $alu.
+Using template $paramod$0b0cde3dd6fc83a3fc5535dbeb0d4e3a480de834\_90_alu for cells of type $alu.
+Using template $paramod$c262a9eba992bd375aee69244ae82bb2c8f55fe5\_90_alu for cells of type $alu.
+Using template $paramod$b52b1c34c6942a4262a8b287ee6ae3a092dfc180\_90_alu for cells of type $alu.
+Using extmapper simplemap for cells of type $reduce_or.
+Using extmapper simplemap for cells of type $and.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=32'00000000000000000000000000000010 for cells of type $lcu.
+Using extmapper simplemap for cells of type $pos.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=32'00000000000000000000000000010000 for cells of type $lcu.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=32'00000000000000000000000000100000 for cells of type $lcu.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=32'00000000000000000000000000000110 for cells of type $lcu.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=32'00000000000000000000000000000011 for cells of type $lcu.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=32'00000000000000000000000000000001 for cells of type $lcu.
+Using extmapper maccmap for cells of type $macc_v2.
+  add \w * \x (16x16 bits, signed)
+  add \acc (32 bits, signed)
+Using extmapper simplemap for cells of type $sdffe.
+Using template $paramod\_90_fa\WIDTH=32'00000000000000000000000000100000 for cells of type $fa.
+Using template $paramod$fbc7873bff55778c0b3173955b7e4bce1d9d6834\_90_alu for cells of type $alu.
+  add \one_minus_a * \x_prev (16x16 bits, signed)
+  add \leak_rate * \tanh_out (16x16 bits, signed)
+Using template $paramod$cff66329c78f14c05756fa469890bd1a4784ffc2\_90_alu for cells of type $alu.
+Using template $paramod\_90_fa\WIDTH=32'00000000000000000000000000011111 for cells of type $fa.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=32'00000000000000000000000000010001 for cells of type $lcu.
+Using extmapper simplemap for cells of type $eq.
+Using extmapper simplemap for cells of type $logic_and.
+Using template $paramod$2af30114e9bd4ccb04dad757b3f0a8f6bf0615b0\_90_alu for cells of type $alu.
+Using extmapper simplemap for cells of type $reduce_bool.
+Using extmapper simplemap for cells of type $ne.
+Using extmapper simplemap for cells of type $logic_not.
+Using template $paramod$56f7ce6d87f8add68ca646dc02d7695a3189f8e5\_90_pmux for cells of type $pmux.
+Using extmapper simplemap for cells of type $sdff.
+Using extmapper simplemap for cells of type $logic_or.
+Using template $paramod$0d149ffe75563ef6fcc1a3dddc59d00af28651a7\_90_pmux for cells of type $pmux.
+No more expansions possible.
+<suppressed ~2729 debug messages>
+
+8.21. Executing OPT pass (performing simple optimizations).
+
+8.21.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.
+<suppressed ~77 debug messages>
+Optimizing module compute_core.
+<suppressed ~239 debug messages>
+Optimizing module q15_blend.
+<suppressed ~1841 debug messages>
+Optimizing module q15_mac.
+<suppressed ~890 debug messages>
+Optimizing module q15_tanh.
+<suppressed ~395 debug messages>
+Optimizing module top.
+
+8.21.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi'.
+<suppressed ~114 debug messages>
+Finding identical cells in module `\compute_core'.
+<suppressed ~45 debug messages>
+Finding identical cells in module `\q15_blend'.
+<suppressed ~2904 debug messages>
+Finding identical cells in module `\q15_mac'.
+<suppressed ~1116 debug messages>
+Finding identical cells in module `\q15_tanh'.
+<suppressed ~477 debug messages>
+Finding identical cells in module `\top'.
+Removed a total of 1552 cells.
+
+8.21.3. Executing OPT_DFF pass (perform DFF optimizations).
+
+8.21.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi..
+Finding unused cells or wires in module \compute_core..
+Finding unused cells or wires in module \q15_blend..
+Finding unused cells or wires in module \q15_mac..
+Finding unused cells or wires in module \q15_tanh..
+Finding unused cells or wires in module \top..
+Removed 323 unused cells and 1448 unused wires.
+<suppressed ~328 debug messages>
+
+8.21.5. Finished fast OPT passes.
+
+8.22. Executing ABC pass (technology mapping using ABC).
+
+8.22.1. Extracting gate netlist of module `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi' to `<abc-temp-dir>/input.blif'..
+Extracted 149 gates and 270 wires to a netlist network with 120 inputs and 65 outputs.
+
+8.22.1.1. Executing ABC.
+Running ABC command: "<yosys-exe-dir>/yosys-abc" -s -f <abc-temp-dir>/abc.script 2>&1
+ABC: ABC command line: "source <abc-temp-dir>/abc.script".
+ABC: 
+ABC: + read_blif <abc-temp-dir>/input.blif 
+ABC: + read_library <abc-temp-dir>/stdcells.genlib 
+ABC: + strash 
+ABC: + dretime 
+ABC: + map 
+ABC: + write_blif <abc-temp-dir>/output.blif 
+
+8.22.1.2. Re-integrating ABC results.
+ABC RESULTS:               AND cells:        5
+ABC RESULTS:            ANDNOT cells:       31
+ABC RESULTS:               MUX cells:       40
+ABC RESULTS:              NAND cells:        2
+ABC RESULTS:               NOR cells:        5
+ABC RESULTS:               NOT cells:        3
+ABC RESULTS:                OR cells:       27
+ABC RESULTS:             ORNOT cells:        8
+ABC RESULTS:        internal signals:       85
+ABC RESULTS:           input signals:      120
+ABC RESULTS:          output signals:       65
+Removing temp directory.
+
+8.22.2. Extracting gate netlist of module `\compute_core' to `<abc-temp-dir>/input.blif'..
+Extracted 346 gates and 449 wires to a netlist network with 102 inputs and 61 outputs.
+
+8.22.2.1. Executing ABC.
+Running ABC command: "<yosys-exe-dir>/yosys-abc" -s -f <abc-temp-dir>/abc.script 2>&1
+ABC: ABC command line: "source <abc-temp-dir>/abc.script".
+ABC: 
+ABC: + read_blif <abc-temp-dir>/input.blif 
+ABC: + read_library <abc-temp-dir>/stdcells.genlib 
+ABC: + strash 
+ABC: + dretime 
+ABC: + map 
+ABC: + write_blif <abc-temp-dir>/output.blif 
+
+8.22.2.2. Re-integrating ABC results.
+ABC RESULTS:               AND cells:       16
+ABC RESULTS:            ANDNOT cells:       82
+ABC RESULTS:               MUX cells:        2
+ABC RESULTS:              NAND cells:       34
+ABC RESULTS:               NOR cells:       32
+ABC RESULTS:               NOT cells:        3
+ABC RESULTS:                OR cells:       61
+ABC RESULTS:             ORNOT cells:       12
+ABC RESULTS:              XNOR cells:       42
+ABC RESULTS:               XOR cells:       52
+ABC RESULTS:        internal signals:      286
+ABC RESULTS:           input signals:      102
+ABC RESULTS:          output signals:       61
+Removing temp directory.
+
+8.22.3. Extracting gate netlist of module `\q15_blend' to `<abc-temp-dir>/input.blif'..
+Extracted 3789 gates and 3839 wires to a netlist network with 48 inputs and 16 outputs.
+
+8.22.3.1. Executing ABC.
+Running ABC command: "<yosys-exe-dir>/yosys-abc" -s -f <abc-temp-dir>/abc.script 2>&1
+ABC: ABC command line: "source <abc-temp-dir>/abc.script".
+ABC: 
+ABC: + read_blif <abc-temp-dir>/input.blif 
+ABC: + read_library <abc-temp-dir>/stdcells.genlib 
+ABC: + strash 
+ABC: + dretime 
+ABC: + map 
+ABC: + write_blif <abc-temp-dir>/output.blif 
+
+8.22.3.2. Re-integrating ABC results.
+ABC RESULTS:               AND cells:      381
+ABC RESULTS:            ANDNOT cells:     1220
+ABC RESULTS:               MUX cells:        1
+ABC RESULTS:              NAND cells:       55
+ABC RESULTS:               NOR cells:      294
+ABC RESULTS:               NOT cells:       92
+ABC RESULTS:                OR cells:      295
+ABC RESULTS:             ORNOT cells:      235
+ABC RESULTS:              XNOR cells:      465
+ABC RESULTS:               XOR cells:      818
+ABC RESULTS:        internal signals:     3775
+ABC RESULTS:           input signals:       48
+ABC RESULTS:          output signals:       16
+Removing temp directory.
+
+8.22.4. Extracting gate netlist of module `\q15_mac' to `<abc-temp-dir>/input.blif'..
+Extracted 2063 gates and 2129 wires to a netlist network with 66 inputs and 33 outputs.
+
+8.22.4.1. Executing ABC.
+Running ABC command: "<yosys-exe-dir>/yosys-abc" -s -f <abc-temp-dir>/abc.script 2>&1
+ABC: ABC command line: "source <abc-temp-dir>/abc.script".
+ABC: 
+ABC: + read_blif <abc-temp-dir>/input.blif 
+ABC: + read_library <abc-temp-dir>/stdcells.genlib 
+ABC: + strash 
+ABC: + dretime 
+ABC: + map 
+ABC: + write_blif <abc-temp-dir>/output.blif 
+
+8.22.4.2. Re-integrating ABC results.
+ABC RESULTS:               AND cells:      195
+ABC RESULTS:            ANDNOT cells:      656
+ABC RESULTS:              NAND cells:      131
+ABC RESULTS:               NOR cells:       57
+ABC RESULTS:               NOT cells:       44
+ABC RESULTS:                OR cells:      273
+ABC RESULTS:             ORNOT cells:       22
+ABC RESULTS:              XNOR cells:      175
+ABC RESULTS:               XOR cells:      538
+ABC RESULTS:        internal signals:     2030
+ABC RESULTS:           input signals:       66
+ABC RESULTS:          output signals:       33
+Removing temp directory.
+
+8.22.5. Extracting gate netlist of module `\q15_tanh' to `<abc-temp-dir>/input.blif'..
+Extracted 401 gates and 435 wires to a netlist network with 32 inputs and 16 outputs.
+
+8.22.5.1. Executing ABC.
+Running ABC command: "<yosys-exe-dir>/yosys-abc" -s -f <abc-temp-dir>/abc.script 2>&1
+ABC: ABC command line: "source <abc-temp-dir>/abc.script".
+ABC: 
+ABC: + read_blif <abc-temp-dir>/input.blif 
+ABC: + read_library <abc-temp-dir>/stdcells.genlib 
+ABC: + strash 
+ABC: + dretime 
+ABC: + map 
+ABC: + write_blif <abc-temp-dir>/output.blif 
+
+8.22.5.2. Re-integrating ABC results.
+ABC RESULTS:               AND cells:        6
+ABC RESULTS:            ANDNOT cells:       63
+ABC RESULTS:               MUX cells:       62
+ABC RESULTS:              NAND cells:       27
+ABC RESULTS:               NOR cells:       13
+ABC RESULTS:               NOT cells:        8
+ABC RESULTS:                OR cells:      112
+ABC RESULTS:             ORNOT cells:       10
+ABC RESULTS:              XNOR cells:       16
+ABC RESULTS:               XOR cells:       22
+ABC RESULTS:        internal signals:      387
+ABC RESULTS:           input signals:       32
+ABC RESULTS:          output signals:       16
+Removing temp directory.
+
+8.22.6. Extracting gate netlist of module `\top' to `<abc-temp-dir>/input.blif'..
+Extracted 0 gates and 0 wires to a netlist network with 0 inputs and 0 outputs.
+Don't call ABC as there is nothing to map.
+Removing temp directory.
+
+8.23. Executing OPT pass (performing simple optimizations).
+
+8.23.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi.
+Optimizing module compute_core.
+<suppressed ~16 debug messages>
+Optimizing module q15_blend.
+Optimizing module q15_mac.
+Optimizing module q15_tanh.
+<suppressed ~11 debug messages>
+Optimizing module top.
+
+8.23.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi'.
+Finding identical cells in module `\compute_core'.
+Finding identical cells in module `\q15_blend'.
+Finding identical cells in module `\q15_mac'.
+Finding identical cells in module `\q15_tanh'.
+<suppressed ~3 debug messages>
+Finding identical cells in module `\top'.
+Removed a total of 1 cells.
+
+8.23.3. Executing OPT_DFF pass (perform DFF optimizations).
+
+8.23.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi..
+Finding unused cells or wires in module \compute_core..
+Finding unused cells or wires in module \q15_blend..
+Finding unused cells or wires in module \q15_mac..
+Finding unused cells or wires in module \q15_tanh..
+Finding unused cells or wires in module \top..
+Removed 2 unused cells and 1331 unused wires.
+<suppressed ~13 debug messages>
+
+8.23.5. Finished fast OPT passes.
+
+8.24. Executing HIERARCHY pass (managing design hierarchy).
+Attribute `top' found on module `top'. Setting top module to top.
+
+8.24.1. Analyzing design hierarchy..
+Top module:  \top
+Used module:     $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi
+Used module:         \compute_core
+Used module:             \q15_blend
+Used module:             \q15_mac
+Used module:             \q15_tanh
+
+8.24.2. Analyzing design hierarchy..
+Top module:  \top
+Used module:     $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi
+Used module:         \compute_core
+Used module:             \q15_blend
+Used module:             \q15_mac
+Used module:             \q15_tanh
+Removed 0 unused modules.
+
+8.25. Printing statistics.
+
+=== $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi ===
+
+   Number of wires:                116
+   Number of wire bits:            448
+   Number of public wires:          48
+   Number of public wire bits:     365
+   Number of ports:                 23
+   Number of port bits:            135
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                280
+     $_ANDNOT_                      31
+     $_AND_                          5
+     $_MUX_                         40
+     $_NAND_                         2
+     $_NOR_                          5
+     $_NOT_                          3
+     $_ORNOT_                        8
+     $_OR_                          27
+     $_SDFFE_PP0P_                 157
+     $_SDFF_PP0_                     1
+     compute_core                    1
+
+=== compute_core ===
+
+   Number of wires:                330
+   Number of wire bits:            715
+   Number of public wires:          32
+   Number of public wire bits:     355
+   Number of ports:                 16
+   Number of port bits:            137
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                486
+     $_ANDNOT_                      82
+     $_AND_                         16
+     $_MUX_                          2
+     $_NAND_                        34
+     $_NOR_                         32
+     $_NOT_                          2
+     $_ORNOT_                       12
+     $_OR_                          61
+     $_SDFFE_PP0N_                  32
+     $_SDFFE_PP0P_                 115
+     $_SDFF_PP0_                     1
+     $_XNOR_                        42
+     $_XOR_                         52
+     q15_blend                       1
+     q15_mac                         1
+     q15_tanh                        1
+
+=== q15_blend ===
+
+   Number of wires:               3847
+   Number of wire bits:           3984
+   Number of public wires:           7
+   Number of public wire bits:     144
+   Number of ports:                  4
+   Number of port bits:             64
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:               3856
+     $_ANDNOT_                    1220
+     $_AND_                        381
+     $_MUX_                          1
+     $_NAND_                        55
+     $_NOR_                        294
+     $_NOT_                         92
+     $_ORNOT_                      235
+     $_OR_                         295
+     $_XNOR_                       465
+     $_XOR_                        818
+
+=== q15_mac ===
+
+   Number of wires:               2073
+   Number of wire bits:           2351
+   Number of public wires:           7
+   Number of public wire bits:      68
+   Number of ports:                  7
+   Number of port bits:             68
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:               2123
+     $_ANDNOT_                     656
+     $_AND_                        195
+     $_NAND_                       131
+     $_NOR_                         57
+     $_NOT_                         44
+     $_ORNOT_                       22
+     $_OR_                         273
+     $_SDFFE_PP0P_                  32
+     $_XNOR_                       175
+     $_XOR_                        538
+
+=== q15_tanh ===
+
+   Number of wires:                331
+   Number of wire bits:            561
+   Number of public wires:          10
+   Number of public wire bits:     240
+   Number of ports:                  2
+   Number of port bits:             48
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                337
+     $_ANDNOT_                      63
+     $_AND_                          6
+     $_MUX_                         62
+     $_NAND_                        27
+     $_NOR_                         13
+     $_NOT_                          7
+     $_ORNOT_                        9
+     $_OR_                         112
+     $_XNOR_                        16
+     $_XOR_                         22
+
+=== top ===
+
+   Number of wires:                 23
+   Number of wire bits:            135
+   Number of public wires:          23
+   Number of public wire bits:     135
+   Number of ports:                 23
+   Number of port bits:            135
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                  1
+     $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi      1
+
+=== design hierarchy ===
+
+   top                               1
+     $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi      1
+       compute_core                  1
+         q15_blend                   1
+         q15_mac                     1
+         q15_tanh                    1
+
+   Number of wires:               6720
+   Number of wire bits:           8194
+   Number of public wires:         127
+   Number of public wire bits:    1307
+   Number of ports:                 75
+   Number of port bits:            587
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:               7078
+     $_ANDNOT_                    2052
+     $_AND_                        603
+     $_MUX_                        105
+     $_NAND_                       249
+     $_NOR_                        401
+     $_NOT_                        148
+     $_ORNOT_                      286
+     $_OR_                         768
+     $_SDFFE_PP0N_                  32
+     $_SDFFE_PP0P_                 304
+     $_SDFF_PP0_                     2
+     $_XNOR_                       698
+     $_XOR_                       1430
+
+8.26. Executing CHECK pass (checking for obvious problems).
+Checking module $paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi...
+Checking module compute_core...
+Checking module q15_blend...
+Checking module q15_mac...
+Checking module q15_tanh...
+Checking module top...
+Found and reported 0 problems.
+
+9. Executing DFFLIBMAP pass (mapping DFF cells to sequential cells from liberty file).
+  cell sky130_fd_sc_hd__dfxtp_1 (noninv, pins=3, area=20.02) is a direct match for cell type $_DFF_P_.
+  cell sky130_fd_sc_hd__dfrtn_1 (noninv, pins=4, area=25.02) is a direct match for cell type $_DFF_NN0_.
+  cell sky130_fd_sc_hd__dfrtp_1 (noninv, pins=4, area=25.02) is a direct match for cell type $_DFF_PN0_.
+  cell sky130_fd_sc_hd__dfstp_2 (noninv, pins=4, area=26.28) is a direct match for cell type $_DFF_PN1_.
+  cell sky130_fd_sc_hd__edfxtp_1 (noninv, pins=4, area=30.03) is a direct match for cell type $_DFFE_PP_.
+  cell sky130_fd_sc_hd__dfbbn_1 (noninv, pins=6, area=32.53) is a direct match for cell type $_DFFSR_NNN_.
+  cell sky130_fd_sc_hd__dfbbp_1 (noninv, pins=6, area=32.53) is a direct match for cell type $_DFFSR_PNN_.
+  final dff cell mappings:
+    unmapped dff cell: $_DFF_N_
+    \sky130_fd_sc_hd__dfxtp_1 _DFF_P_ (.CLK( C), .D( D), .Q( Q));
+    \sky130_fd_sc_hd__dfrtn_1 _DFF_NN0_ (.CLK_N( C), .D( D), .Q( Q), .RESET_B( R));
+    unmapped dff cell: $_DFF_NN1_
+    unmapped dff cell: $_DFF_NP0_
+    unmapped dff cell: $_DFF_NP1_
+    \sky130_fd_sc_hd__dfrtp_1 _DFF_PN0_ (.CLK( C), .D( D), .Q( Q), .RESET_B( R));
+    \sky130_fd_sc_hd__dfstp_2 _DFF_PN1_ (.CLK( C), .D( D), .Q( Q), .SET_B( R));
+    unmapped dff cell: $_DFF_PP0_
+    unmapped dff cell: $_DFF_PP1_
+    unmapped dff cell: $_DFFE_NN_
+    unmapped dff cell: $_DFFE_NP_
+    unmapped dff cell: $_DFFE_PN_
+    \sky130_fd_sc_hd__edfxtp_1 _DFFE_PP_ (.CLK( C), .D( D), .DE( E), .Q( Q));
+    \sky130_fd_sc_hd__dfbbn_1 _DFFSR_NNN_ (.CLK_N( C), .D( D), .Q( Q), .Q_N(~Q), .RESET_B( R), .SET_B( S));
+    unmapped dff cell: $_DFFSR_NNP_
+    unmapped dff cell: $_DFFSR_NPN_
+    unmapped dff cell: $_DFFSR_NPP_
+    \sky130_fd_sc_hd__dfbbp_1 _DFFSR_PNN_ (.CLK( C), .D( D), .Q( Q), .Q_N(~Q), .RESET_B( R), .SET_B( S));
+    unmapped dff cell: $_DFFSR_PNP_
+    unmapped dff cell: $_DFFSR_PPN_
+    unmapped dff cell: $_DFFSR_PPP_
+
+9.1. Executing DFFLEGALIZE pass (convert FFs to types supported by the target).
+<suppressed ~24 debug messages>
+Mapping DFF cells in module `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi':
+  mapped 158 $_DFF_P_ cells to \sky130_fd_sc_hd__dfxtp_1 cells.
+Mapping DFF cells in module `\compute_core':
+  mapped 148 $_DFF_P_ cells to \sky130_fd_sc_hd__dfxtp_1 cells.
+Mapping DFF cells in module `\q15_blend':
+Mapping DFF cells in module `\q15_mac':
+  mapped 32 $_DFF_P_ cells to \sky130_fd_sc_hd__dfxtp_1 cells.
+Mapping DFF cells in module `\q15_tanh':
+Mapping DFF cells in module `\top':
+
+10. Executing ABC pass (technology mapping using ABC).
+
+10.1. Extracting gate netlist of module `$paramod$cadb493d91654c2b6e3ebd7759b7eaaae826eda7\interface_axi' to `<abc-temp-dir>/input.blif'..
+Extracted 436 gates and 671 wires to a netlist network with 233 inputs and 162 outputs.
+
+10.1.1. Executing ABC.
+Running ABC command: "<yosys-exe-dir>/yosys-abc" -s -f <abc-temp-dir>/abc.script 2>&1
+ABC: ABC command line: "source <abc-temp-dir>/abc.script".
+ABC: 
+ABC: + read_blif <abc-temp-dir>/input.blif 
+ABC: + read_lib -w /home/kvsri/.volare/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib 
+ABC: Parsing finished successfully.  Parsing time =     0.12 sec
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_12" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_3" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_6" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__decap_8" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfbbn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfbbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfbbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfsbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfsbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfstp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfstp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfstp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxtp_4".
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__diode_2" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__dlclkp_1" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__dlclkp_2" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__dlclkp_4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrbn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtn_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlrtp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxbn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtn_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_2".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_4".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_8".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__edfxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__edfxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_0".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_2".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_4".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvn_8".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvp_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvp_2".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvp_4".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__einvp_8".
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_bleeder_1" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_12" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_3" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_6" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__lpflow_decapkapwr_8" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__lpflow_inputisolatch_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfbbn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfbbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfbbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfrtp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfsbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfsbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfstp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfstp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfstp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sdfxtp_4".
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__sdlclkp_1" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__sdlclkp_2" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "sky130_fd_sc_hd__sdlclkp_4" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxbp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__sedfxtp_4".
+ABC: Library "sky130_fd_sc_hd__tt_025C_1v80" from "/home/kvsri/.volare/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib" has 334 cells (94 skipped: 63 seq; 13 tri-state; 18 no func; 0 dont_use).  Time =     0.22 sec
+ABC: Memory =   19.85 MB. Time =     0.22 sec
+ABC: Warning: Detected 9 multi-output gates (for example, "sky130_fd_sc_hd__fa_1").
+ABC: + strash 
+ABC: + dretime 
+ABC: + retime -o -D 10000 
+ABC: + map -D 10000 
+ABC: + write_blif <abc-temp-dir>/output.blif 
+
+10.1.2. Re-integrating ABC results.

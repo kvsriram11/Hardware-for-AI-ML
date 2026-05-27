@@ -1,0 +1,21 @@
+# Yosys technology-mapped synthesis for top (sky130_fd_sc_hd)
+# Run from project/m3/synth/
+
+read_verilog -sv ../rtl/top.sv
+read_verilog -sv ../../m2/rtl/interface.sv
+read_verilog -sv ../../m2/rtl/compute_core.sv
+read_verilog -sv ../../m2/rtl/q15_mac.sv
+read_verilog -sv ../../m2/rtl/q15_tanh.sv
+read_verilog -sv ../../m2/rtl/q15_blend.sv
+
+hierarchy -check -top top
+synth -top top -flatten
+
+dfflibmap -liberty /home/kvsri/.volare/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+abc -liberty /home/kvsri/.volare/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib -D 10000
+
+# Print mapped statistics (real sky130 cells + area in um2)
+stat -liberty /home/kvsri/.volare/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib -top top
+
+# Write final mapped netlist
+write_verilog -noattr synth_mapped_netlist.v
