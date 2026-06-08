@@ -1,0 +1,56 @@
+{
+  "updates_per_sec": 106929.0,
+  "gflops_sustained": 214.82,
+  "cycles": 1169,
+  "clock_mhz": 125.0,
+  "speedup_vs_c": 10.27,
+  "speedup_vs_py": 24.05,
+  "rows": [
+    {
+      "precision": "q15",
+      "data_w": 16,
+      "cycles_per_update_N1000": 1169,
+      "clock_mhz": 125.0,
+      "updates_per_sec": 106929.0,
+      "gflops_sustained": 214.82,
+      "mse_vs_fp32": "5.321e-10",
+      "snr_db": 79.14,
+      "cells": 1899584,
+      "area_um2": 13665664.0,
+      "critical_path_logic_stages": 307,
+      "power_mw_est": 1424.7,
+      "_ai": 1.0
+    },
+    {
+      "precision": "int8",
+      "data_w": 8,
+      "cycles_per_update_N1000": 1169,
+      "clock_mhz": 125.0,
+      "updates_per_sec": 106929.0,
+      "gflops_sustained": 214.82,
+      "mse_vs_fp32": "3.032e-05",
+      "snr_db": 31.58,
+      "cells": 529536,
+      "area_um2": 3858182.4,
+      "critical_path_logic_stages": 296,
+      "power_mw_est": 397.2,
+      "_ai": 2.0
+    },
+    {
+      "precision": "q4",
+      "data_w": 4,
+      "cycles_per_update_N1000": 1169,
+      "clock_mhz": 125.0,
+      "updates_per_sec": 106929.0,
+      "gflops_sustained": 214.82,
+      "mse_vs_fp32": "7.154e-03",
+      "snr_db": 7.85,
+      "cells": 179136,
+      "area_um2": 1355539.2,
+      "critical_path_logic_stages": 290,
+      "power_mw_est": 134.4,
+      "_ai": 4.0
+    }
+  ],
+  "time_per_update_s": 9.352e-06
+}

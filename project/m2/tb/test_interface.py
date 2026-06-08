@@ -1,307 +1,203 @@
 """
-test_interface.py — cocotb testbench for interface.sv
+Cocotb test for interface.sv (interface_axi).
 
-Project   : Hardware Accelerator for Reservoir State Update in ESNs
-Course    : ECE 510 — Hardware for AI/ML, Spring 2026, Portland State Univ.
-Author    : Venkata Sriram Kamarajugadda
-Milestone : M2
+Exercises:
+  - AXI4-Lite write to LEAK_A register, read back, verify
+  - Full pipeline: AXIL-configure + AXIS-stream + AXIL-read x_next, vs golden
 
-Strategy
---------
-Uses the cocotb-bus AXI4LiteMaster driver for the AXI4-Lite slave port,
-which handles the handshake protocol correctly without manual signal
-poking. The AXI4-Stream slave port is driven manually since cocotb-bus
-0.3.0 does not include an AXI4-Stream master helper in this install
-(cocotbext-axi would be the alternative).
-
-Tests
------
-  test_axil_write_read_basic : Multiple writes + reads via AXI4LiteMaster.
-  test_full_neuron_via_axi   : End-to-end neuron update — writes, start,
-                               stream operands, poll status, read result.
+Pass criteria: AXI handshakes complete per spec; final x_next matches golden.
 """
-
-import math
+import os
 import random
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent))
+from golden import state_update_golden, float_to_q, sign_extend
 
 import cocotb
 from cocotb.clock import Clock
-from cocotb.triggers import RisingEdge, FallingEdge, Timer
+from cocotb.triggers import RisingEdge, ReadOnly
 
-from cocotb_bus.drivers.amba import AXI4LiteMaster
+DATA_W    = int(os.environ.get('DATA_W', 16))
+MAC_WIDTH = int(os.environ.get('MAC_WIDTH', 16))
+ACC_W     = int(os.environ.get('ACC_W', 40))
+FRAC_W    = DATA_W - 1
 
-
-# =============================================================================
-# Q-format helpers
-# =============================================================================
-Q15_ONE_FP   = 1 << 15
-Q30_ONE_FP   = 1 << 30
-Q15_POS_ONE  =  (1 << 15) - 1
-Q15_NEG_ONE  = -(1 << 15)
-INT16_MAX    =  Q15_POS_ONE
-INT16_MIN    =  Q15_NEG_ONE
-INT32_MAX    =  (1 << 31) - 1
-INT32_MIN    = -(1 << 31)
-
-
-def to_q15(real):
-    v = int(round(real * Q15_ONE_FP))
-    return max(INT16_MIN, min(INT16_MAX, v))
-
-
-def to_q30(real):
-    v = int(round(real * Q30_ONE_FP))
-    return max(INT32_MIN, min(INT32_MAX, v))
-
-
-def to_unsigned16(v): return v & 0xFFFF
-def to_unsigned32(v): return v & 0xFFFFFFFF
-
-
-def take_low16_signed(v):
-    v &= 0xFFFF
-    if v & 0x8000:
-        v -= 0x10000
-    return v
-
-
-# =============================================================================
-# Register addresses (must match interface.sv)
-# =============================================================================
-ADDR_CTRL      = 0x00
-ADDR_STATUS    = 0x04
-ADDR_N_MINUS_1 = 0x08
-ADDR_LEAK_RATE = 0x0C
-ADDR_WIN_U     = 0x10
-ADDR_X_PREV    = 0x14
-ADDR_X_NEW     = 0x18
-
-CTRL_START_BIT = 0x1
-STATUS_BUSY    = 0x1
-STATUS_DONE    = 0x2
-
-
-# =============================================================================
-# Software golden model — same as test_compute_core
-# =============================================================================
-def golden_pwl_tanh(acc):
-    Q30_HALF = 0x20000000; Q30_NEG_HALF = -0x20000000
-    Q30_ONE = 0x40000000;  Q30_NEG_ONE = -0x40000000
-    Q15_HALF = 0x4000; Q15_NEG_HALF = -0x4000
-    Q15_3_16 = 0x0C00; Q15_NEG_3_16 = -0x0C00
-
-    def shr_take16(value, n):
-        return take_low16_signed(value >> n)
-
-    x_q15 = shr_take16(acc, 15)
-    x_half_q15 = shr_take16(acc, 16)
-    x_quarter_q15 = shr_take16(acc, 17)
-    x_eighth_q15 = shr_take16(acc, 18)
-    x_5_8_q15 = take_low16_signed(x_half_q15 + x_eighth_q15)
-
-    if acc >= INT32_MAX:
-        return Q15_POS_ONE
-    elif acc >= Q30_ONE:
-        return take_low16_signed(x_quarter_q15 + Q15_HALF)
-    elif acc >= Q30_HALF:
-        return take_low16_signed(x_5_8_q15 + Q15_3_16)
-    elif acc > Q30_NEG_HALF:
-        return x_q15
-    elif acc > Q30_NEG_ONE:
-        return take_low16_signed(x_5_8_q15 + Q15_NEG_3_16)
-    elif acc > INT32_MIN:
-        return take_low16_signed(x_quarter_q15 + Q15_NEG_HALF)
-    else:
-        return Q15_NEG_ONE
-
-
-def golden_blend(x_prev, tanh_out, leak_rate):
-    one_minus_a = Q15_POS_ONE - leak_rate
-    sum_q30 = one_minus_a * x_prev + leak_rate * tanh_out
-    sum_shr15 = sum_q30 >> 15
-    if sum_shr15 > Q15_POS_ONE: return Q15_POS_ONE
-    if sum_shr15 < Q15_NEG_ONE: return Q15_NEG_ONE
-    return take_low16_signed(sum_shr15)
-
-
-def golden_compute(w_list, x_list, win_u, x_prev_self, leak_rate):
-    acc = sum(w * x for w, x in zip(w_list, x_list))
-    acc &= 0xFFFFFFFF
-    if acc & 0x80000000: acc -= 0x100000000
-    pre = acc + win_u
-    pre &= 0xFFFFFFFF
-    if pre & 0x80000000: pre -= 0x100000000
-    tanh_out = golden_pwl_tanh(pre)
-    return golden_blend(x_prev_self, tanh_out, leak_rate)
-
-
-# =============================================================================
-# Reset and clock helpers
-# =============================================================================
-async def tick(dut):
-    await RisingEdge(dut.clk)
-    await Timer(1, unit="ns")
+ADDR_CTRL   = 0x00
+ADDR_STATUS = 0x04
+ADDR_LEAK_A = 0x08
+ADDR_WIN_T  = 0x0C
+ADDR_XPREV  = 0x10
+ADDR_XNEXT  = 0x14
 
 
 async def reset_dut(dut):
-    """
-    Drive the non-AXI-Lite inputs low and pulse rst. The AXI4LiteMaster
-    driver manages all s_axil_* signals (including BREADY=1, RREADY=1
-    which it asserts in its constructor) — we MUST NOT touch those.
-    """
-    dut.rst.value             = 1
-    dut.s_axis_tdata.value    = 0
-    dut.s_axis_tvalid.value   = 0
-    dut.s_axis_tlast.value    = 0
-    for _ in range(3):
-        await RisingEdge(dut.clk)
-    dut.rst.value = 0
-    await RisingEdge(dut.clk)
-
-
-# =============================================================================
-# AXI4-Stream beat (manual — cocotb-bus 0.3.0 has no AXIS master)
-# =============================================================================
-async def axis_send_beat(dut, w_q15, x_q15, timeout=500):
-    """Send one (w, x) beat: tdata = {x_q15, w_q15}."""
-    tdata = (to_unsigned16(x_q15) << 16) | to_unsigned16(w_q15)
-    await FallingEdge(dut.clk)
-    dut.s_axis_tdata.value  = tdata
-    dut.s_axis_tvalid.value = 1
-
-    # Sample tready ON the rising edge (use ReadOnly-style: settle 0 ns)
-    for _ in range(timeout):
-        await RisingEdge(dut.clk)
-        # Sample at the edge BEFORE any propagation
-        if int(dut.s_axis_tready.value) == 1:
-            break
-    else:
-        raise AssertionError("axis_send_beat: tready never asserted")
-
-    await FallingEdge(dut.clk)
+    dut.rst_n.value = 0
+    dut.s_axil_awaddr.value = 0
+    dut.s_axil_awvalid.value = 0
+    dut.s_axil_wdata.value = 0
+    dut.s_axil_wstrb.value = 0xF
+    dut.s_axil_wvalid.value = 0
+    dut.s_axil_bready.value = 1
+    dut.s_axil_araddr.value = 0
+    dut.s_axil_arvalid.value = 0
+    dut.s_axil_rready.value = 1
+    dut.s_axis_tdata.value = 0
     dut.s_axis_tvalid.value = 0
+    dut.s_axis_tlast.value = 0
+    for _ in range(5):
+        await RisingEdge(dut.clk)
+    dut.rst_n.value = 1
+    for _ in range(2):
+        await RisingEdge(dut.clk)
 
 
-async def axis_send_stream(dut, w_list, x_list):
-    assert len(w_list) == len(x_list)
-    for w, x in zip(w_list, x_list):
-        await axis_send_beat(dut, w, x)
+async def axil_write(dut, addr, data, timeout=200):
+    """One AXI4-Lite write. AW and W handshake independently per spec."""
+    # Drive AW
+    dut.s_axil_awaddr.value = addr
+    dut.s_axil_awvalid.value = 1
+    # Drive W
+    dut.s_axil_wdata.value = data & 0xFFFFFFFF
+    dut.s_axil_wvalid.value = 1
 
-
-# =============================================================================
-# Test 1 — basic AXI4-Lite write/read via AXI4LiteMaster
-# =============================================================================
-@cocotb.test()
-async def test_axil_write_read_basic(dut):
-    """
-    Multiple complete write transactions and read transactions using
-    cocotb-bus AXI4LiteMaster. Satisfies M2 rubric:
-      - At least one full write transaction (we do four)
-      - At least one full read transaction (we do two)
-    The driver handles all AXI handshaking internally per the protocol spec.
-    """
-    cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start())
-
-    # AXI4LiteMaster instantiation. Bus prefix "s_axil_" tells it to look for
-    # signals named s_axil_AWVALID, s_axil_AWADDR, etc. (case-insensitive).
-    axil = AXI4LiteMaster(dut, "s_axil", dut.clk)
-
-    await reset_dut(dut)
-
-    # Four configuration writes
-    await axil.write(ADDR_N_MINUS_1, 15)
-    cocotb.log.info("PASS | axil_write_N_MINUS_1")
-
-    await axil.write(ADDR_LEAK_RATE, to_unsigned16(to_q15(0.3)))
-    cocotb.log.info("PASS | axil_write_LEAK_RATE")
-
-    await axil.write(ADDR_WIN_U, to_unsigned32(to_q30(0.05)))
-    cocotb.log.info("PASS | axil_write_WIN_U")
-
-    await axil.write(ADDR_X_PREV, to_unsigned16(to_q15(0.0)))
-    cocotb.log.info("PASS | axil_write_X_PREV")
-
-    # Read STATUS — should be idle
-    status = int(await axil.read(ADDR_STATUS))
-    if (status & STATUS_BUSY) != 0:
-        raise AssertionError(f"FAIL | STATUS busy when idle: 0x{status:08X}")
-    cocotb.log.info(f"PASS | axil_read_STATUS_idle  | status = 0x{status:08X}")
-
-    # Read X_NEW — should be 0 (uninitialized)
-    x_new_raw = int(await axil.read(ADDR_X_NEW))
-    if take_low16_signed(x_new_raw & 0xFFFF) != 0:
-        raise AssertionError(f"FAIL | X_NEW reset not zero: 0x{x_new_raw:08X}")
-    cocotb.log.info("PASS | axil_read_X_NEW_zero")
-
-
-# =============================================================================
-# Test 2 — full end-to-end neuron update through AXI
-# =============================================================================
-@cocotb.test()
-async def test_full_neuron_via_axi(dut):
-    """
-    End-to-end M2 demonstration:
-      1. Write all configuration via AXI4-Lite (AXI4LiteMaster)
-      2. Pulse start via CTRL register
-      3. Stream N=16 (w, x_prev) beats via AXI4-Stream
-      4. Poll STATUS until done
-      5. Read X_NEW
-      6. Compare to NumPy golden
-    """
-    cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start())
-    axil = AXI4LiteMaster(dut, "s_axil", dut.clk)
-
-    await reset_dut(dut)
-
-    # Build representative inputs
-    random.seed(42)
-    N = 16
-    w_list = [to_q15(random.uniform(-0.25, 0.25)) for _ in range(N)]
-    x_list = [to_q15(random.uniform(-0.30, 0.30)) for _ in range(N)]
-    win_u_q30      = to_q30(0.05)
-    x_prev_self_q15= to_q15(0.10)
-    leak_rate_q15  = to_q15(0.30)
-
-    expected = golden_compute(
-        w_list, x_list, win_u_q30, x_prev_self_q15, leak_rate_q15
-    )
-    cocotb.log.info(f"NumPy golden: expected x_new = {expected}")
-
-    # 1. Configuration writes via AXI4-Lite
-    await axil.write(ADDR_N_MINUS_1, N - 1)
-    await axil.write(ADDR_LEAK_RATE, to_unsigned16(leak_rate_q15))
-    await axil.write(ADDR_WIN_U,     to_unsigned32(win_u_q30))
-    await axil.write(ADDR_X_PREV,    to_unsigned16(x_prev_self_q15))
-
-    # 2. Start
-    await axil.write(ADDR_CTRL, CTRL_START_BIT)
-
-    # 3. Stream operand pairs
-    await axis_send_stream(dut, w_list, x_list)
-
-    # 4. Poll STATUS for done (sticky)
-    poll_max = 200
-    done = False
-    for _ in range(poll_max):
-        status = int(await axil.read(ADDR_STATUS))
-        if (status & STATUS_DONE):
-            done = True
+    aw_done = False
+    w_done  = False
+    for cyc in range(timeout):
+        await RisingEdge(dut.clk)
+        # Check at the next rising edge: did slave assert ready last cycle?
+        # In cocotb we read inputs after the edge, which reflects values from the prior cycle.
+        if not aw_done and int(dut.s_axil_awready.value) == 1:
+            dut.s_axil_awvalid.value = 0
+            aw_done = True
+        if not w_done and int(dut.s_axil_wready.value) == 1:
+            dut.s_axil_wvalid.value = 0
+            w_done = True
+        if aw_done and w_done:
             break
-        await tick(dut)
-    if not done:
-        raise AssertionError("FAIL | done bit never set in STATUS")
-    cocotb.log.info("PASS | sticky_done_via_axil_status")
-
-    # 5. Read X_NEW
-    rdata = int(await axil.read(ADDR_X_NEW))
-    actual = take_low16_signed(rdata & 0xFFFF)
-
-    # 6. Compare to golden
-    if actual == expected:
-        cocotb.log.info(
-            f"PASS | end_to_end_axi_neuron_update | x_new = {actual}"
-        )
     else:
-        raise AssertionError(
-            f"FAIL | end_to_end x_new: expected {expected}, got {actual}"
-        )
+        raise TimeoutError(f"axil_write @0x{addr:02x}: AW/W handshake timeout")
+
+    # Wait for bvalid, then accept it
+    for cyc in range(timeout):
+        await RisingEdge(dut.clk)
+        if int(dut.s_axil_bvalid.value) == 1:
+            # bready already 1 in reset, so this is the handshake cycle
+            await RisingEdge(dut.clk)  # let slave see bready then deassert bvalid
+            return
+    raise TimeoutError(f"axil_write @0x{addr:02x}: BVALID never asserted")
+
+
+async def axil_read(dut, addr, timeout=200):
+    """One AXI4-Lite read. Returns 32-bit value."""
+    dut.s_axil_araddr.value = addr
+    dut.s_axil_arvalid.value = 1
+    # Wait for arready
+    for cyc in range(timeout):
+        await RisingEdge(dut.clk)
+        if int(dut.s_axil_arready.value) == 1:
+            dut.s_axil_arvalid.value = 0
+            break
+    else:
+        raise TimeoutError(f"axil_read @0x{addr:02x}: ARREADY never asserted")
+    # Wait for rvalid
+    for cyc in range(timeout):
+        await RisingEdge(dut.clk)
+        if int(dut.s_axil_rvalid.value) == 1:
+            data = int(dut.s_axil_rdata.value)
+            await RisingEdge(dut.clk)
+            return data
+    raise TimeoutError(f"axil_read @0x{addr:02x}: RVALID never asserted")
+
+
+def pack_chunk(vec, data_w):
+    mask = (1 << data_w) - 1
+    out = 0
+    for i, v in enumerate(vec):
+        out |= (v & mask) << (i * data_w)
+    return out
+
+
+async def axis_beat(dut, w_vec, x_vec, last=True, timeout=200):
+    """Send one AXI4-Stream beat carrying packed (w || x) and tlast."""
+    w_packed = pack_chunk(w_vec, DATA_W)
+    x_packed = pack_chunk(x_vec, DATA_W)
+    tdata = (w_packed << (MAC_WIDTH * DATA_W)) | x_packed
+    dut.s_axis_tdata.value = tdata
+    dut.s_axis_tvalid.value = 1
+    dut.s_axis_tlast.value = 1 if last else 0
+    for cyc in range(timeout):
+        await RisingEdge(dut.clk)
+        if int(dut.s_axis_tready.value) == 1:
+            dut.s_axis_tvalid.value = 0
+            dut.s_axis_tlast.value = 0
+            return
+    raise TimeoutError("axis_beat: TREADY never asserted")
+
+
+@cocotb.test()
+async def test_axil_write_readback(dut):
+    """Smoke test: write to LEAK_A, read it back, verify match."""
+    cocotb.start_soon(Clock(dut.clk, 10, unit='ns').start())
+    await reset_dut(dut)
+
+    test_val = float_to_q(0.3, DATA_W) & ((1 << DATA_W) - 1)
+    dut._log.info(f"Writing LEAK_A = 0x{test_val:04x}")
+    await axil_write(dut, ADDR_LEAK_A, test_val)
+    dut._log.info("Write done, reading back")
+    rb = await axil_read(dut, ADDR_LEAK_A)
+    rb_signed = sign_extend(rb & ((1 << DATA_W) - 1), DATA_W)
+    expect_signed = sign_extend(test_val, DATA_W)
+    dut._log.info(f"Readback raw=0x{rb:08x}, signed={rb_signed}, expect={expect_signed}")
+    assert rb_signed == expect_signed, f"AXIL readback mismatch: rb={rb_signed}, expect={expect_signed}"
+    dut._log.info("AXIL WRITE/READ PASS")
+
+
+@cocotb.test()
+async def test_full_pipeline(dut):
+    """End-to-end: configure via AXIL, send vector via AXIS, read result via AXIL."""
+    cocotb.start_soon(Clock(dut.clk, 10, unit='ns').start())
+    await reset_dut(dut)
+
+    random.seed(42)
+    w = [float_to_q(random.uniform(-0.1, 0.1), DATA_W) for _ in range(MAC_WIDTH)]
+    x = [float_to_q(random.uniform(-0.5, 0.5), DATA_W) for _ in range(MAC_WIDTH)]
+    x_prev_i = float_to_q(random.uniform(-0.5, 0.5), DATA_W)
+    leak_a = float_to_q(0.3, DATA_W)
+    # Win term in ACC_W bits, low-32 truncation through AXIL
+    # win_term is Q1.(DATA_W-1) sign-extended into ACC_W bits (per corrected RTL contract).
+    # On the AXIL bus we sign-extend Q1.15 into the low bits of a 32-bit word.
+    win_q = float_to_q(random.uniform(-0.05, 0.05), DATA_W)
+    win_term_signed = sign_extend(win_q, ACC_W)
+    win_term_32 = win_q & 0xFFFFFFFF
+    if win_q < 0:
+        # sign-extend into upper 32 bits for the AXIL 32-bit word write
+        win_term_32 = (win_q & 0xFFFFFFFF)
+
+    dut._log.info("Configuring via AXIL")
+    await axil_write(dut, ADDR_LEAK_A, leak_a & 0xFFFFFFFF)
+    await axil_write(dut, ADDR_XPREV,  x_prev_i & 0xFFFFFFFF)
+    await axil_write(dut, ADDR_WIN_T,  win_term_32)
+    dut._log.info("Asserting CTRL.start")
+    await axil_write(dut, ADDR_CTRL, 0x1)
+
+    dut._log.info("Streaming AXIS beat")
+    await axis_beat(dut, w, x, last=True)
+
+    # Poll STATUS.done
+    dut._log.info("Polling STATUS for done")
+    for poll in range(50):
+        status = await axil_read(dut, ADDR_STATUS)
+        if status & 0x2:
+            dut._log.info(f"done after {poll+1} polls (status=0x{status:x})")
+            break
+    else:
+        raise TimeoutError("done never asserted")
+
+    rb = await axil_read(dut, ADDR_XNEXT)
+    dut_x_next = sign_extend(rb & ((1 << DATA_W) - 1), DATA_W)
+    gold = state_update_golden(w, x, x_prev_i, win_term_signed, leak_a, DATA_W, ACC_W, FRAC_W)
+    dut._log.info(f"FULL PIPELINE: dut={dut_x_next}, golden={gold}")
+    assert dut_x_next == gold, f"PIPELINE FAIL: dut={dut_x_next}, golden={gold}, diff={dut_x_next-gold}"
+    dut._log.info("FULL PIPELINE PASS")

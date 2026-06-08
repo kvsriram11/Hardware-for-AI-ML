@@ -1,0 +1,72 @@
+########## M4 Q15 (DATA_W=16) ##########
+     -.--ns INFO     gpi                                ..mbed\gpi_embed.cpp:94   in _embed_init_python              Using Python 3.12.4 interpreter at C:\Users\kvsri\ECE510\ESN-redo\env\venv\Scripts\python.exe
+     -.--ns INFO     gpi                                ..\gpi\GpiCommon.cpp:79   in gpi_print_registered_impl       VPI registered
+     0.00ns INFO     cocotb                             Running on Icarus Verilog version 12.0 (devel)
+     0.00ns INFO     cocotb                             Seeding Python random module with 1780853330
+     0.00ns INFO     cocotb                             Initialized cocotb v2.0.1 from C:\Users\kvsri\ECE510\ESN-redo\env\venv\Lib\site-packages\cocotb
+     0.00ns INFO     cocotb.regression                  pytest not found, install it to enable better AssertionError messages
+     0.00ns INFO     cocotb                             Running tests
+     0.00ns INFO     cocotb.regression                  running test_top.test_full_reservoir (1/1)
+ 11760.00ns INFO     cocotb.top                         M4 DATA_W=16: COMPUTE done, cycles=1169 (loop-counted 1170)
+ 11760.00ns INFO     cocotb.top                         M4 RESULT DATA_W=16 N=1000: 1000/1000 bit-exact, worst|diff|=0 lsb, cycles_per_update=1169
+ 11760.00ns INFO     cocotb.top                         M4_MEASURE data_w=16 cycles=1169 exact=1000 worst=0 N=1000
+ 11760.00ns INFO     cocotb.top                         M4 DATA_W=16 FULL RESERVOIR PASS
+ 11760.00ns INFO     cocotb.regression                  test_top.test_full_reservoir passed
+ 11760.00ns INFO     cocotb.regression                  **************************************************************************************
+                                                        ** TEST                          STATUS  SIM TIME (ns)  REAL TIME (s)  RATIO (ns/s) **
+                                                        **************************************************************************************
+                                                        ** test_top.test_full_reservoir   PASS       11760.00           5.39       2181.85  **
+                                                        **************************************************************************************
+                                                        ** TESTS=1 PASS=1 FAIL=0 SKIP=0              11760.00           5.39       2181.36  **
+                                                        **************************************************************************************
+VCD info: dumping is suppressed.
+
+=== runner.py: test result = C:\Users\kvsri\ECE510\ESN-redo\tb\m4\results.xml ===
+########## M4 INT8 (DATA_W=8) ##########
+     -.--ns INFO     gpi                                ..mbed\gpi_embed.cpp:94   in _embed_init_python              Using Python 3.12.4 interpreter at C:\Users\kvsri\ECE510\ESN-redo\env\venv\Scripts\python.exe
+     -.--ns INFO     gpi                                ..\gpi\GpiCommon.cpp:79   in gpi_print_registered_impl       VPI registered
+     0.00ns INFO     cocotb                             Running on Icarus Verilog version 12.0 (devel)
+     0.00ns INFO     cocotb                             Seeding Python random module with 1780853336
+     0.00ns INFO     cocotb                             Initialized cocotb v2.0.1 from C:\Users\kvsri\ECE510\ESN-redo\env\venv\Lib\site-packages\cocotb
+     0.00ns INFO     cocotb.regression                  pytest not found, install it to enable better AssertionError messages
+     0.00ns INFO     cocotb                             Running tests
+     0.00ns INFO     cocotb.regression                  running test_top.test_full_reservoir (1/1)
+ 11760.00ns INFO     cocotb.top                         M4 DATA_W=8: COMPUTE done, cycles=1169 (loop-counted 1170)
+ 11760.00ns INFO     cocotb.top                         M4 RESULT DATA_W=8 N=1000: 999/1000 bit-exact, worst|diff|=1 lsb, cycles_per_update=1169
+ 11760.00ns INFO     cocotb.top                         M4_MEASURE data_w=8 cycles=1169 exact=999 worst=1 N=1000
+ 11760.00ns INFO     cocotb.top                         M4 DATA_W=8 FULL RESERVOIR PASS
+ 11760.00ns INFO     cocotb.regression                  test_top.test_full_reservoir passed
+ 11760.00ns INFO     cocotb.regression                  **************************************************************************************
+                                                        ** TEST                          STATUS  SIM TIME (ns)  REAL TIME (s)  RATIO (ns/s) **
+                                                        **************************************************************************************
+                                                        ** test_top.test_full_reservoir   PASS       11760.00           5.24       2244.55  **
+                                                        **************************************************************************************
+                                                        ** TESTS=1 PASS=1 FAIL=0 SKIP=0              11760.00           5.24       2244.12  **
+                                                        **************************************************************************************
+VCD info: dumping is suppressed.
+
+=== runner.py: test result = C:\Users\kvsri\ECE510\ESN-redo\tb\m4\results.xml ===
+########## M4 Q4 (DATA_W=4) ##########
+     -.--ns INFO     gpi                                ..mbed\gpi_embed.cpp:94   in _embed_init_python              Using Python 3.12.4 interpreter at C:\Users\kvsri\ECE510\ESN-redo\env\venv\Scripts\python.exe
+     -.--ns INFO     gpi                                ..\gpi\GpiCommon.cpp:79   in gpi_print_registered_impl       VPI registered
+     0.00ns INFO     cocotb                             Running on Icarus Verilog version 12.0 (devel)
+     0.00ns INFO     cocotb                             Seeding Python random module with 1780853343
+     0.00ns INFO     cocotb                             Initialized cocotb v2.0.1 from C:\Users\kvsri\ECE510\ESN-redo\env\venv\Lib\site-packages\cocotb
+     0.00ns INFO     cocotb.regression                  pytest not found, install it to enable better AssertionError messages
+     0.00ns INFO     cocotb                             Running tests
+     0.00ns INFO     cocotb.regression                  running test_top.test_full_reservoir (1/1)
+ 11760.00ns INFO     cocotb.top                         M4 DATA_W=4: COMPUTE done, cycles=1169 (loop-counted 1170)
+ 11760.00ns INFO     cocotb.top                         M4 RESULT DATA_W=4 N=1000: 988/1000 bit-exact, worst|diff|=1 lsb, cycles_per_update=1169
+ 11760.00ns INFO     cocotb.top                         M4_MEASURE data_w=4 cycles=1169 exact=988 worst=1 N=1000
+ 11760.00ns INFO     cocotb.top                         M4 DATA_W=4 FULL RESERVOIR PASS
+ 11760.00ns INFO     cocotb.regression                  test_top.test_full_reservoir passed
+ 11760.00ns INFO     cocotb.regression                  **************************************************************************************
+                                                        ** TEST                          STATUS  SIM TIME (ns)  REAL TIME (s)  RATIO (ns/s) **
+                                                        **************************************************************************************
+                                                        ** test_top.test_full_reservoir   PASS       11760.00           5.55       2117.02  **
+                                                        **************************************************************************************
+                                                        ** TESTS=1 PASS=1 FAIL=0 SKIP=0              11760.00           5.56       2116.65  **
+                                                        **************************************************************************************
+VCD info: dumping is suppressed.
+
+=== runner.py: test result = C:\Users\kvsri\ECE510\ESN-redo\tb\m4\results.xml ===

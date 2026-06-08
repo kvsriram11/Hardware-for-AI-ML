@@ -1,0 +1,31 @@
+{
+  "design_name": "compute_core",
+  "note": "one K=64 lane; full design = 64x this. Lanes are parallel/identical, so per-lane timing/critical-path == design; total area = x64.",
+  "precision": "q4",
+  "data_w": 4,
+  "frac_w": 3,
+  "acc_w": 40,
+  "mac_width": 16,
+  "source_files": [
+    "rtl/m2/mac_array.sv",
+    "rtl/m2/tanh_pwl.sv",
+    "rtl/m2/leak_blend.sv",
+    "rtl/m4/compute_core.sv"
+  ],
+  "clock": {
+    "port": "clk",
+    "period_ns": 8.0,
+    "target_freq_mhz": 125.0
+  },
+  "pdk": {
+    "name": "sky130A",
+    "stdcell_lib": "sky130_fd_sc_hd",
+    "corner": "tt_025C_1v80",
+    "liberty": "synth/sky130_fd_sc_hd__tt_025C_1v80.lib"
+  },
+  "flow": {
+    "synthesis": "yowasp-yosys 0.66 (WASM)",
+    "sta": "yosys ltp",
+    "script": "synth/m4/q4/synth.ys"
+  }
+}

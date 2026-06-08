@@ -1,0 +1,94 @@
+{
+  "hw": {
+    "name": "Intel i7-1165G7 (Tiger Lake)",
+    "peak_compute_gflops_fp32_single_core": 179.2,
+    "peak_dram_bandwidth_gbs": 51.2,
+    "l3_cache_mb": 12,
+    "ridge_point_flop_per_byte": 3.4999999999999996
+  },
+  "sweep": [
+    {
+      "N": 100,
+      "flops": 20900,
+      "no_reuse_bytes": 41604,
+      "full_reuse_bytes": 1604,
+      "ai_no_reuse": 0.5023555427362754,
+      "ai_full_reuse": 13.029925187032418,
+      "measured_per_step_s": 8.9e-05,
+      "measured_gflops": 0.23483146067415733,
+      "w_matrix_mb": 0.04,
+      "fits_in_l3": true
+    },
+    {
+      "N": 500,
+      "flops": 504500,
+      "no_reuse_bytes": 1008004,
+      "full_reuse_bytes": 8004,
+      "ai_no_reuse": 0.5004940456585489,
+      "ai_full_reuse": 63.030984507746126,
+      "measured_per_step_s": 0.0001398,
+      "measured_gflops": 3.608726752503576,
+      "w_matrix_mb": 1.0,
+      "fits_in_l3": true
+    },
+    {
+      "N": 1000,
+      "flops": 2009000,
+      "no_reuse_bytes": 4016004,
+      "full_reuse_bytes": 16004,
+      "ai_no_reuse": 0.5002485057285799,
+      "ai_full_reuse": 125.53111722069482,
+      "measured_per_step_s": 0.0002249,
+      "measured_gflops": 8.932859048465984,
+      "w_matrix_mb": 4.0,
+      "fits_in_l3": true
+    },
+    {
+      "N": 2000,
+      "flops": 8018000,
+      "no_reuse_bytes": 16032004,
+      "full_reuse_bytes": 32004,
+      "ai_no_reuse": 0.5001246257174088,
+      "ai_full_reuse": 250.53118360204974,
+      "measured_per_step_s": 0.0009166,
+      "measured_gflops": 8.747545276020073,
+      "w_matrix_mb": 16.0,
+      "fits_in_l3": false
+    },
+    {
+      "N": 5000,
+      "flops": 50045000,
+      "no_reuse_bytes": 100080004,
+      "full_reuse_bytes": 80004,
+      "ai_no_reuse": 0.5000499400459656,
+      "ai_full_reuse": 625.5312234388281,
+      "measured_per_step_s": 0.0045714,
+      "measured_gflops": 10.947412171326071,
+      "w_matrix_mb": 100.0,
+      "fits_in_l3": false
+    }
+  ],
+  "headline_n1000": {
+    "N": 1000,
+    "all_times_s": [
+      1.6395364999771118,
+      1.640136200003326,
+      1.663569499971345,
+      1.6737875998951495,
+      1.679338000016287,
+      1.6799111999571323,
+      1.6991884000599384,
+      1.7232739001046866,
+      1.7504477000329643,
+      2.032617799937725
+    ],
+    "median_s": 1.6799111999571323,
+    "min_s": 1.6395364999771118,
+    "max_s": 2.032617799937725,
+    "reps": 10,
+    "canonical_mse": 1.0229538698629735e-06,
+    "numpy_version": "1.26.4",
+    "python_version": "3.12.10",
+    "blas_threads": 1
+  }
+}

@@ -1,39 +1,41 @@
-rm -f results.xml
-"C:/ProgramData/chocolatey/lib/make/tools/install/bin/make.exe" -f Makefile.interface results.xml
-make[1]: Entering directory 'C:/Users/kvsri/OneDrive/Desktop/ECE510/Github/Hardware-for-AI-ML/project/m2/tb'
-C:/Python314/Lib/site-packages/cocotb_tools/makefiles/simulators/Makefile.icarus:66: Using MODULE is deprecated, please use COCOTB_TEST_MODULES instead.
-rm -f results.xml
-COCOTB_TEST_MODULES=test_interface COCOTB_TESTCASE= COCOTB_TEST_FILTER= COCOTB_TOPLEVEL=interface_axi TOPLEVEL_LANG=verilog \
-         /c/iverilog/bin/vvp -M C:/Python314/Lib/site-packages/cocotb/libs -m cocotbvpi_icarus   sim_build_interface/sim.vvp   
-     -.--ns INFO     gpi                                ..mbed\gpi_embed.cpp:94   in _embed_init_python              Using Python 3.14.4 interpreter at C:/Python314/python.exe
-     -.--ns ERROR    gpi                                ..mbed\gpi_embed.cpp:155  in _embed_init_python              Unexpected sys.executable value (expected 'C:/Python314/python.exe', got 'C:\iverilog\bin\vvp.exe')
+     -.--ns INFO     gpi                                ..mbed\gpi_embed.cpp:94   in _embed_init_python              Using Python 3.12.4 interpreter at C:\Users\kvsri\ECE510\ESN-redo\env\venv\Scripts\python.exe
      -.--ns INFO     gpi                                ..\gpi\GpiCommon.cpp:79   in gpi_print_registered_impl       VPI registered
      0.00ns INFO     cocotb                             Running on Icarus Verilog version 12.0 (devel)
-     0.00ns INFO     cocotb                             Seeding Python random module with 1777867453
-     0.00ns INFO     cocotb                             Initialized cocotb v2.0.1 from C:\Python314\Lib\site-packages\cocotb
+     0.00ns INFO     cocotb                             Seeding Python random module with 1780820703
+     0.00ns INFO     cocotb                             Initialized cocotb v2.0.1 from C:\Users\kvsri\ECE510\ESN-redo\env\venv\Lib\site-packages\cocotb
      0.00ns INFO     cocotb.regression                  pytest not found, install it to enable better AssertionError messages
      0.00ns INFO     cocotb                             Running tests
-     0.00ns INFO     cocotb.regression                  running test_interface.test_axil_write_read_basic (1/2)
-                                                            Multiple complete write transactions and read transactions using
-    60.00ns INFO     test                               PASS | axil_write_N_MINUS_1
-    90.00ns INFO     test                               PASS | axil_write_LEAK_RATE
-   120.00ns INFO     test                               PASS | axil_write_WIN_U
-   150.00ns INFO     test                               PASS | axil_write_X_PREV
-   180.00ns INFO     test                               PASS | axil_read_STATUS_idle  | status = 0x00000000
-   210.00ns INFO     test                               PASS | axil_read_X_NEW_zero
-   210.00ns INFO     cocotb.regression                  test_interface.test_axil_write_read_basic passed
-   210.00ns INFO     cocotb.regression                  running test_interface.test_full_neuron_via_axi (2/2)
-                                                            End-to-end M2 demonstration:
-   250.00ns INFO     test                               NumPy golden: expected x_new = 3335
-   790.00ns INFO     test                               PASS | sticky_done_via_axil_status
-   820.00ns INFO     test                               PASS | end_to_end_axi_neuron_update | x_new = 3335
-   820.00ns INFO     cocotb.regression                  test_interface.test_full_neuron_via_axi passed
-   820.00ns INFO     cocotb.regression                  ***************************************************************************************************
-                                                        ** TEST                                       STATUS  SIM TIME (ns)  REAL TIME (s)  RATIO (ns/s) **
-                                                        ***************************************************************************************************
-                                                        ** test_interface.test_axil_write_read_basic   PASS         210.00           0.00      50990.15  **
-                                                        ** test_interface.test_full_neuron_via_axi     PASS         610.00           0.01     101111.50  **
-                                                        ***************************************************************************************************
-                                                        ** TESTS=2 PASS=2 FAIL=0 SKIP=0                             820.00           0.01      69674.32  **
-                                                        ***************************************************************************************************
-make[1]: Leaving directory 'C:/Users/kvsri/OneDrive/Desktop/ECE510/Github/Hardware-for-AI-ML/project/m2/tb'
+     0.00ns INFO     cocotb.regression                  running test_interface.test_axil_write_readback (1/2)
+                                                            Smoke test: write to LEAK_A, read it back, verify match.
+    60.00ns INFO     cocotb.interface_axi               Writing LEAK_A = 0x2666
+   100.00ns INFO     cocotb.interface_axi               Write done, reading back
+   130.00ns INFO     cocotb.interface_axi               Readback raw=0x00002666, signed=9830, expect=9830
+   130.00ns INFO     cocotb.interface_axi               AXIL WRITE/READ PASS
+   130.00ns INFO     cocotb.regression                  test_interface.test_axil_write_readback passed
+   130.00ns INFO     cocotb.regression                  running test_interface.test_full_pipeline (2/2)
+                                                            End-to-end: configure via AXIL, send vector via AXIS, read result via AXIL.
+   200.00ns INFO     cocotb.interface_axi               Configuring via AXIL
+   320.00ns INFO     cocotb.interface_axi               Asserting CTRL.start
+   360.00ns INFO     cocotb.interface_axi               Streaming AXIS beat
+   370.00ns INFO     cocotb.interface_axi               Polling STATUS for done
+   490.00ns INFO     cocotb.interface_axi               done after 4 polls (status=0x2)
+   520.00ns INFO     cocotb.interface_axi               FULL PIPELINE: dut=1246, golden=1246
+   520.00ns INFO     cocotb.interface_axi               FULL PIPELINE PASS
+   520.00ns INFO     cocotb.regression                  test_interface.test_full_pipeline passed
+   520.00ns INFO     cocotb.regression                  *************************************************************************************************
+                                                        ** TEST                                     STATUS  SIM TIME (ns)  REAL TIME (s)  RATIO (ns/s) **
+                                                        *************************************************************************************************
+                                                        ** test_interface.test_axil_write_readback   PASS         130.00           0.01      24476.34  **
+                                                        ** test_interface.test_full_pipeline         PASS         390.00           0.00      97466.40  **
+                                                        *************************************************************************************************
+                                                        ** TESTS=2 PASS=2 FAIL=0 SKIP=0                           520.00           0.01      50420.56  **
+                                                        *************************************************************************************************
+FST info: dumpfile waves.vcd opened for output.
+FST warning: C:\Users\kvsri\ECE510\ESN-redo\rtl\m2\interface.sv $dumpfile called after $dumpvars started,
+                                                                using existing file (waves.vcd).
+FST warning: ignoring signals in previously scanned scope interface_axi.u_cc.
+FST warning: ignoring signals in previously scanned scope interface_axi.u_cc.u_blend.
+FST warning: ignoring signals in previously scanned scope interface_axi.u_cc.u_mac.
+FST warning: ignoring signals in previously scanned scope interface_axi.u_cc.u_tanh.
+
+=== runner.py: test result = C:\Users\kvsri\ECE510\ESN-redo\tb\m2\results.xml ===

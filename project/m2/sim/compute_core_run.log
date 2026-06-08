@@ -1,40 +1,102 @@
-rm -f results.xml
-"C:/ProgramData/chocolatey/lib/make/tools/install/bin/make.exe" -f Makefile.compute_core results.xml
-make[1]: Entering directory 'C:/Users/kvsri/OneDrive/Desktop/ECE510/Github/Hardware-for-AI-ML/project/m2/tb'
-C:/Python314/Lib/site-packages/cocotb_tools/makefiles/simulators/Makefile.icarus:66: Using MODULE is deprecated, please use COCOTB_TEST_MODULES instead.
-rm -f results.xml
-COCOTB_TEST_MODULES=test_compute_core COCOTB_TESTCASE= COCOTB_TEST_FILTER= COCOTB_TOPLEVEL=compute_core TOPLEVEL_LANG=verilog \
-         /c/iverilog/bin/vvp -M C:/Python314/Lib/site-packages/cocotb/libs -m cocotbvpi_icarus   sim_build_compute_core/sim.vvp   
-     -.--ns INFO     gpi                                ..mbed\gpi_embed.cpp:94   in _embed_init_python              Using Python 3.14.4 interpreter at C:/Python314/python.exe
-     -.--ns ERROR    gpi                                ..mbed\gpi_embed.cpp:155  in _embed_init_python              Unexpected sys.executable value (expected 'C:/Python314/python.exe', got 'C:\iverilog\bin\vvp.exe')
+     -.--ns INFO     gpi                                ..mbed\gpi_embed.cpp:94   in _embed_init_python              Using Python 3.12.4 interpreter at C:\Users\kvsri\ECE510\ESN-redo\env\venv\Scripts\python.exe
      -.--ns INFO     gpi                                ..\gpi\GpiCommon.cpp:79   in gpi_print_registered_impl       VPI registered
      0.00ns INFO     cocotb                             Running on Icarus Verilog version 12.0 (devel)
-     0.00ns INFO     cocotb                             Seeding Python random module with 1777867450
-     0.00ns INFO     cocotb                             Initialized cocotb v2.0.1 from C:\Python314\Lib\site-packages\cocotb
+     0.00ns INFO     cocotb                             Seeding Python random module with 1780820702
+     0.00ns INFO     cocotb                             Initialized cocotb v2.0.1 from C:\Users\kvsri\ECE510\ESN-redo\env\venv\Lib\site-packages\cocotb
      0.00ns INFO     cocotb.regression                  pytest not found, install it to enable better AssertionError messages
      0.00ns INFO     cocotb                             Running tests
-     0.00ns INFO     cocotb.regression                  running test_compute_core.test_basic_update (1/3)
-                                                            Drive one full ESN single-neuron update with N=16 and realistic
-    15.00ns INFO     test                               NumPy golden: expected x_new = 3335
-   231.00ns INFO     test                               PASS | basic_N16_update                               | x_new = 3335
-   231.00ns INFO     cocotb.regression                  test_compute_core.test_basic_update passed
-   231.00ns INFO     cocotb.regression                  running test_compute_core.test_two_back_to_back (2/3)
-                                                            Run two updates in sequence and verify both produce correct outputs.
-   392.00ns INFO     test                               PASS | update_1_x_prev_zero                           | x_new = 288
-   552.00ns INFO     test                               PASS | update_2_uses_prior_output                     | x_new = 290
-   552.00ns INFO     cocotb.regression                  test_compute_core.test_two_back_to_back passed
-   552.00ns INFO     cocotb.regression                  running test_compute_core.test_realistic_n64 (3/3)
-                                                            A larger N=64 dot product proves the FSM scales without state corruption.
-   577.00ns INFO     test                               NumPy golden (N=64): expected x_new = -1821
-  1273.00ns INFO     test                               PASS | realistic_N64                                  | x_new = -1821
-  1273.00ns INFO     cocotb.regression                  test_compute_core.test_realistic_n64 passed
-  1273.00ns INFO     cocotb.regression                  *************************************************************************************************
-                                                        ** TEST                                     STATUS  SIM TIME (ns)  REAL TIME (s)  RATIO (ns/s) **
-                                                        *************************************************************************************************
-                                                        ** test_compute_core.test_basic_update       PASS         231.00           0.00     101816.33  **
-                                                        ** test_compute_core.test_two_back_to_back   PASS         321.00           0.00     117259.33  **
-                                                        ** test_compute_core.test_realistic_n64      PASS         721.00           0.01     141670.25  **
-                                                        *************************************************************************************************
-                                                        ** TESTS=3 PASS=3 FAIL=0 SKIP=0                          1273.00           0.01     109786.52  **
-                                                        *************************************************************************************************
-make[1]: Leaving directory 'C:/Users/kvsri/OneDrive/Desktop/ECE510/Github/Hardware-for-AI-ML/project/m2/tb'
+     0.00ns INFO     cocotb.regression                  running test_compute_core.test_zero_input (1/3)
+                                                            Trivial smoke test: all zeros -> tanh(0)=0 -> leak_blend(a, 0, 0) = 0
+     0.00ns WARNING  py.warnings                        C:\Users\kvsri\ECE510\ESN-redo\tb\m2\test_compute_core.py:118: DeprecationWarning: The 'units' argument has been renamed to 'unit'.
+                                                          cocotb.start_soon(Clock(dut.clk, 10, units='ns').start())
+   160.00ns INFO     cocotb.compute_core                [zero] internals: mac_sum=0, win_term_i=0, pre_act=0, tanh_out=0, blend_out=0
+   160.00ns INFO     cocotb.compute_core                [zero] DUT done after 9 cycles, x_next=0
+   160.00ns INFO     cocotb.compute_core                zero: dut=0, golden=0
+   160.00ns INFO     cocotb.regression                  test_compute_core.test_zero_input passed
+   160.00ns INFO     cocotb.regression                  running test_compute_core.test_representative_vector (2/3)
+                                                            Representative ESN-like input — random small reservoir weights, random state.
+   160.00ns WARNING  py.warnings                        C:\Users\kvsri\ECE510\ESN-redo\tb\m2\test_compute_core.py:133: DeprecationWarning: The 'units' argument has been renamed to 'unit'.
+                                                          cocotb.start_soon(Clock(dut.clk, 10, units='ns').start())
+   330.00ns INFO     cocotb.compute_core                [repr] internals: mac_sum=40103466, win_term_i=1550, pre_act=2773, tanh_out=1386, blend_out=1246
+   330.00ns INFO     cocotb.compute_core                [repr] DUT done after 9 cycles, x_next=1246
+   330.00ns INFO     cocotb.compute_core                REPRESENTATIVE: dut=1246, golden=1246
+   330.00ns INFO     cocotb.compute_core                BIT-EXACT MATCH
+   330.00ns INFO     cocotb.regression                  test_compute_core.test_representative_vector passed
+   330.00ns INFO     cocotb.regression                  running test_compute_core.test_multiple_random_vectors (3/3)
+                                                            Stress test: 20 random vectors, all must bit-match.
+   330.00ns WARNING  py.warnings                        C:\Users\kvsri\ECE510\ESN-redo\tb\m2\test_compute_core.py:161: DeprecationWarning: The 'units' argument has been renamed to 'unit'.
+                                                          cocotb.start_soon(Clock(dut.clk, 10, units='ns').start())
+   500.00ns INFO     cocotb.compute_core                [r0] internals: mac_sum=-106833524, win_term_i=714, pre_act=-2547, tanh_out=-1274, blend_out=-7107
+   500.00ns INFO     cocotb.compute_core                [r0] DUT done after 9 cycles, x_next=-7107
+   500.00ns INFO     cocotb.compute_core                r0: PASS bit-exact (-7107)
+   610.00ns INFO     cocotb.compute_core                [r1] internals: mac_sum=106282426, win_term_i=1466, pre_act=4709, tanh_out=2354, blend_out=1439
+   610.00ns INFO     cocotb.compute_core                [r1] DUT done after 9 cycles, x_next=1439
+   610.00ns INFO     cocotb.compute_core                r1: PASS bit-exact (1439)
+   720.00ns INFO     cocotb.compute_core                [r2] internals: mac_sum=-553125584, win_term_i=-1082, pre_act=-17963, tanh_out=-8982, blend_out=3058
+   720.00ns INFO     cocotb.compute_core                [r2] DUT done after 9 cycles, x_next=3058
+   720.00ns INFO     cocotb.compute_core                r2: PASS bit-exact (3058)
+   830.00ns INFO     cocotb.compute_core                [r3] internals: mac_sum=-183366821, win_term_i=-1286, pre_act=-6882, tanh_out=-3441, blend_out=2840
+   830.00ns INFO     cocotb.compute_core                [r3] DUT done after 9 cycles, x_next=2840
+   830.00ns INFO     cocotb.compute_core                r3: PASS bit-exact (2840)
+   940.00ns INFO     cocotb.compute_core                [r4] internals: mac_sum=-33783285, win_term_i=1511, pre_act=480, tanh_out=240, blend_out=-297
+   940.00ns INFO     cocotb.compute_core                [r4] DUT done after 9 cycles, x_next=-297
+   940.00ns INFO     cocotb.compute_core                r4: PASS bit-exact (-297)
+  1050.00ns INFO     cocotb.compute_core                [r5] internals: mac_sum=-354184386, win_term_i=387, pre_act=-10422, tanh_out=-5211, blend_out=-9021
+  1050.00ns INFO     cocotb.compute_core                [r5] DUT done after 9 cycles, x_next=-9021
+  1050.00ns INFO     cocotb.compute_core                r5: PASS bit-exact (-9021)
+  1160.00ns INFO     cocotb.compute_core                [r6] internals: mac_sum=370153095, win_term_i=-1829, pre_act=9467, tanh_out=4733, blend_out=10400
+  1160.00ns INFO     cocotb.compute_core                [r6] DUT done after 9 cycles, x_next=10400
+  1160.00ns INFO     cocotb.compute_core                r6: PASS bit-exact (10400)
+  1270.00ns INFO     cocotb.compute_core                [r7] internals: mac_sum=64233999, win_term_i=2889, pre_act=4849, tanh_out=2424, blend_out=-6262
+  1270.00ns INFO     cocotb.compute_core                [r7] DUT done after 9 cycles, x_next=-6262
+  1270.00ns INFO     cocotb.compute_core                r7: PASS bit-exact (-6262)
+  1380.00ns INFO     cocotb.compute_core                [r8] internals: mac_sum=-31438608, win_term_i=-2275, pre_act=-3235, tanh_out=-1618, blend_out=-3662
+  1380.00ns INFO     cocotb.compute_core                [r8] DUT done after 9 cycles, x_next=-3662
+  1380.00ns INFO     cocotb.compute_core                r8: PASS bit-exact (-3662)
+  1490.00ns INFO     cocotb.compute_core                [r9] internals: mac_sum=26136370, win_term_i=-3242, pre_act=-2445, tanh_out=-1223, blend_out=7692
+  1490.00ns INFO     cocotb.compute_core                [r9] DUT done after 9 cycles, x_next=7692
+  1490.00ns INFO     cocotb.compute_core                r9: PASS bit-exact (7692)
+  1600.00ns INFO     cocotb.compute_core                [r10] internals: mac_sum=13804736, win_term_i=1753, pre_act=2174, tanh_out=1087, blend_out=2727
+  1600.00ns INFO     cocotb.compute_core                [r10] DUT done after 9 cycles, x_next=2727
+  1600.00ns INFO     cocotb.compute_core                r10: PASS bit-exact (2727)
+  1710.00ns INFO     cocotb.compute_core                [r11] internals: mac_sum=-194265250, win_term_i=-3102, pre_act=-9031, tanh_out=-4516, blend_out=-9077
+  1710.00ns INFO     cocotb.compute_core                [r11] DUT done after 9 cycles, x_next=-9077
+  1710.00ns INFO     cocotb.compute_core                r11: PASS bit-exact (-9077)
+  1820.00ns INFO     cocotb.compute_core                [r12] internals: mac_sum=405434321, win_term_i=2211, pre_act=14583, tanh_out=7291, blend_out=8319
+  1820.00ns INFO     cocotb.compute_core                [r12] DUT done after 9 cycles, x_next=8319
+  1820.00ns INFO     cocotb.compute_core                r12: PASS bit-exact (8319)
+  1930.00ns INFO     cocotb.compute_core                [r13] internals: mac_sum=-8581311, win_term_i=-479, pre_act=-741, tanh_out=-371, blend_out=10466
+  1930.00ns INFO     cocotb.compute_core                [r13] DUT done after 9 cycles, x_next=10466
+  1930.00ns INFO     cocotb.compute_core                r13: PASS bit-exact (10466)
+  2040.00ns INFO     cocotb.compute_core                [r14] internals: mac_sum=49589626, win_term_i=-2081, pre_act=-568, tanh_out=-284, blend_out=-3898
+  2040.00ns INFO     cocotb.compute_core                [r14] DUT done after 9 cycles, x_next=-3898
+  2040.00ns INFO     cocotb.compute_core                r14: PASS bit-exact (-3898)
+  2150.00ns INFO     cocotb.compute_core                [r15] internals: mac_sum=-289195560, win_term_i=-227, pre_act=-9053, tanh_out=-4527, blend_out=5706
+  2150.00ns INFO     cocotb.compute_core                [r15] DUT done after 9 cycles, x_next=5706
+  2150.00ns INFO     cocotb.compute_core                r15: PASS bit-exact (5706)
+  2260.00ns INFO     cocotb.compute_core                [r16] internals: mac_sum=76727781, win_term_i=3081, pre_act=5422, tanh_out=2711, blend_out=6855
+  2260.00ns INFO     cocotb.compute_core                [r16] DUT done after 9 cycles, x_next=6855
+  2260.00ns INFO     cocotb.compute_core                r16: PASS bit-exact (6855)
+  2370.00ns INFO     cocotb.compute_core                [r17] internals: mac_sum=140022745, win_term_i=1292, pre_act=5565, tanh_out=2782, blend_out=9201
+  2370.00ns INFO     cocotb.compute_core                [r17] DUT done after 9 cycles, x_next=9201
+  2370.00ns INFO     cocotb.compute_core                r17: PASS bit-exact (9201)
+  2480.00ns INFO     cocotb.compute_core                [r18] internals: mac_sum=-567570226, win_term_i=-3211, pre_act=-20532, tanh_out=-10266, blend_out=7856
+  2480.00ns INFO     cocotb.compute_core                [r18] DUT done after 9 cycles, x_next=7856
+  2480.00ns INFO     cocotb.compute_core                r18: PASS bit-exact (7856)
+  2590.00ns INFO     cocotb.compute_core                [r19] internals: mac_sum=-51299098, win_term_i=693, pre_act=-873, tanh_out=-437, blend_out=-10153
+  2590.00ns INFO     cocotb.compute_core                [r19] DUT done after 9 cycles, x_next=-10153
+  2590.00ns INFO     cocotb.compute_core                r19: PASS bit-exact (-10153)
+  2590.00ns INFO     cocotb.compute_core                RANDOM SWEEP: 20/20 PASS
+  2590.00ns INFO     cocotb.regression                  test_compute_core.test_multiple_random_vectors passed
+  2590.00ns INFO     cocotb.regression                  ********************************************************************************************************
+                                                        ** TEST                                            STATUS  SIM TIME (ns)  REAL TIME (s)  RATIO (ns/s) **
+                                                        ********************************************************************************************************
+                                                        ** test_compute_core.test_zero_input                PASS         160.00           0.01      25171.17  **
+                                                        ** test_compute_core.test_representative_vector     PASS         170.00           0.00      85485.16  **
+                                                        ** test_compute_core.test_multiple_random_vectors   PASS        2260.00           0.02     104272.80  **
+                                                        ********************************************************************************************************
+                                                        ** TESTS=3 PASS=3 FAIL=0 SKIP=0                                 2590.00           0.03      78390.91  **
+                                                        ********************************************************************************************************
+FST info: dumpfile waves.vcd opened for output.
+
+=== runner.py: test result = C:\Users\kvsri\ECE510\ESN-redo\tb\m2\results.xml ===

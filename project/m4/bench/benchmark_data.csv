@@ -1,0 +1,4 @@
+precision,data_w,cycles_per_update_N1000,clock_mhz,updates_per_sec,gflops_sustained,mse_vs_fp32,snr_db,cells,area_um2,critical_path_logic_stages,power_mw_est
+q15,16,1169,125.0,106929.0,214.82,5.321e-10,79.14,1899584,13665664.0,307,1424.7
+int8,8,1169,125.0,106929.0,214.82,3.032e-05,31.58,529536,3858182.4,296,397.2
+q4,4,1169,125.0,106929.0,214.82,7.154e-03,7.85,179136,1355539.2,290,134.4

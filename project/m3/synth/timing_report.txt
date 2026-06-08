@@ -1,71 +1,140 @@
-ECE 510 M3 — Timing Report (sky130_fd_sc_hd Technology-Mapped)
-Generated: Yosys 0.52 + ABC, synth_timing.ys
-ABC script: +strash;map;print_stats   Clock target: -D 10000 (10.000 ns)
-PDK: sky130A  tt_025C_1v80  (volare 0fe599b2afb6708d281543108caf8310912f54af)
-================================================================================
+================================================================
+M3 Static Timing -- yosys ltp on mapped sky130 netlist
+================================================================
+Tool        : yowasp-yosys 0.66 (WASM), ltp pass on synth/top_netlist.v
+Library     : sky130_fd_sc_hd__tt_025C_1v80 (typical, 25C, 1.80V)
+Clock target: 10.0 ns period / 100 MHz (see synth/config.json)
+STA note    : OpenSTA is unavailable on this host; ltp reports the longest
+              *topological* path (logic depth in mapped cells). Gate-level ns
+              slack requires OpenSTA/OpenROAD with SDC + parasitics (deferred,
+              see synth/synthesis_notes.md). ltp depth is the first-order
+              critical-path proxy.
 
-METHOD: Hierarchical ABC timing analysis
-  Each module mapped independently; abc print_stats reports worst-case
-  combinational path delay within that module's boundary.
-  Register-to-register paths that cross module boundaries are estimated
-  below using per-module delay figures.
+Longest topological path length : 310 mapped cells
+Critical datapath (see synth/critical_path.md):
+  start reg : u_if.u_cc.u_mac.prod_ext_q   (stage-1 product registers)
+  thru      : 16-way 40-bit adder-tree reduction (mac_array tree_sum)
+  end reg   : u_if.u_cc.u_mac.tree_q        (stage-2 reduce register)
+  then      : tree_q -> sum_out accumulate  (stage-3)
+================================================================
 
-PER-MODULE COMBINATIONAL PATH DELAY
-─────────────────────────────────────────────────────────────────────────────
-Module            Delay (ps)    Logic Levels    Meets 10 ns?
-─────────────────────────────────────────────────────────────────────────────
-interface_axi        658.25           7             YES  (9341.75 ps slack)
-compute_core       1,502.05          13             YES  (8497.95 ps slack)
-q15_tanh           1,701.44          17             YES  (8298.56 ps slack)
-q15_mac            2,908.18          31             YES  (7091.82 ps slack)
-q15_blend          3,482.95          39             YES  (6517.05 ps slack)
-─────────────────────────────────────────────────────────────────────────────
-
-NOTE: compute_core delay (1502.05 ps / 13 levels) reflects only the
-compute_core module's own glue logic; in hierarchical mode, q15_mac and
-q15_blend are treated as black boxes with model-derived delay. The
-worst-case register-to-register path through q15_blend is estimated below.
-
-CRITICAL PATH ESTIMATE (register-to-register through q15_blend)
-─────────────────────────────────────────────────────────────────────────────
-Stage                           Delay (ps)    Cell / Source
-─────────────────────────────────────────────────────────────────────────────
-clk → Q (dfxtp_1)                  ~150       compute_core state register
-Combinational in compute_core        ~50       output mux / steering logic
-q15_blend input → output          3,482.95    39-level NAND/AOI adder tree
-Setup capture (dfxtp_1)            ~150       compute_core x_new register
-─────────────────────────────────────────────────────────────────────────────
-Total estimated worst path        3,832.95 ps    (3.833 ns)
-
-Estimated slack:  10,000 − 3,833 = 6,167 ps  (+6.17 ns)
-Frequency achievable (estimated): ~260 MHz (1 / 3.833 ns)
-Target frequency: 100 MHz (10 ns period from config.json)
-Margin: 2.6× — substantial timing headroom.
-
-CLOCK TARGET COMPLIANCE
-─────────────────────────────────────────────────────────────────────────────
-Target period:   10.000 ns  (100 MHz,  config.json CLOCK_PERIOD=10.0)
-Worst path est:   3.833 ns  (q15_blend critical path + register overhead)
-Violation:        NONE — all paths meet constraint with > 6 ns slack
-
-NOTES ON METHODOLOGY
-─────────────────────────────────────────────────────────────────────────────
-1. True static timing analysis (STA) with annotated parasitics requires
-   full place-and-route via OpenROAD and Signoff STA via OpenSTA.
-   These results are pre-PnR estimates from ABC's mapped library model.
-
-2. Wire delays are excluded — ABC uses zero-wire-load model. Post-PnR
-   routing will add wire RC delay; typically +0.5–2.0 ns for a 61 kµm²
-   design in sky130 at 100 MHz.
-
-3. Even adding 2.0 ns wire delay: 3.833 + 2.0 = 5.833 ns < 10 ns target.
-   The design has substantial margin to absorb routing parasitic.
-
-4. The dominant delay source is q15_blend's Q15 multiply-accumulate:
-   two 16×16 partial product arrays (nand2_1 + a21oi_1 dominant) cascade
-   through 39 logic levels of carry-propagation and summation logic.
-
-5. Reference: CF06 crossbar_mac (4×4 CMAN) target was 5 ns at 200 MHz.
-   This design targets 100 MHz with a more conservative 10 ns window,
-   making timing closure straightforward.
-─────────────────────────────────────────────────────────────────────────────
+Longest topological path in top (length=310):
+    0: \clk
+    1: \s_axis_tready (via _58800_)
+    2: \_21992_ (via _58113_)
+    3: \_00734_ (via _58114_)
+    4: \u_if.u_cc.last_chunk_q (via _59534_)
+    5: \_12734_ (via _29467_)
+    6: \_00007_ (via _29468_)
+    7: \u_if.u_cc.state [2] (via _59590_)
+    8: \_12712_ (via _29465_)
+    9: \_00111_ (via _36313_)
+   10: \u_if.u_cc.flush_cnt [1] (via _59586_)
+   11: \_12690_ (via _29463_)
+   12: \_00002_ (via _29489_)
+   13: \u_if.u_cc.state [5] (via _59593_)
+   14: \_00000_ (via _29469_)
+   15: \u_if.u_cc.state [1] (via _59589_)
+   16: \_00001_ (via _29470_)
+   17: \u_if.u_cc.state [4] (via _59592_)
+   18: \_12978_ (via _29490_)
+   19: \_00006_ (via _29491_)
+   20: \u_if.u_cc.state [0] (via _59588_)
+   21: \_12786_ (via _29472_)
+   22: \_00008_ (via _29473_)
+   23: \u_if.u_cc.state [3] (via _59591_)
+   24: \_13021_ (via _29494_)
+   25: \_00028_ (via _30408_)
+   26: \u_if.u_cc.u_mac.prod_ext_q[10] [1] (via _59343_)
+   27: \_13096_ (via _49740_)
+   28: \_13129_ (via _49770_)
+   29: \_13163_ (via _49801_)
+   30: \_13185_ (via _49821_)
+   31: \_13199_ (via _49833_)
+   32: \_13389_ (via _50037_)
+   33: \_00453_ (via _50039_)
+   34: \u_if.u_cc.u_mac.tree_q [1] (via _58987_)
+   35: \_13464_ (via _50107_)
+   36: \_13633_ (via _50294_)
+   37: \_00492_ (via _50296_)
+   38: \u_if.u_cc.mac_sum [1] (via _58947_)
+   39: \_13462_ (via _50105_)
+   40: \_13465_ (via _50108_)
+   41: \_13630_ (via _50291_)
+   42: \_00491_ (via _50293_)
+   43: \u_if.u_cc.mac_sum [2] (via _58948_)
+   44: \_13467_ (via _50110_)
+   45: \_13628_ (via _50288_)
+   46: \_00490_ (via _50290_)
+   47: \u_if.u_cc.mac_sum [3] (via _58949_)
+   48: \_13470_ (via _50112_)
+   49: \_13626_ (via _50285_)
+   50: \_00489_ (via _50287_)
+   51: \u_if.u_cc.mac_sum [4] (via _58950_)
+   52: \_13472_ (via _50114_)
+   53: \_13624_ (via _50282_)
+   54: \_00488_ (via _50284_)
+   55: \u_if.u_cc.mac_sum [5] (via _58951_)
+   56: \_13474_ (via _50116_)
+   57: \_13621_ (via _50279_)
+   58: \_00487_ (via _50281_)
+   59: \u_if.u_cc.mac_sum [6] (via _58952_)
+   60: \_13461_ (via _50104_)
+   61: \_13476_ (via _50118_)
+   62: \_13477_ (via _50119_)
+   63: \_13619_ (via _50276_)
+   64: \_00486_ (via _50278_)
+   65: \u_if.u_cc.mac_sum [7] (via _58953_)
+   66: \_13459_ (via _50102_)
+   67: \_13478_ (via _50120_)
+   68: \_13479_ (via _50121_)
+   69: \_13616_ (via _50272_)
+   70: \_00485_ (via _50274_)
+   71: \u_if.u_cc.mac_sum [8] (via _58954_)
+   72: \_13455_ (via _50099_)
+   73: \_13481_ (via _50122_)
+   74: \_13613_ (via _50269_)
+   75: \_00484_ (via _50271_)
+   76: \u_if.u_cc.mac_sum [9] (via _58955_)
+   77: \_13483_ (via _50124_)
+   78: \_13611_ (via _50266_)
+   79: \_00483_ (via _50268_)
+   80: \u_if.u_cc.mac_sum [10] (via _58956_)
+   81: \_13454_ (via _50098_)
+   82: \_13485_ (via _50126_)
+   83: \_13486_ (via _50127_)
+   84: \_13609_ (via _50263_)
+   85: \_00482_ (via _50265_)
+   86: \u_if.u_cc.mac_sum [11] (via _58957_)
+   87: \_13452_ (via _50096_)
+   88: \_13487_ (via _50128_)
+   89: \_13488_ (via _50129_)
+   90: \_13605_ (via _50259_)
+   91: \_00481_ (via _50261_)
+   92: \u_if.u_cc.mac_sum [12] (via _58958_)
+   93: \_13449_ (via _50093_)
+   94: \_13451_ (via _50095_)
+   95: \_13489_ (via _50130_)
+   96: \_13490_ (via _50131_)
+   97: \_13603_ (via _50256_)
+   98: \_00480_ (via _50258_)
+   99: \u_if.u_cc.mac_sum [13] (via _58959_)
+  100: \_13446_ (via _50091_)
+  101: \_13492_ (via _50132_)
+  102: \_13493_ (via _50133_)
+  103: \_13600_ (via _50252_)
+  104: \_00479_ (via _50254_)
+  105: \u_if.u_cc.mac_sum [14] (via _58960_)
+  106: \_13443_ (via _50088_)
+  107: \_13445_ (via _50090_)
+  108: \_13494_ (via _50134_)
+  109: \_13597_ (via _50249_)
+  110: \_00478_ (via _50251_)
+  111: \u_if.u_cc.mac_sum [15] (via _58961_)
+  112: \_13441_ (via _50086_)
+  113: \_13495_ (via _50135_)
+  114: \_13496_ (via _50136_)
+  115: \_13594_ (via _50245_)
+  116: \_00477_ (via _50247_)
+  117: \u_if.u_cc.mac_sum [16] (via _58962_)
+  118: \_13439_ (via _50084_)

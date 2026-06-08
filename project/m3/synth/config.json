@@ -1,33 +1,39 @@
 {
-  "DESIGN_NAME": "top",
-
-  "VERILOG_FILES": [
-    "dir::../rtl/top.sv",
-    "dir::../../m2/rtl/interface.sv",
-    "dir::../../m2/rtl/compute_core.sv",
-    "dir::../../m2/rtl/q15_mac.sv",
-    "dir::../../m2/rtl/q15_tanh.sv",
-    "dir::../../m2/rtl/q15_blend.sv"
+  "design_name": "top",
+  "description": "ESN state-update accelerator integrated top (interface_axi + compute_core)",
+  "source_files": [
+    "rtl/m2/mac_array.sv",
+    "rtl/m2/tanh_pwl.sv",
+    "rtl/m2/leak_blend.sv",
+    "rtl/m2/compute_core.sv",
+    "rtl/m2/interface.sv",
+    "rtl/m3/top.sv"
   ],
-
-  "CLOCK_PORT": "clk",
-  "CLOCK_PERIOD": 10.0,
-
-  "DESIGN_IS_CORE": false,
-
-  "FP_SIZING": "absolute",
-  "DIE_AREA": "0 0 500 500",
-  "PL_TARGET_DENSITY": 0.45,
-
-  "SYNTH_STRATEGY": "AREA 0",
-
-  "RUN_HEURISTIC_DIODE_INSERTION": true,
-  "GRT_REPAIR_ANTENNAS": true,
-
-  "STA_WRITE_LIB": false,
-
-  "//comment_clock":   "10 ns = 100 MHz target. Same as INT8 MAC reference run.",
-  "//comment_die":     "500x500 um. Sized for AXI regfile + compute_core + sub-blocks. Relax to 700x700 if placement fails.",
-  "//comment_density": "0.45 keeps placement loose. Raise to 0.55-0.65 if you need tighter packing; lower if utilization warnings appear.",
-  "//comment_paths":   "dir:: is relative to this config.json. Verify your repo layout matches: project/m3/synth/config.json with M2 RTL at project/m2/rtl/."
+  "clock": {
+    "port": "clk",
+    "period_ns": 10.0,
+    "target_freq_mhz": 100.0
+  },
+  "reset": {
+    "port": "rst_n",
+    "active_low": true,
+    "synchronous": true
+  },
+  "parameters": {
+    "DATA_W": 16,
+    "MAC_WIDTH": 16,
+    "ACC_W": 40,
+    "FRAC_W": 15
+  },
+  "pdk": {
+    "name": "sky130A",
+    "stdcell_lib": "sky130_fd_sc_hd",
+    "corner": "tt_025C_1v80",
+    "liberty": "synth/sky130_fd_sc_hd__tt_025C_1v80.lib"
+  },
+  "flow": {
+    "synthesis": "yowasp-yosys 0.66 (WASM yosys)",
+    "sta": "yosys ltp (OpenSTA unavailable on this host)",
+    "script": "synth/synth.ys"
+  }
 }

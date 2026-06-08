@@ -1,0 +1,27 @@
+project/m4/synth/openlane_run.log
+==================================
+
+NOTE: This project used yowasp-yosys (a WebAssembly build of Yosys) rather
+than OpenLane 2. The decision was documented in synth/m3/synthesis_notes.md
+and again in synth/m4/synthesis_notes.md.
+
+The actual synthesis logs are at:
+  project/m4/synth/q15/yosys_run.log    (Q15 per-lane synthesis)
+  project/m4/synth/int8/yosys_run.log   (INT8 per-lane synthesis)
+  project/m4/synth/q4/yosys_run.log     (Q4 per-lane synthesis)
+
+OpenLane was not available in the Windows + MSYS2 toolchain on the
+development host; yowasp-yosys was selected as the synthesis tool because
+it runs anywhere Python runs and uses the same sky130 standard cell PDK
+that OpenLane would use. Synthesis numbers (area, cell count, critical
+path depth) are directly comparable to OpenLane outputs because both tools
+map to the same sky130_fd_sc_hd liberty file.
+
+Static timing analysis used Yosys's `ltp` (longest topological path)
+facility because OpenSTA is also not available in the yowasp toolchain.
+The critical-path defensibility-by-analogy to M3 is documented in
+project/m4/synth/synthesis_notes.md.
+
+See also:
+  project/m4/synth/q15/yosys_run.log     for the full Yosys log
+  project/m4/synth/synthesis_notes.md    for methodology discussion

@@ -1,0 +1,25 @@
+================================================================
+M4 Power Report -- INT8 (DATA_W=8), sky130_fd_sc_hd
+================================================================
+STATUS: First-order estimate (M3 methodology). Precise power needs post-P&R
+parasitics + back-annotated activity (OpenROAD report_power) -- deferred to a
+future pass using the M4 cosim VCD as the activity source.
+
+Model: P_dyn = alpha * N_cells * E_cell * f
+  alpha (activity factor)        : 0.15
+  E_cell (avg J/cell/cycle, HD)  : 0.04 pJ
+  f                              : 125 MHz
+
+Per lane (compute_core):
+  cells   : 8274
+  P_lane  = 0.15 * 8274 * 0.04e-12 * 125e6 = 6.2 mW
+
+Full K=64 accelerator:
+  cells   : 529536
+  P_total = 6.2 mW * 64 = 397 mW  (~0.40 W dynamic)
+
+Leakage (sky130 HD, low-leakage): order ~1-5 mW; negligible vs dynamic at 125 MHz.
+Weight-SRAM macro power NOT included (one-time load, idle during steady-state compute).
+
+Energy/update = P_total * (1169 cyc / 125 MHz) = 3.7 uJ/update.
+================================================================

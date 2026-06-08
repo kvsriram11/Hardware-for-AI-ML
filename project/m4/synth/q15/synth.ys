@@ -1,0 +1,10 @@
+read_verilog -sv rtl/m2/mac_array.sv rtl/m2/tanh_pwl.sv rtl/m2/leak_blend.sv rtl/m4/compute_core.sv
+chparam -set DATA_W 16 -set FRAC_W 15 -set ACC_W 40 -set MAC_WIDTH 16 compute_core
+hierarchy -check -top compute_core
+synth -top compute_core -flatten
+dfflibmap -liberty synth/sky130_fd_sc_hd__tt_025C_1v80.lib
+abc -liberty synth/sky130_fd_sc_hd__tt_025C_1v80.lib -D 8000
+opt_clean -purge
+write_verilog synth/m4/q15/netlist.v
+tee -o synth/m4/q15/area_report.txt stat -liberty synth/sky130_fd_sc_hd__tt_025C_1v80.lib
+tee -o synth/m4/q15/timing_report.txt ltp

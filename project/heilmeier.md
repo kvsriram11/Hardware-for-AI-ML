@@ -1,42 +1,77 @@
-# Heilmeier Questions
+# Heilmeier Questions (refined)
 
-## Q1. What are you trying to do?
+## Q1 — What are you trying to do? (No jargon.)
 
-I am designing a custom co-processor chiplet to accelerate the dominant recurring kernel of an Echo State Network (ESN), using the `minimalESN` Python implementation as the software baseline. The target algorithm is reservoir computing for streaming inference. The specific kernel I am accelerating is the **reservoir state-update computation**:
+Build a small custom chip (a chiplet) that runs the central computation of an Echo State Network — 
+a kind of recurrent neural network — much faster and more efficiently than a normal CPU can. 
+The chip handles one specific repeated calculation: updating the network's internal state, one step at a time. 
+Setup tasks like training the readout weights stay on the host CPU. 
+The result is a small, low-power accelerator suited for embedded control or signal-processing applications 
+where an ESN runs continuously for millions of steps.
 
-`x(t) = (1-a)x(t-1) + a * tanh(Wres*x(t-1) + Win*u(t))`
+## Q2 — How is it done today, and what are the limits of current practice?
 
-Within this update, the main hardware target is the recurrent matrix-vector multiply `Wres*x(t-1)` together with the surrounding accumulation, tanh, and leak update logic. The proposed chiplet is not intended to replace the full software pipeline. Software will continue to handle setup, reservoir initialization, spectral-radius normalization, readout training, configuration, and orchestration. The chiplet will accelerate the repeated streaming state-update path, which is the part of the ESN computation most suitable for custom hardware.
+Today the same computation runs on a general-purpose CPU using NumPy with OpenBLAS underneath. 
+On an Intel i7-1165G7, single-threaded, the canonical minimalESN reference (N=1000, 4000 steps) 
+takes a median of **1.68 seconds** (2381 updates/sec full pipeline; 
+4446 updates/sec for the isolated state update kernel).
 
-The planned implementation is a synthesizable SystemVerilog design with on-chip memory for state and weight buffering, a standard hardware interface to the host, and a structured-sparse compute engine intended to reduce memory traffic and improve sustained throughput.
+**Profiling shows two things that matter for our design.**
 
----
+1. **The state-update kernel is the only computation that recurs in deployment.** 
+Spectral-radius normalization and ridge-regression readout training are one-shot setup operations. 
+In the canonical 4000-step script, state update is 29-98% of recurring time depending on N 
+(see `codefest/cf02/analysis/kernel_comparison.md`); for any realistic deployment of 10^5+ steps it is essentially 100%.
 
-## Q2. What is done today, and what are the limits of current practice?
+2. **The kernel is memory-bandwidth-bound on the CPU, not compute-bound.** 
+Analytical arithmetic intensity is **0.50 FLOP/byte** (no-reuse model), well below the i7-1165G7 ridge point of 3.50 FLOP/byte. 
+Sustained throughput is **8.93 GFLOP/s** against 179.2 GFLOP/s peak compute — about 5% of peak. 
+The CPU is starving for memory bandwidth, not for arithmetic units. 
+This is the bottleneck a custom chiplet can exploit: lower-precision arithmetic and on-chip SRAM for W 
+eliminate the DRAM round-trip per step.
 
-Today, the ESN baseline runs entirely in software on my host CPU using Python, NumPy, and SciPy. The current implementation was benchmarked over 10 runs and achieved a median wall-clock runtime of **7.86 s** for the full baseline execution, with an MSE of approximately **1.026e-06**. This establishes the current software-only reference point.
+## Q3 — What is new in our approach, and why do we think it will be successful?
 
-Profiling shows that the main recurring cost is the ESN reservoir state-update path rather than setup or plotting. In the cleaned profile, the two recurring phases were:
+**Three things distinguish this accelerator from a CPU and from a GPU port of the same kernel:**
 
-- `collect_states()` = **1.228 s**
-- `run_generative()` = **0.762 s**
+1. **Precision specialization.** Because the CPU is memory-bound, halving the bits per weight ~doubles effective throughput. 
+We characterize Q15, INT8, and Q4 fixed-point datapaths (FP16 as stretch) and report the area-throughput-accuracy tradeoff. 
+GPUs are stuck with FP16/INT8 hardware paths; we go to Q4 with an integer datapath that costs <25% of an INT8 multiplier.
 
-Together, these phases account for **1.990 s** of the **7.144 s** profiled runtime, which is about **27.9%** of total runtime at the Python-visible level. The largest raw single function in the profile was spectral-radius normalization using `scipy.linalg.eig()`, but that is a one-time initialization step and not the repeated streaming inference workload I want to accelerate.
+2. **On-chip weight resident.** 
+At Q15 the 1000×1000 W matrix is 2 MB, fitting on-die SRAM with margin. 
+Win is 4 KB. 
+Every state-update step then needs only an x-read, x-write, and one input scalar from the host. 
+Effective AI rises by ~100× over the no-reuse CPU model.
 
-The arithmetic-intensity analysis of one reservoir state update gave **2,008,000 FLOPs**, **8,032,016 bytes**, and an arithmetic intensity of **0.25 FLOP/byte**. On the roofline for my i7-1165G7 host system, this places the kernel in the **memory-bound** region. The measured software kernel performance is about **4.04 GFLOP/s**, which is far below the host’s theoretical compute ceiling. This shows that current practice is limited not simply because “software is slow,” but because the dense reservoir update moves a large amount of data relative to the useful computation performed. The main limitation of the current software approach is therefore poor efficiency on the repeated reservoir state-update kernel, which is exactly the part targeted for chiplet acceleration.
+3. **Sequential-streaming match.** 
+ESN state update is inherently sequential: `x[t]` requires `x[t-1]`. 
+GPUs are bad at this — large batch sizes are the only way to fill them, and ESN deployment is single-stream. 
+A small chiplet with a 16-wide MAC array clocked at 100 MHz reaches ~1.5M updates/sec without any batching gymnastics — 
+about 350× the measured single-thread CPU rate of 4446 updates/sec for isolated state update.
 
----
+## Q4 — Who cares?
 
-## Q3. What is your approach, and why is it better?
+Embedded control loops, online filtering, and edge-deployed sequence prediction where an ESN 
+runs continuously at low power and the host CPU can't dedicate a core. 
+Also: chiplet integration into larger heterogeneous SoCs where ESN inference is one block among many.
 
-My approach is to move the recurring ESN reservoir state-update kernel into a dedicated co-processor chiplet, while keeping the rest of the algorithm in software. The chiplet will implement a structured-sparse state-update engine in SystemVerilog with a standard host interface, local state/weight storage, and a compute datapath specialized for the ESN update.
+## Q5 — If you're successful, what difference will it make?
 
-The reason this is better is grounded in the roofline and arithmetic-intensity analysis. The current dense software kernel has an arithmetic intensity of only **0.25 FLOP/byte**, so it is strongly memory-bound on my host platform. That means simply relying on general-purpose software execution will not use the available compute resources efficiently. The key improvement is therefore not just “more MACs,” but **less data movement per useful operation**.
+A reusable IP block and a characterization study mapping precision against area, throughput, energy, and accuracy — 
+enabling system designers to pick the right ESN configuration for their power envelope.
 
-The chiplet design improves this in three ways:
+## Q6 — What are the risks?
 
-- **structured sparsity** reduces the number of active weights and therefore reduces bytes transferred and MAC operations
-- **on-chip memory** allows reuse of state and weight data locally instead of repeatedly fetching large vectors and matrices through the external memory hierarchy
-- **specialized datapath** performs the matrix-vector multiply, accumulation, tanh approximation, and leak update with a hardware pipeline tailored to the kernel
+Quantization error at Q4 may exceed acceptable MSE for some applications; we report the curve. 
+On-chip SRAM is limited so very large reservoirs (N≥4096 at FP16) exceed budget; we report the cutoff.
 
-This approach is better because it targets the actual bottleneck identified in profiling and roofline analysis rather than accelerating unrelated or one-time setup work. It also fits the project goal of a realistic co-processor chiplet connected through a standard interface, rather than an abstract standalone accelerator disconnected from the software system.
+## Q7 — How much will it cost? How long?
+
+Bounded by the ECE 510 milestone schedule; M1-M3 by June 7, M4 by June 7 final submission.
+
+## Q8 — What are the mid-term and final exams?
+
+Mid-term: M3 deliverable shows synthesizable RTL passing co-simulation and producing sky130 timing+area+power reports. 
+Final: M4 deliverable benchmark.md shows measured speedup vs CPU baseline at each precision, 
+with the roofline updated to include the realized accelerator design point.

@@ -1,185 +1,111 @@
-// =============================================================================
-// top.sv
+//==========================================================================
+// top.sv — M3 integrated top for the ESN state-update accelerator.
 //
-// M3 integrated top module for the ESN reservoir state-update accelerator.
+// Integration level:
+//   This is the synthesizable chip-top. It wraps the M2 verification IP:
 //
-// Project   : Hardware Accelerator for Reservoir State Update in ESNs
-// Course    : ECE 510 — Hardware for AI/ML, Spring 2026, Portland State Univ.
-// Author    : Venkata Sriram Kamarajugadda
-// Milestone : M3
+//       top  ->  interface_axi  ->  compute_core  ->  {mac_array, tanh_pwl,
+//                                                       leak_blend}
 //
-// -----------------------------------------------------------------------------
-// PURPOSE
-// -----------------------------------------------------------------------------
-// This is the integrated top-level module the M3 grader scrapes for. It
-// instantiates the M2 AXI interface wrapper (interface_axi), which in turn
-// instantiates the M2 compute_core (the 5-state FSM driving q15_mac,
-// q15_tanh, and q15_blend).
+//   The host drives EVERYTHING through two AXI interfaces — there are no
+//   back-door control pins. AXI4-Lite carries the per-neuron scalars
+//   (LEAK_A, WIN_T, XPREV) plus CTRL.start and STATUS polling; AXI4-Stream
+//   carries the streamed (w_row, x_chunk) beats. One full N-neuron reservoir
+//   state-update is N sequential single-neuron updates issued by the host.
 //
-// There is NO glue logic between the interface and the compute core. The
-// interface wrapper exposes only AXI ports to the outside world; all
-// compute-core signals are private. This satisfies the M3 rule that the
-// testbench must drive the design exclusively through the host-side
-// interface and cannot touch compute-core ports directly.
+// N is NOT a hardware parameter. compute_core is a fixed MAC_WIDTH-lane
+// streaming MAC: an N-element row is delivered as ceil(N/MAC_WIDTH) AXIS
+// beats and accumulated in the ACC_W accumulator. Gate area is therefore
+// independent of reservoir size N — the same silicon runs N=64 (cosim) and
+// N=1000 (production). See synth/synthesis_notes.md.
 //
-// Module hierarchy:
+// Single clock (clk), active-low synchronous reset (rst_n).
 //
-//   top (this file)
-//   └── interface_axi
-//       └── compute_core
-//           ├── q15_mac
-//           ├── q15_tanh
-//           └── q15_blend
-//
-// -----------------------------------------------------------------------------
-// PARAMETERS
-// -----------------------------------------------------------------------------
-//   AXIL_ADDR_W : AXI4-Lite address width (default 8 → 256-byte reg space)
-//   AXIL_DATA_W : AXI4-Lite data width    (default 32, byte-strobed)
-//   AXIS_DATA_W : AXI4-Stream data width  (default 32 — packs {x[15:0], w[15:0]})
-//
-// -----------------------------------------------------------------------------
-// PORT LIST  (all external host-visible signals — AXI only)
-// -----------------------------------------------------------------------------
-//   Name                    Dir  Width            Role
-//   ----------------------- ---  ---------------  -----------------------------
-//   clk                     in   1                System clock (single domain)
-//   rst                     in   1                Synchronous active-high reset
-//
-//   AXI4-Lite slave (config + status register file):
-//   s_axil_awaddr           in   AXIL_ADDR_W      Write-address payload
-//   s_axil_awvalid          in   1                Write-address valid
-//   s_axil_awready          out  1                Write-address ready (comb)
-//   s_axil_wdata            in   AXIL_DATA_W      Write-data payload
-//   s_axil_wstrb            in   AXIL_DATA_W/8    Write byte-enable strobes
-//   s_axil_wvalid           in   1                Write-data valid
-//   s_axil_wready           out  1                Write-data ready (comb)
-//   s_axil_bresp            out  2                Write response (RESP_OKAY)
-//   s_axil_bvalid           out  1                Write response valid (reg)
-//   s_axil_bready           in   1                Write response ready
-//   s_axil_araddr           in   AXIL_ADDR_W      Read-address payload
-//   s_axil_arvalid          in   1                Read-address valid
-//   s_axil_arready          out  1                Read-address ready (comb)
-//   s_axil_rdata            out  AXIL_DATA_W      Read-data payload (reg)
-//   s_axil_rresp            out  2                Read response (RESP_OKAY)
-//   s_axil_rvalid           out  1                Read-data valid (reg)
-//   s_axil_rready           in   1                Read-data ready
-//
-//   AXI4-Stream slave (operand stream — packed (w_k, x_prev_k) beats):
-//   s_axis_tdata            in   AXIS_DATA_W      {x_prev[15:0], w[15:0]}
-//   s_axis_tvalid           in   1                Beat valid
-//   s_axis_tready           out  1                Beat ready (back-pressured by FSM)
-//   s_axis_tlast            in   1                Ignored (length comes from N-1)
-//
-// -----------------------------------------------------------------------------
-// GLUE LOGIC
-// -----------------------------------------------------------------------------
-// None. The interface wrapper and compute core share a single clock domain
-// and a single synchronous active-high reset. The wrapper exposes only AXI
-// ports; the compute core is fully encapsulated within the wrapper. No
-// FIFOs, no clock-domain crossings, no width converters are required.
-//
-// -----------------------------------------------------------------------------
-// SYNTHESIS NOTES
-// -----------------------------------------------------------------------------
-// This module is the OpenLane 2 synthesis target (DESIGN_NAME=top). All
-// other RTL files in project/m2/rtl/ are pulled in via VERILOG_FILES in
-// project/m3/synth/config.json. The PDK is sky130A.
-// =============================================================================
-
+// Register map (AXI4-Lite, byte-addressed, 32-bit data) — inherited from
+// interface.sv:
+//   0x00 CTRL   [0]=start
+//   0x04 STATUS [0]=busy, [1]=done
+//   0x08 LEAK_A signed Q1.(DATA_W-1) leak coefficient
+//   0x0C WIN_T  signed ACC_W Win term (low 32 bits)
+//   0x10 XPREV  signed DATA_W x_prev[i]
+//   0x14 XNEXT  signed DATA_W x_next[i] (read-only)
+//==========================================================================
+`timescale 1ns/1ps
 `default_nettype none
-
 module top #(
-    parameter int AXIL_ADDR_W = 8,
-    parameter int AXIL_DATA_W = 32,
-    parameter int AXIS_DATA_W = 32
+    parameter int DATA_W    = 16,
+    parameter int MAC_WIDTH = 16,
+    parameter int ACC_W     = 40,
+    parameter int FRAC_W    = 15,
+    parameter int AXIL_AW   = 8,
+    parameter int AXIL_DW   = 32,
+    parameter int AXIS_DW   = 2*MAC_WIDTH*DATA_W
 ) (
-    input  logic                          clk,
-    input  logic                          rst,
+    input  wire                       clk,
+    input  wire                       rst_n,
 
-    // AXI4-Lite slave
-    input  logic [AXIL_ADDR_W-1:0]        s_axil_awaddr,
-    input  logic                          s_axil_awvalid,
-    output logic                          s_axil_awready,
+    // ---- AXI4-Lite slave (control / status / scalars) ----
+    input  wire [AXIL_AW-1:0]         s_axil_awaddr,
+    input  wire                       s_axil_awvalid,
+    output wire                       s_axil_awready,
+    input  wire [AXIL_DW-1:0]         s_axil_wdata,
+    input  wire [AXIL_DW/8-1:0]       s_axil_wstrb,
+    input  wire                       s_axil_wvalid,
+    output wire                       s_axil_wready,
+    output wire [1:0]                 s_axil_bresp,
+    output wire                       s_axil_bvalid,
+    input  wire                       s_axil_bready,
+    input  wire [AXIL_AW-1:0]         s_axil_araddr,
+    input  wire                       s_axil_arvalid,
+    output wire                       s_axil_arready,
+    output wire [AXIL_DW-1:0]         s_axil_rdata,
+    output wire [1:0]                 s_axil_rresp,
+    output wire                       s_axil_rvalid,
+    input  wire                       s_axil_rready,
 
-    input  logic [AXIL_DATA_W-1:0]        s_axil_wdata,
-    input  logic [(AXIL_DATA_W/8)-1:0]    s_axil_wstrb,
-    input  logic                          s_axil_wvalid,
-    output logic                          s_axil_wready,
-
-    output logic [1:0]                    s_axil_bresp,
-    output logic                          s_axil_bvalid,
-    input  logic                          s_axil_bready,
-
-    input  logic [AXIL_ADDR_W-1:0]        s_axil_araddr,
-    input  logic                          s_axil_arvalid,
-    output logic                          s_axil_arready,
-
-    output logic [AXIL_DATA_W-1:0]        s_axil_rdata,
-    output logic [1:0]                    s_axil_rresp,
-    output logic                          s_axil_rvalid,
-    input  logic                          s_axil_rready,
-
-    // AXI4-Stream slave
-    input  logic [AXIS_DATA_W-1:0]        s_axis_tdata,
-    input  logic                          s_axis_tvalid,
-    output logic                          s_axis_tready,
-    input  logic                          s_axis_tlast
+    // ---- AXI4-Stream sink (W rows + x chunks) ----
+    input  wire [AXIS_DW-1:0]         s_axis_tdata,
+    input  wire                       s_axis_tvalid,
+    output wire                       s_axis_tready,
+    input  wire                       s_axis_tlast
 );
 
-    // -------------------------------------------------------------------------
-    // Sole instance: M2 AXI interface wrapper (instantiates compute_core inside)
-    // -------------------------------------------------------------------------
+    // The integration is a single instance — interface_axi already contains
+    // the compute_core datapath. top exists as the named synthesis target and
+    // the stable chip-boundary pinout for M3/M4.
     interface_axi #(
-        .AXIL_ADDR_W (AXIL_ADDR_W),
-        .AXIL_DATA_W (AXIL_DATA_W),
-        .AXIS_DATA_W (AXIS_DATA_W)
-    ) u_iface (
-        .clk            (clk),
-        .rst            (rst),
-
-        .s_axil_awaddr  (s_axil_awaddr),
-        .s_axil_awvalid (s_axil_awvalid),
-        .s_axil_awready (s_axil_awready),
-
-        .s_axil_wdata   (s_axil_wdata),
-        .s_axil_wstrb   (s_axil_wstrb),
-        .s_axil_wvalid  (s_axil_wvalid),
-        .s_axil_wready  (s_axil_wready),
-
-        .s_axil_bresp   (s_axil_bresp),
-        .s_axil_bvalid  (s_axil_bvalid),
-        .s_axil_bready  (s_axil_bready),
-
-        .s_axil_araddr  (s_axil_araddr),
-        .s_axil_arvalid (s_axil_arvalid),
-        .s_axil_arready (s_axil_arready),
-
-        .s_axil_rdata   (s_axil_rdata),
-        .s_axil_rresp   (s_axil_rresp),
-        .s_axil_rvalid  (s_axil_rvalid),
-        .s_axil_rready  (s_axil_rready),
-
-        .s_axis_tdata   (s_axis_tdata),
-        .s_axis_tvalid  (s_axis_tvalid),
-        .s_axis_tready  (s_axis_tready),
-        .s_axis_tlast   (s_axis_tlast)
+        .DATA_W   (DATA_W),
+        .MAC_WIDTH(MAC_WIDTH),
+        .ACC_W    (ACC_W),
+        .FRAC_W   (FRAC_W),
+        .AXIL_AW  (AXIL_AW),
+        .AXIL_DW  (AXIL_DW),
+        .AXIS_DW  (AXIS_DW)
+    ) u_if (
+        .clk           (clk),
+        .rst_n         (rst_n),
+        .s_axil_awaddr (s_axil_awaddr),
+        .s_axil_awvalid(s_axil_awvalid),
+        .s_axil_awready(s_axil_awready),
+        .s_axil_wdata  (s_axil_wdata),
+        .s_axil_wstrb  (s_axil_wstrb),
+        .s_axil_wvalid (s_axil_wvalid),
+        .s_axil_wready (s_axil_wready),
+        .s_axil_bresp  (s_axil_bresp),
+        .s_axil_bvalid (s_axil_bvalid),
+        .s_axil_bready (s_axil_bready),
+        .s_axil_araddr (s_axil_araddr),
+        .s_axil_arvalid(s_axil_arvalid),
+        .s_axil_arready(s_axil_arready),
+        .s_axil_rdata  (s_axil_rdata),
+        .s_axil_rresp  (s_axil_rresp),
+        .s_axil_rvalid (s_axil_rvalid),
+        .s_axil_rready (s_axil_rready),
+        .s_axis_tdata  (s_axis_tdata),
+        .s_axis_tvalid (s_axis_tvalid),
+        .s_axis_tready (s_axis_tready),
+        .s_axis_tlast  (s_axis_tlast)
     );
 
-    // -------------------------------------------------------------------------
-    // SIMULATION-ONLY: VCD waveform dump.
-    // The `COCOTB_SIM` macro is defined automatically by cocotb when running
-    // a cocotb-driven simulation; synthesis tools (Yosys/OpenLane) never see
-    // this block. Pattern taken from the official cocotb Icarus support docs.
-    // -------------------------------------------------------------------------
-    `ifdef COCOTB_SIM
-        initial begin
-            $dumpfile("dump.vcd");
-            $dumpvars(0, top);
-            #1;
-        end
-    `endif
-
 endmodule
-
 `default_nettype wire

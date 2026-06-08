@@ -1,0 +1,31 @@
+# Yosys synthesis script — ESN accelerator top, sky130_fd_sc_hd
+# Run from project root:  yowasp-yosys -s synth/synth.ys
+# __ICARUS__ is NOT defined here, so the simulation-only $dumpvars initial
+# blocks in compute_core.sv / interface.sv are excluded from synthesis.
+
+read_verilog -sv rtl/m2/mac_array.sv
+read_verilog -sv rtl/m2/tanh_pwl.sv
+read_verilog -sv rtl/m2/leak_blend.sv
+read_verilog -sv rtl/m2/compute_core.sv
+read_verilog -sv rtl/m2/interface.sv
+read_verilog -sv rtl/m3/top.sv
+
+hierarchy -check -top top
+
+# Generic synthesis + flatten so cross-module paths are visible to STA
+synth -top top -flatten
+
+# Map sequential cells, then technology-map combinational logic to sky130,
+# timing-driven for a 10 ns (100 MHz) target (-D in ps).
+dfflibmap -liberty synth/sky130_fd_sc_hd__tt_025C_1v80.lib
+abc -liberty synth/sky130_fd_sc_hd__tt_025C_1v80.lib -D 10000
+
+# Clean up
+opt_clean -purge
+write_verilog synth/top_netlist.v
+
+# Area / cell-count report
+tee -o synth/area_report.txt stat -liberty synth/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+# Critical-path estimate: longest topological path (logic depth)
+tee -o synth/timing_report.txt ltp -noff

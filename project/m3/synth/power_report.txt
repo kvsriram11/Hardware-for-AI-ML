@@ -1,43 +1,54 @@
-Power Report — M3 ESN Reservoir State Update Accelerator
-=========================================================
+================================================================
+M3 Power Report -- ESN accelerator top (sky130_fd_sc_hd)
+================================================================
 
-Design      : top
-PDK         : sky130A (sky130_fd_sc_hd)
-Tool        : Yosys 0.52 (direct synthesis, no OpenROAD PnR)
-Date        : 2026-05-26
+STATUS: First-order estimate only. Precise power NOT produced.
 
-STATUS: POWER ESTIMATION NOT AVAILABLE
----------------------------------------
+Why precise power is not produced
+---------------------------------
+Power estimation requires post-place-and-route parasitic extraction
+(switching activity from a real VCD/SAIF back-annotated onto extracted RC
+of the routed netlist), e.g. via OpenROAD (`report_power`) or a commercial
+flow. Yosys does not natively estimate power, and OpenSTA/OpenROAD are not
+available on this Windows/MSYS2 host (same Docker constraint that ruled out
+OpenLane 2 -- see synth/synthesis_notes.md). This is an explicitly accepted
+M3 outcome: attempt the flow, document the failure mode, give a plan.
 
-Power estimation requires a post-PnR netlist with annotated switching
-activity (SAIF) and a full placement/routing solution to compute:
-  - Dynamic (switching) power: requires clock net capacitances + toggle rates
-  - Static (leakage) power: requires placed cell instances + corner data
-  - Internal power: requires cell-level charge/discharge waveforms
+First-order gate-count estimate
+-------------------------------
+From synth/area_report.txt:
+  total standard cells              : 30197
+  sequential cells (dfxtp_1)        :   789
+  chip area                         : 217132 um^2
 
-The full OpenLane flow (floorplan → place → route → OpenROAD sta/power)
-was not completed in this run. Yosys direct synthesis produced a mapped
-netlist (synth_mapped_netlist.v) but without placement, net capacitances
-are unavailable, making vectorless power estimation unreliable.
+Dynamic-power model (rough):
+  P_dyn = alpha * N_cells * E_cell * f
 
-REFERENCE — CF06 Crossbar MAC Power (OpenLane 2.3.10, same PDK):
------------------------------------------------------------------
-For context, the CF06 crossbar_mac design (768 cells, 8,130 µm²) measured:
-  - Internal power    : 1.629 mW
-  - Switching power   : 2.091 mW
-  - Leakage power     : 10.2 µW
-  - Total power       : 3.720 mW
-  at nom_tt_025C_1v80, 100 MHz, default activity factor.
+  alpha  (activity factor, typical) : 0.15
+  N_cells                           : 30197
+  E_cell (avg switching energy/cell
+          /cycle, sky130 HD @1.8V)  : ~0.04 pJ
+  f                                 : 100 MHz (1e8 Hz)
 
-The M3 top design is significantly larger (estimated 4,000–6,000 mapped sky130
-cells vs. 768 for crossbar_mac), so total power is expected to be in the range
-of 15–25 mW at the same PVT corner and clock frequency, dominated by the Q15
-datapath switching activity through q15_mac (1430 XOR gates, 698 XNOR gates
-visible in the pre-map stat report).
+  P_dyn = 0.15 * 30197 * 0.04e-12 J * 1e8 /s
+        ~= 0.018 W
+        ~= 18 mW   (dynamic, first-order)
 
-NEXT STEP:
-  To obtain real power numbers, run the full OpenLane flow with Docker:
-    docker run --rm -v $(pwd):/work efabless/openlane:2.3.10 \
-      openlane /work/config.json
-  Then extract power from: runs/RUN_*/final/metrics.csv
-  fields: power__internal__total, power__switching__total, power__leakage__total
+Leakage (sky130 HD is a low-leakage library): order ~0.1-0.5 mW for ~30k
+cells at the typical corner -- negligible vs dynamic at 100 MHz.
+
+  TOTAL first-order estimate        : ~18-20 mW @ 100 MHz, tt_025C_1v80
+
+Caveats: alpha and E_cell are library-average heuristics, not extracted
+per-cell values; the MAC datapath (multipliers + 40-bit adder tree) has
+higher-than-average activity during COMPUTE and near-zero during host
+IDLE, so cycle-averaged power over a full reservoir step is lower than the
+peak. Treat +/-2x as the uncertainty band.
+
+Plan
+----
+Precise power deferred to M4: bring up OpenROAD (native Windows build or
+WSL2) to run place-and-route + `report_power` with the M3 cosim VCD as the
+activity source. If OpenROAD bring-up also blocks, fall back to a
+Vivado/Zybo xpe-style estimate during the M4 FPGA bring-up.
+================================================================

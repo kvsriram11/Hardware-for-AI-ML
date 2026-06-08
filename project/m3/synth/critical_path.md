@@ -1,120 +1,36 @@
-# Critical Path Analysis — M3 Synthesis (sky130_fd_sc_hd)
+# M3 Critical Path
 
-**Design:** top (ESN reservoir state update accelerator)  
-**Tool:** Yosys 0.52 + ABC  `+strash;map;print_stats`  
-**PDK:** sky130A tt_025C_1v80  
-**Clock target:** 10.000 ns (100 MHz)
+**Design:** `top` (ESN accelerator) · **Library:** `sky130_fd_sc_hd__tt_025C_1v80` · **Target:** 100 MHz (10 ns)
+**Tool:** yowasp-yosys `ltp` on the mapped netlist (`synth/top_netlist.v`). OpenSTA was unavailable (see `synthesis_notes.md`), so the critical path is identified from the longest topological path (logic depth in mapped cells) rather than back-annotated ns slack.
 
----
+## The path
 
-## Identified Critical Path
+The longest topological path (length **310** mapped cells) threads the FSM control registers and then the MAC datapath. The dominant *single-cycle* register-to-register segment — i.e. the actual timing-critical combinational block — is inside the MAC array:
 
-The worst-case combinational delay is inside `q15_blend`, the purely
-combinational module that computes the weighted blend:
+- **Start register:** `top.u_if.u_cc.u_mac.prod_ext_q[*]` — the 16 stage-1 product registers. Each holds one lane's `w_in[i] * x_in[i]` result, sign-extended to ACC_W = 40 bits.
+- **Combinational logic (the critical stages):** the `mac_array` adder-tree reduction `tree_sum = Σ prod_ext_q[0..15]` — a **16-operand, 40-bit-wide signed addition**. After ABC technology mapping this becomes a deep chain of `sky130_fd_sc_hd` `xor2`/`xnor2`/`maj`/`o21ai`/`a21oi` cells implementing carry propagation across 40 bits and log₂(16) ≈ 4 reduction levels. This reduction is the single largest block of combinational gates between any two registers in the design (the netlist's `xnor2_1`/`xor2_1` counts — 5699 and 3123 respectively — are dominated by this adder tree plus the 16 lane multipliers).
+- **End register:** `top.u_if.u_cc.u_mac.tree_q[*]` — the stage-2 reduce register that latches `tree_sum`.
+- A shorter following segment, `tree_q → sum_out` (the stage-3 accumulator `sum_out <= sum_out + tree_q`, a single 40-bit add), is the next-longest stage.
 
-```
-x_new = (1 − α) × reservoir_out  +  α × input_scaled
-```
+A comparable-depth path also exists from the streamed inputs `s_axis_tdata` through the 16 parallel **16×16 signed multipliers** into `prod_ext_q`. Multiplier and adder-tree depth are the two competing critical regions; both live in `mac_array`.
 
-where all operands are Q15 fixed-point (16-bit, 1 integer + 15 fractional).
+## Logic stages (summary)
 
-### Path Stages
+| Stage | From → To | Logic |
+|---|---|---|
+| 1 (multiply) | `s_axis_tdata` → `prod_ext_q` | 16× parallel 16×16 signed multiply |
+| **2 (reduce, critical)** | **`prod_ext_q` → `tree_q`** | **16-input 40-bit adder tree (`tree_sum`)** |
+| 3 (accumulate) | `tree_q` → `sum_out` | single 40-bit add |
 
-```
-[Start] dfxtp_1 in compute_core          ← tanh_result_reg / input_scaled_reg
-         clk→Q delay: ~150 ps
+## Why it is critical
 
-[Stage 1] Output steering mux (compute_core)
-          Type: a21oi_1, o21ai_0
-          Delay: ~50 ps
+The reduction adds sixteen 40-bit signed operands in one clock. Carry propagation across 40 bits, repeated over the reduction levels, gives the longest combinational delay in the datapath. At 100 MHz (10 ns) this single-cycle reduction is the budget-limiter; everything else (FSM next-state, AXI handshakes, tanh PWL, leak blend) is shallow by comparison.
 
-[Stage 2] q15_blend: alpha operand path into multiplier 1
-          Operation: α × input_scaled  (Q15 × Q15, 16b×16b)
-          Partial-product generation: sky130_fd_sc_hd__nand2_1
-          Adder tree reduction: sky130_fd_sc_hd__a21oi_1, nand3_1
-          Levels: 17 of 39
+## What would shorten it
 
-[Stage 3] q15_blend: (1−α) path into multiplier 2
-          Operation: (1−α) × reservoir_out
-          Parallel to Stage 2, but longer carry chain dominates
-          Levels: 22 of 39 (ripple-carry in partial product summation)
+1. **Pipeline the adder tree (primary fix).** Split the 16-input reduction into registered levels — e.g. 16→8→4→2→1 with a flop between each level (4 pipeline stages). This cuts the worst-case combinational depth roughly 4× at the cost of 3 extra cycles of latency (absorbed by lengthening the existing `S_FLUSH` drain, which already exists for exactly this pipeline-draining purpose). Highest impact, lowest risk.
+2. **Pipeline / retime the 16×16 multipliers** (the competing path) so multiply and reduce never share a cycle.
+3. **Carry-save accumulation:** keep the running sum in redundant (carry-save) form and resolve the carry only once at `S_FLUSH` exit, removing the full 40-bit carry-propagate from the per-beat path.
+4. **Narrow ACC_W** if the application tolerates it (40→32), shortening every adder, though this trades numerical headroom.
 
-[Stage 4] q15_blend: final adder and saturation clamp
-          Operation: sum both products → right-shift 15 → saturate to Q15
-          Cells: sky130_fd_sc_hd__nand2_1, o21ai_0, a22oi_1
-          Levels: remaining levels to output
-
-[End] dfxtp_1 in compute_core            ← x_new_reg capture
-      Setup time: ~150 ps
-```
-
-### Numeric Summary
-
-| Stage                              | Delay (ps) |
-|------------------------------------|-----------|
-| clk→Q (dfxtp_1, compute_core)      |    150    |
-| Steering/mux (compute_core)        |     50    |
-| q15_blend combinational (39 levels)|  3,483    |
-| Setup time (dfxtp_1, compute_core) |    150    |
-| **Total worst-case path**          | **3,833** |
-
-Clock period: 10,000 ps  
-**Slack: +6,167 ps (+6.17 ns)**
-
----
-
-## Why q15_blend is the Bottleneck
-
-`q15_blend` implements two independent 16×16 Q15 multiplications in
-fully combinational logic — no pipeline registers, no DSP blocks (sky130
-has none). The partial-product adder tree for a 16×16 multiplier
-inherently requires ≥ 30 logic levels in NAND-based implementation.
-ABC maps it to 39 levels with 5,531 nodes (from `print_stats` output),
-consuming 29,355 µm² — 47.9% of total chip area.
-
----
-
-## Dominant Cell Types on Critical Path
-
-These cells appear most on the critical path based on cell counts and
-ABC's internal depth analysis:
-
-| Cell                         | Count | Role on Path               |
-|------------------------------|-------|---------------------------|
-| sky130_fd_sc_hd__nand2_1     | 2,980 | Partial-product generation |
-| sky130_fd_sc_hd__a21oi_1     | 1,222 | Adder carry-generate       |
-| sky130_fd_sc_hd__nand3_1     | 1,343 | Adder sum / carry          |
-| sky130_fd_sc_hd__o21ai_0     |   583 | Adder propagate            |
-| sky130_fd_sc_hd__a22oi_1     |   647 | Product accumulate         |
-| sky130_fd_sc_hd__clkinv_1    |   864 | Fanout buffer / inversion  |
-
----
-
-## Potential Improvements
-
-| Optimization                       | Expected Gain     |
-|------------------------------------|-------------------|
-| Pipeline q15_blend (add 1 FF stage)| Halve worst path to ~1.9 ns; throughput unchanged if 1-cycle latency acceptable |
-| Booth encoding for multipliers     | Reduce 16×16 partial products from 16 to 9; shorten adder tree by ~5 levels |
-| Carry-save adder (CSA) tree        | Replace ripple-carry in summation; estimated −0.5 ns |
-| Raise clock to 200 MHz (5 ns)      | Still meets timing without any RTL change (3.833 ns < 5 ns) |
-
-The design comfortably meets 100 MHz. Even 250 MHz (4 ns period) would
-be feasible without RTL changes, based on the estimated 3.833 ns worst path.
-
----
-
-## ABC Output Evidence
-
-From `synth_timing.log` (`print_stats` output per module):
-
-```
-interface_axi  i/o=233/162  nd=655   edge=1722   area=3098.73  delay=658.25   lev=7
-compute_core   i/o=279/152  nd=793   edge=1816   area=3701.21  delay=1502.05  lev=13
-q15_blend      i/o= 48/ 16  nd=5531  edge=14375  area=29350.25 delay=3482.95  lev=39
-q15_mac        i/o= 67/ 32  nd=3211  edge=8232   area=16670.93 delay=2908.18  lev=31
-q15_tanh       i/o= 32/ 16  nd=350   edge=889    area=1728.33  delay=1701.44  lev=17
-```
-
-Units: `delay` in picoseconds, `lev` = logic depth (gate levels), `nd` = node count.
-`area` is ABC internal (sum of gate areas from liberty pin capacitances), not µm².
+The RTL is already structured for option 1: the FSM's `S_FLUSH` state and `flush_cnt` exist to drain a deeper MAC pipeline, so adding tree-reduction pipeline registers is a localized `mac_array` change.

@@ -1,71 +1,83 @@
-ECE 510 M3 — Area Report (sky130_fd_sc_hd Technology-Mapped)
-Generated: Yosys 0.52, synth_area.ys
-PDK: sky130A  tt_025C_1v80  (volare 0fe599b2afb6708d281543108caf8310912f54af)
-Liberty: sky130_fd_sc_hd__tt_025C_1v80.lib
-================================================================================
 
-MODULE AREA BREAKDOWN
-─────────────────────────────────────────────────────────────────────────────
-Module            Area (µm²)    % of total   Sequential %
-─────────────────────────────────────────────────────────────────────────────
-top               61,333.824    100.0 %        0.00 %  (wire-only wrapper)
-  interface_axi    6,263.507      10.2 %       50.50 %
-  compute_core     6,666.394      10.9 %       44.44 %
-  q15_mac         17,319.110      28.2 %        3.70 %
-  q15_tanh         1,729.158       2.8 %        0.00 %  (purely combinational)
-  q15_blend       29,355.654      47.9 %        0.00 %  (purely combinational)
-─────────────────────────────────────────────────────────────────────────────
+13. Printing statistics.
 
-TOTAL MAPPED CELLS: 10,876
+=== top ===
 
-CELL TYPE BREAKDOWN (flat hierarchy, sky130_fd_sc_hd)
-─────────────────────────────────────────────────────────────────────────────
-Cell               Count    Notes
-─────────────────────────────────────────────────────────────────────────────
-sky130_fd_sc_hd__dfxtp_1      338    D flip-flop (all state registers)
-sky130_fd_sc_hd__nand2_1    2,980    2-input NAND (dominant logic cell)
-sky130_fd_sc_hd__nand3_1    1,343    3-input NAND
-sky130_fd_sc_hd__nor2_1       879    2-input NOR
-sky130_fd_sc_hd__clkinv_1     864    Inverter (on clock/data paths)
-sky130_fd_sc_hd__a21oi_1    1,222    AND-OR-invert 2-1
-sky130_fd_sc_hd__a22oi_1      647    AND-OR-invert 2-2
-sky130_fd_sc_hd__o21ai_0      583    OR-AND-invert 2-1
-sky130_fd_sc_hd__o21a_1       412    OR-AND 2-1
-sky130_fd_sc_hd__nand4_1      321    4-input NAND
-sky130_fd_sc_hd__nor3_1       289    3-input NOR
-sky130_fd_sc_hd__a31oi_1      245    AND-OR-invert 3-1
-sky130_fd_sc_hd__a211oi_1     198    AND-OR-invert 2-1-1
-sky130_fd_sc_hd__o22ai_1      180    OR-AND-invert 2-2
-sky130_fd_sc_hd__a21o_1       155    AND-OR 2-1
-sky130_fd_sc_hd__o31ai_1      120    OR-AND-invert 3-1
-sky130_fd_sc_hd__o211ai_1      98    OR-AND-invert 2-1-1
-sky130_fd_sc_hd__a2bb2oi_1     52    (other complex gates)
-sky130_fd_sc_hd__o21bai_1      43
-sky130_fd_sc_hd__a32oi_1       34
-sky130_fd_sc_hd__a221oi_1      29
-sky130_fd_sc_hd__and2_0        23
-sky130_fd_sc_hd__o32ai_1       19
-(remaining minor cells)       549
-─────────────────────────────────────────────────────────────────────────────
+        +----------Local Count, excluding submodules.
+        |        +-Local Area, excluding submodules.
+        |        | 
+    29458        - wires
+    30936        - wire bits
+       58        - public wires
+     1536        - public wire bits
+       23        - ports
+      615        - port bits
+    30197 2.17E+05 cells
+        3   26.275   sky130_fd_sc_hd__a211o_1
+        3   22.522   sky130_fd_sc_hd__a211oi_1
+       22  220.211   sky130_fd_sc_hd__a21bo_1
+       11   82.579   sky130_fd_sc_hd__a21boi_0
+      269 2.02E+03   sky130_fd_sc_hd__a21o_1
+     1646 8.24E+03   sky130_fd_sc_hd__a21oi_1
+       12  120.115   sky130_fd_sc_hd__a222oi_1
+      183  1.6E+03   sky130_fd_sc_hd__a22o_1
+      239 1.79E+03   sky130_fd_sc_hd__a22oi_1
+       84  735.706   sky130_fd_sc_hd__a2bb2oi_1
+       14  122.618   sky130_fd_sc_hd__a311oi_1
+       19   166.41   sky130_fd_sc_hd__a31o_1
+      172 1.08E+03   sky130_fd_sc_hd__a31oi_1
+       57  570.547   sky130_fd_sc_hd__a32o_1
+        2   17.517   sky130_fd_sc_hd__a32oi_1
+        1    8.758   sky130_fd_sc_hd__a41oi_1
+      500     3128   sky130_fd_sc_hd__and2_0
+      436 2.73E+03   sky130_fd_sc_hd__and3_1
+        1    8.758   sky130_fd_sc_hd__and3b_1
+       35  306.544   sky130_fd_sc_hd__and4_1
+      674 2.53E+03   sky130_fd_sc_hd__clkinv_1
+      789 1.58E+04   sky130_fd_sc_hd__dfxtp_1
+        8   240.23   sky130_fd_sc_hd__edfxtp_1
+      101  631.856   sky130_fd_sc_hd__lpflow_inputiso1p_1
+     1392 8.71E+03   sky130_fd_sc_hd__lpflow_isobufsrc_1
+     2417 2.42E+04   sky130_fd_sc_hd__maj3_1
+        3   33.782   sky130_fd_sc_hd__mux2_1
+       10  100.096   sky130_fd_sc_hd__mux2i_1
+     4751 1.78E+04   sky130_fd_sc_hd__nand2_1
+      605  3784.88   sky130_fd_sc_hd__nand2b_1
+      422 2.11E+03   sky130_fd_sc_hd__nand3_1
+        4   30.029   sky130_fd_sc_hd__nand3b_1
+      263 1.65E+03   sky130_fd_sc_hd__nand4_1
+       81   709.43   sky130_fd_sc_hd__nand4b_1
+     2503  9.4E+03   sky130_fd_sc_hd__nor2_1
+      129  807.024   sky130_fd_sc_hd__nor2b_1
+      641 3.21E+03   sky130_fd_sc_hd__nor3_1
+        8   60.058   sky130_fd_sc_hd__nor3b_1
+       10    62.56   sky130_fd_sc_hd__nor4_1
+        1    8.758   sky130_fd_sc_hd__o2111ai_1
+        8   80.077   sky130_fd_sc_hd__o211a_1
+        3   22.522   sky130_fd_sc_hd__o211ai_1
+      313 2.35E+03   sky130_fd_sc_hd__o21a_1
+     1567 7.84E+03   sky130_fd_sc_hd__o21ai_0
+       17  170.163   sky130_fd_sc_hd__o21ba_1
+      158 1.19E+03   sky130_fd_sc_hd__o21bai_1
+        1   11.261   sky130_fd_sc_hd__o221a_1
+        1    8.758   sky130_fd_sc_hd__o221ai_1
+      108  945.907   sky130_fd_sc_hd__o22a_1
+       73  456.688   sky130_fd_sc_hd__o22ai_1
+        1    8.758   sky130_fd_sc_hd__o2bb2ai_1
+        2   20.019   sky130_fd_sc_hd__o311a_1
+        7   61.309   sky130_fd_sc_hd__o311ai_0
+       40  300.288   sky130_fd_sc_hd__o31ai_1
+        1    10.01   sky130_fd_sc_hd__o32a_1
+        3   26.275   sky130_fd_sc_hd__o32ai_1
+        2   17.517   sky130_fd_sc_hd__o41ai_1
+       52  325.312   sky130_fd_sc_hd__or3_1
+       14  122.618   sky130_fd_sc_hd__or3b_1
+        4   30.029   sky130_fd_sc_hd__or4_1
+     5699 4.99E+04   sky130_fd_sc_hd__xnor2_1
+      321 7.23E+03   sky130_fd_sc_hd__xnor3_1
+     3123 2.74E+04   sky130_fd_sc_hd__xor2_1
+      158 3.76E+03   sky130_fd_sc_hd__xor3_1
 
-AREA OBSERVATIONS
-─────────────────────────────────────────────────────────────────────────────
-1. q15_blend dominates (47.9%): implements two Q15 multiplications + weighted
-   sum + clamp in pure combinational logic. No pipeline registers → wide mux
-   tree and adder array expand to ~2,800 cells in this module alone.
+   Chip area for module '\top': 217131.996800
+     of which used for sequential elements: 16035.379200 (7.39%)
 
-2. q15_mac is second largest (28.2%): Q15 16×16 multiply-accumulate with
-   saturation requires ~1,700 cells; most are NAND/NOR implementing the adder
-   partial-product network.
-
-3. Sequential cells (338 dfxtp_1) are confined to interface_axi and
-   compute_core (AXI state machine + datapath registers). q15_blend and
-   q15_tanh are purely combinational submodules.
-
-4. Cell count of 10,876 against 338 FFs gives a flip-flop-to-cell ratio of
-   ~3.1%, typical for a datapath-heavy arithmetic core vs. FSM-heavy design.
-
-5. Total 61,333.824 µm² ≈ 247 µm × 248 µm if square-packed at 100% density.
-   At realistic 50–70% placement utilization, die footprint ~350–390 µm side.
-   Fits comfortably within the 500 µm × 500 µm die area in config.json.
-─────────────────────────────────────────────────────────────────────────────

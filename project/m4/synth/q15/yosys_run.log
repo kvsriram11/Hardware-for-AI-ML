@@ -1,0 +1,1209 @@
+
+ /----------------------------------------------------------------------------\
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+ |  Copyright (C) 2012 - 2026  Claire Xenia Wolf <claire@yosyshq.com>         |
+ |  Distributed under an ISC-like license, type "license" to see terms        |
+ \----------------------------------------------------------------------------/
+ Yosys 0.66 (git sha1 86f2ddebc, ccache clang++  -O3 -fwasm-exceptions -mllvm) [yowasp/yosys at release-0.66]
+
+-- Executing script file `synth/m4/q15/synth.ys' --
+
+1. Executing Verilog-2005 frontend: rtl/m2/mac_array.sv
+Parsing SystemVerilog input from `rtl/m2/mac_array.sv' to AST representation.
+Generating RTLIL representation for module `\mac_array'.
+Warning: Replacing memory \prod_ext_q with list of registers. See rtl/m2/mac_array.sv:29
+Successfully finished Verilog frontend.
+
+2. Executing Verilog-2005 frontend: rtl/m2/tanh_pwl.sv
+Parsing SystemVerilog input from `rtl/m2/tanh_pwl.sv' to AST representation.
+Generating RTLIL representation for module `\tanh_pwl'.
+Successfully finished Verilog frontend.
+
+3. Executing Verilog-2005 frontend: rtl/m2/leak_blend.sv
+Parsing SystemVerilog input from `rtl/m2/leak_blend.sv' to AST representation.
+Generating RTLIL representation for module `\leak_blend'.
+Successfully finished Verilog frontend.
+
+4. Executing Verilog-2005 frontend: rtl/m4/compute_core.sv
+Parsing SystemVerilog input from `rtl/m4/compute_core.sv' to AST representation.
+Generating RTLIL representation for module `\compute_core'.
+Successfully finished Verilog frontend.
+Parameter \DATA_W = 16
+Parameter \MAC_WIDTH = 16
+Parameter \ACC_W = 40
+Parameter \FRAC_W = 15
+
+5. Executing AST frontend in derive mode using pre-parsed AST for module `\compute_core'.
+Parameter \DATA_W = 16
+Parameter \MAC_WIDTH = 16
+Parameter \ACC_W = 40
+Parameter \FRAC_W = 15
+Generating RTLIL representation for module `$paramod$33f723edb216f3694c621f038298017da2c0c8b8\compute_core'.
+
+6. Executing HIERARCHY pass (managing design hierarchy).
+
+6.1. Analyzing design hierarchy..
+Top module:  \compute_core
+Used module:     \mac_array
+Used module:     \tanh_pwl
+Used module:     \leak_blend
+Parameter \DATA_W = 16
+Parameter \MAC_WIDTH = 16
+Parameter \ACC_W = 40
+
+6.2. Executing AST frontend in derive mode using pre-parsed AST for module `\mac_array'.
+Parameter \DATA_W = 16
+Parameter \MAC_WIDTH = 16
+Parameter \ACC_W = 40
+Generating RTLIL representation for module `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array'.
+Warning: Replacing memory \prod_ext_q with list of registers. See rtl/m2/mac_array.sv:29
+Parameter \DATA_W = 16
+Parameter \ACC_W = 40
+Parameter \FRAC_W = 15
+
+6.3. Executing AST frontend in derive mode using pre-parsed AST for module `\tanh_pwl'.
+Parameter \DATA_W = 16
+Parameter \ACC_W = 40
+Parameter \FRAC_W = 15
+Generating RTLIL representation for module `$paramod$1bc7c0c010dd6a5f0abde46105fbf25e55a7b997\tanh_pwl'.
+Parameter \DATA_W = 16
+
+6.4. Executing AST frontend in derive mode using pre-parsed AST for module `\leak_blend'.
+Parameter \DATA_W = 16
+Generating RTLIL representation for module `$paramod\leak_blend\DATA_W=s32'00000000000000000000000000010000'.
+
+6.5. Analyzing design hierarchy..
+Top module:  \compute_core
+Used module:     $paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array
+Used module:     $paramod$1bc7c0c010dd6a5f0abde46105fbf25e55a7b997\tanh_pwl
+Used module:     $paramod\leak_blend\DATA_W=s32'00000000000000000000000000010000
+
+6.6. Analyzing design hierarchy..
+Top module:  \compute_core
+Used module:     $paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array
+Used module:     $paramod$1bc7c0c010dd6a5f0abde46105fbf25e55a7b997\tanh_pwl
+Used module:     $paramod\leak_blend\DATA_W=s32'00000000000000000000000000010000
+Removing unused module `\leak_blend'.
+Removing unused module `\tanh_pwl'.
+Removing unused module `\mac_array'.
+Removed 3 unused modules.
+
+7. Executing SYNTH pass.
+
+7.1. Executing HIERARCHY pass (managing design hierarchy).
+
+7.1.1. Analyzing design hierarchy..
+Top module:  \compute_core
+Used module:     $paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array
+Used module:     $paramod$1bc7c0c010dd6a5f0abde46105fbf25e55a7b997\tanh_pwl
+Used module:     $paramod\leak_blend\DATA_W=s32'00000000000000000000000000010000
+
+7.1.2. Analyzing design hierarchy..
+Top module:  \compute_core
+Used module:     $paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array
+Used module:     $paramod$1bc7c0c010dd6a5f0abde46105fbf25e55a7b997\tanh_pwl
+Used module:     $paramod\leak_blend\DATA_W=s32'00000000000000000000000000010000
+Removed 0 unused modules.
+
+7.2. Executing PROC pass (convert processes to netlists).
+
+7.2.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+7.2.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Marked 3 switch rules as full_case in process $proc$rtl/m4/compute_core.sv:59$90 in module compute_core.
+Marked 4 switch rules as full_case in process $proc$rtl/m4/compute_core.sv:72$96 in module compute_core.
+Marked 1 switch rules as full_case in process $proc$rtl/m4/compute_core.sv:101$105 in module compute_core.
+Marked 2 switch rules as full_case in process $proc$rtl/m4/compute_core.sv:129$114 in module compute_core.
+Marked 1 switch rules as full_case in process $proc$rtl/m2/leak_blend.sv:24$173 in module $paramod\leak_blend\DATA_W=s32'00000000000000000000000000010000.
+Marked 1 switch rules as full_case in process $proc$rtl/m2/tanh_pwl.sv:67$167 in module $paramod$1bc7c0c010dd6a5f0abde46105fbf25e55a7b997\tanh_pwl.
+Marked 4 switch rules as full_case in process $proc$rtl/m2/tanh_pwl.sv:48$157 in module $paramod$1bc7c0c010dd6a5f0abde46105fbf25e55a7b997\tanh_pwl.
+Marked 2 switch rules as full_case in process $proc$rtl/m2/mac_array.sv:65$154 in module $paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.
+Marked 1 switch rules as full_case in process $proc$rtl/m2/mac_array.sv:59$152 in module $paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.
+Marked 2 switch rules as full_case in process $proc$rtl/m2/mac_array.sv:27$117 in module $paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.
+Removed a total of 0 dead cases.
+
+7.2.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 19 redundant assignments.
+Promoted 6 assignments to connections.
+
+7.2.4. Executing PROC_INIT pass (extract init attributes).
+
+7.2.5. Executing PROC_ARST pass (detect async resets in processes).
+
+7.2.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+<suppressed ~27 debug messages>
+
+7.2.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `\compute_core.$proc$rtl/m4/compute_core.sv:59$90'.
+     1/3: $0\flush_cnt[2:0]
+     2/3: $0\state[2:0]
+     3/3: $0\last_chunk_q[0:0]
+Creating decoders for process `\compute_core.$proc$rtl/m4/compute_core.sv:72$96'.
+     1/4: $4\next_state[2:0]
+     2/4: $3\next_state[2:0]
+     3/4: $2\next_state[2:0]
+     4/4: $1\next_state[2:0]
+Creating decoders for process `\compute_core.$proc$rtl/m4/compute_core.sv:101$105'.
+     1/1: $0\pre_act[39:0]
+Creating decoders for process `\compute_core.$proc$rtl/m4/compute_core.sv:129$114'.
+     1/2: $0\done[0:0]
+     2/2: $0\x_next_o[15:0]
+Creating decoders for process `$paramod\leak_blend\DATA_W=s32'00000000000000000000000000010000.$proc$rtl/m2/leak_blend.sv:24$173'.
+     1/1: $0\x_next[15:0]
+Creating decoders for process `$paramod$1bc7c0c010dd6a5f0abde46105fbf25e55a7b997\tanh_pwl.$proc$rtl/m2/tanh_pwl.sv:67$167'.
+     1/1: $0\act_out[15:0]
+Creating decoders for process `$paramod$1bc7c0c010dd6a5f0abde46105fbf25e55a7b997\tanh_pwl.$proc$rtl/m2/tanh_pwl.sv:48$157'.
+     1/8: $4\y_q[15:0]
+     2/8: $4\shifted[39:0]
+     3/8: $3\y_q[15:0]
+     4/8: $3\shifted[39:0]
+     5/8: $2\y_q[15:0]
+     6/8: $2\shifted[39:0]
+     7/8: $1\y_q[15:0]
+     8/8: $1\shifted[39:0]
+Creating decoders for process `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.$proc$rtl/m2/mac_array.sv:65$154'.
+     1/1: $0\sum_out[39:0]
+Creating decoders for process `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.$proc$rtl/m2/mac_array.sv:59$152'.
+     1/1: $0\tree_q[39:0]
+Creating decoders for process `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.$proc$rtl/m2/mac_array.sv:53$135'.
+Creating decoders for process `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.$proc$rtl/m2/mac_array.sv:27$117'.
+     1/18: $2\i[31:0]
+     2/18: $1\i[31:0]
+     3/18: $0\prod_ext_q[15][39:0]
+     4/18: $0\prod_ext_q[14][39:0]
+     5/18: $0\prod_ext_q[13][39:0]
+     6/18: $0\prod_ext_q[12][39:0]
+     7/18: $0\prod_ext_q[11][39:0]
+     8/18: $0\prod_ext_q[10][39:0]
+     9/18: $0\prod_ext_q[9][39:0]
+    10/18: $0\prod_ext_q[8][39:0]
+    11/18: $0\prod_ext_q[7][39:0]
+    12/18: $0\prod_ext_q[6][39:0]
+    13/18: $0\prod_ext_q[5][39:0]
+    14/18: $0\prod_ext_q[4][39:0]
+    15/18: $0\prod_ext_q[3][39:0]
+    16/18: $0\prod_ext_q[2][39:0]
+    17/18: $0\prod_ext_q[1][39:0]
+    18/18: $0\prod_ext_q[0][39:0]
+
+7.2.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+No latch inferred for signal `\compute_core.\next_state' from process `\compute_core.$proc$rtl/m4/compute_core.sv:72$96'.
+No latch inferred for signal `$paramod$1bc7c0c010dd6a5f0abde46105fbf25e55a7b997\tanh_pwl.\shifted' from process `$paramod$1bc7c0c010dd6a5f0abde46105fbf25e55a7b997\tanh_pwl.$proc$rtl/m2/tanh_pwl.sv:48$157'.
+No latch inferred for signal `$paramod$1bc7c0c010dd6a5f0abde46105fbf25e55a7b997\tanh_pwl.\y_q' from process `$paramod$1bc7c0c010dd6a5f0abde46105fbf25e55a7b997\tanh_pwl.$proc$rtl/m2/tanh_pwl.sv:48$157'.
+No latch inferred for signal `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.\j' from process `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.$proc$rtl/m2/mac_array.sv:53$135'.
+No latch inferred for signal `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.\tree_sum' from process `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.$proc$rtl/m2/mac_array.sv:53$135'.
+
+7.2.9. Executing PROC_DFF pass (convert process syncs to FFs).
+Creating register for signal `\compute_core.\state' using process `\compute_core.$proc$rtl/m4/compute_core.sv:59$90'.
+  created $dff cell `$procdff$434' with positive edge clock.
+Creating register for signal `\compute_core.\last_chunk_q' using process `\compute_core.$proc$rtl/m4/compute_core.sv:59$90'.
+  created $dff cell `$procdff$435' with positive edge clock.
+Creating register for signal `\compute_core.\flush_cnt' using process `\compute_core.$proc$rtl/m4/compute_core.sv:59$90'.
+  created $dff cell `$procdff$436' with positive edge clock.
+Creating register for signal `\compute_core.\pre_act' using process `\compute_core.$proc$rtl/m4/compute_core.sv:101$105'.
+  created $dff cell `$procdff$437' with positive edge clock.
+Creating register for signal `\compute_core.\x_next_o' using process `\compute_core.$proc$rtl/m4/compute_core.sv:129$114'.
+  created $dff cell `$procdff$438' with positive edge clock.
+Creating register for signal `\compute_core.\done' using process `\compute_core.$proc$rtl/m4/compute_core.sv:129$114'.
+  created $dff cell `$procdff$439' with positive edge clock.
+Creating register for signal `$paramod\leak_blend\DATA_W=s32'00000000000000000000000000010000.\x_next' using process `$paramod\leak_blend\DATA_W=s32'00000000000000000000000000010000.$proc$rtl/m2/leak_blend.sv:24$173'.
+  created $dff cell `$procdff$440' with positive edge clock.
+Creating register for signal `$paramod$1bc7c0c010dd6a5f0abde46105fbf25e55a7b997\tanh_pwl.\act_out' using process `$paramod$1bc7c0c010dd6a5f0abde46105fbf25e55a7b997\tanh_pwl.$proc$rtl/m2/tanh_pwl.sv:67$167'.
+  created $dff cell `$procdff$441' with positive edge clock.
+Creating register for signal `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.\sum_out' using process `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.$proc$rtl/m2/mac_array.sv:65$154'.
+  created $dff cell `$procdff$442' with positive edge clock.
+Creating register for signal `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.\tree_q' using process `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.$proc$rtl/m2/mac_array.sv:59$152'.
+  created $dff cell `$procdff$443' with positive edge clock.
+Creating register for signal `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.\i' using process `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.$proc$rtl/m2/mac_array.sv:27$117'.
+  created $dff cell `$procdff$444' with positive edge clock.
+Creating register for signal `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.\prod_ext_q[0]' using process `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.$proc$rtl/m2/mac_array.sv:27$117'.
+  created $dff cell `$procdff$445' with positive edge clock.
+Creating register for signal `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.\prod_ext_q[1]' using process `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.$proc$rtl/m2/mac_array.sv:27$117'.
+  created $dff cell `$procdff$446' with positive edge clock.
+Creating register for signal `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.\prod_ext_q[2]' using process `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.$proc$rtl/m2/mac_array.sv:27$117'.
+  created $dff cell `$procdff$447' with positive edge clock.
+Creating register for signal `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.\prod_ext_q[3]' using process `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.$proc$rtl/m2/mac_array.sv:27$117'.
+  created $dff cell `$procdff$448' with positive edge clock.
+Creating register for signal `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.\prod_ext_q[4]' using process `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.$proc$rtl/m2/mac_array.sv:27$117'.
+  created $dff cell `$procdff$449' with positive edge clock.
+Creating register for signal `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.\prod_ext_q[5]' using process `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.$proc$rtl/m2/mac_array.sv:27$117'.
+  created $dff cell `$procdff$450' with positive edge clock.
+Creating register for signal `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.\prod_ext_q[6]' using process `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.$proc$rtl/m2/mac_array.sv:27$117'.
+  created $dff cell `$procdff$451' with positive edge clock.
+Creating register for signal `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.\prod_ext_q[7]' using process `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.$proc$rtl/m2/mac_array.sv:27$117'.
+  created $dff cell `$procdff$452' with positive edge clock.
+Creating register for signal `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.\prod_ext_q[8]' using process `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.$proc$rtl/m2/mac_array.sv:27$117'.
+  created $dff cell `$procdff$453' with positive edge clock.
+Creating register for signal `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.\prod_ext_q[9]' using process `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.$proc$rtl/m2/mac_array.sv:27$117'.
+  created $dff cell `$procdff$454' with positive edge clock.
+Creating register for signal `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.\prod_ext_q[10]' using process `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.$proc$rtl/m2/mac_array.sv:27$117'.
+  created $dff cell `$procdff$455' with positive edge clock.
+Creating register for signal `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.\prod_ext_q[11]' using process `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.$proc$rtl/m2/mac_array.sv:27$117'.
+  created $dff cell `$procdff$456' with positive edge clock.
+Creating register for signal `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.\prod_ext_q[12]' using process `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.$proc$rtl/m2/mac_array.sv:27$117'.
+  created $dff cell `$procdff$457' with positive edge clock.
+Creating register for signal `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.\prod_ext_q[13]' using process `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.$proc$rtl/m2/mac_array.sv:27$117'.
+  created $dff cell `$procdff$458' with positive edge clock.
+Creating register for signal `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.\prod_ext_q[14]' using process `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.$proc$rtl/m2/mac_array.sv:27$117'.
+  created $dff cell `$procdff$459' with positive edge clock.
+Creating register for signal `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.\prod_ext_q[15]' using process `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.$proc$rtl/m2/mac_array.sv:27$117'.
+  created $dff cell `$procdff$460' with positive edge clock.
+
+7.2.10. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+7.2.11. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Found and cleaned up 4 empty switches in `\compute_core.$proc$rtl/m4/compute_core.sv:59$90'.
+Removing empty process `compute_core.$proc$rtl/m4/compute_core.sv:59$90'.
+Found and cleaned up 4 empty switches in `\compute_core.$proc$rtl/m4/compute_core.sv:72$96'.
+Removing empty process `compute_core.$proc$rtl/m4/compute_core.sv:72$96'.
+Found and cleaned up 2 empty switches in `\compute_core.$proc$rtl/m4/compute_core.sv:101$105'.
+Removing empty process `compute_core.$proc$rtl/m4/compute_core.sv:101$105'.
+Found and cleaned up 2 empty switches in `\compute_core.$proc$rtl/m4/compute_core.sv:129$114'.
+Removing empty process `compute_core.$proc$rtl/m4/compute_core.sv:129$114'.
+Found and cleaned up 2 empty switches in `$paramod\leak_blend\DATA_W=s32'00000000000000000000000000010000.$proc$rtl/m2/leak_blend.sv:24$173'.
+Removing empty process `$paramod\leak_blend\DATA_W=s32'00000000000000000000000000010000.$proc$rtl/m2/leak_blend.sv:24$173'.
+Found and cleaned up 2 empty switches in `$paramod$1bc7c0c010dd6a5f0abde46105fbf25e55a7b997\tanh_pwl.$proc$rtl/m2/tanh_pwl.sv:67$167'.
+Removing empty process `$paramod$1bc7c0c010dd6a5f0abde46105fbf25e55a7b997\tanh_pwl.$proc$rtl/m2/tanh_pwl.sv:67$167'.
+Found and cleaned up 4 empty switches in `$paramod$1bc7c0c010dd6a5f0abde46105fbf25e55a7b997\tanh_pwl.$proc$rtl/m2/tanh_pwl.sv:48$157'.
+Removing empty process `$paramod$1bc7c0c010dd6a5f0abde46105fbf25e55a7b997\tanh_pwl.$proc$rtl/m2/tanh_pwl.sv:48$157'.
+Found and cleaned up 3 empty switches in `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.$proc$rtl/m2/mac_array.sv:65$154'.
+Removing empty process `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.$proc$rtl/m2/mac_array.sv:65$154'.
+Found and cleaned up 2 empty switches in `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.$proc$rtl/m2/mac_array.sv:59$152'.
+Removing empty process `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.$proc$rtl/m2/mac_array.sv:59$152'.
+Removing empty process `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.$proc$rtl/m2/mac_array.sv:53$135'.
+Found and cleaned up 2 empty switches in `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.$proc$rtl/m2/mac_array.sv:27$117'.
+Removing empty process `$paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.$proc$rtl/m2/mac_array.sv:27$117'.
+Cleaned up 27 empty switches.
+
+7.2.12. Executing OPT_EXPR pass (perform const folding).
+Optimizing module compute_core.
+<suppressed ~11 debug messages>
+Optimizing module $paramod\leak_blend\DATA_W=s32'00000000000000000000000000010000.
+<suppressed ~1 debug messages>
+Optimizing module $paramod$1bc7c0c010dd6a5f0abde46105fbf25e55a7b997\tanh_pwl.
+<suppressed ~4 debug messages>
+Optimizing module $paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.
+<suppressed ~20 debug messages>
+
+7.3. Executing CHECK pass (checking for obvious problems).
+Checking module compute_core...
+Checking module $paramod\leak_blend\DATA_W=s32'00000000000000000000000000010000...
+Checking module $paramod$1bc7c0c010dd6a5f0abde46105fbf25e55a7b997\tanh_pwl...
+Checking module $paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array...
+Found and reported 0 problems.
+
+7.4. Executing FLATTEN pass (flatten design).
+Deleting now unused module $paramod\leak_blend\DATA_W=s32'00000000000000000000000000010000.
+Deleting now unused module $paramod$1bc7c0c010dd6a5f0abde46105fbf25e55a7b997\tanh_pwl.
+Deleting now unused module $paramod$5b7c8e10b91735dffe30ab54cc14d97984a9eddc\mac_array.
+<suppressed ~3 debug messages>
+
+7.5. Executing OPT_EXPR pass (perform const folding).
+Optimizing module compute_core.
+<suppressed ~1 debug messages>
+
+7.6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \compute_core..
+Removed 21 unused cells and 163 unused wires.
+<suppressed ~25 debug messages>
+
+7.7. Executing CHECK pass (checking for obvious problems).
+Checking module compute_core...
+Found and reported 0 problems.
+
+7.8. Executing OPT pass (performing simple optimizations).
+
+7.8.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module compute_core.
+
+7.8.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\compute_core'.
+Computing hashes of 168 cells of `\compute_core'.
+Finding duplicate cells in `\compute_core'.
+Computing hashes of 155 cells of `\compute_core'.
+Finding duplicate cells in `\compute_core'.
+<suppressed ~39 debug messages>
+Removed a total of 13 cells.
+
+7.8.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \compute_core..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+    dead port 1/2 on $mux $flatten\u_tanh.$procmux$261.
+    dead port 1/2 on $mux $flatten\u_tanh.$procmux$264.
+    dead port 1/2 on $mux $flatten\u_tanh.$procmux$267.
+    dead port 1/2 on $mux $flatten\u_tanh.$procmux$285.
+    dead port 1/2 on $mux $flatten\u_tanh.$procmux$288.
+    dead port 1/2 on $mux $flatten\u_tanh.$procmux$303.
+    dead port 2/2 on $mux $procmux$220.
+    dead port 2/2 on $mux $procmux$209.
+    dead port 2/2 on $mux $procmux$199.
+Removed 9 multiplexer ports.
+<suppressed ~96 debug messages>
+
+7.8.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \compute_core.
+Performed a total of 0 changes.
+
+7.8.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\compute_core'.
+Computing hashes of 146 cells of `\compute_core'.
+Finding duplicate cells in `\compute_core'.
+Removed a total of 0 cells.
+
+7.8.6. Executing OPT_DFF pass (perform DFF optimizations).
+
+7.8.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \compute_core..
+Removed 0 unused cells and 22 unused wires.
+<suppressed ~1 debug messages>
+
+7.8.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module compute_core.
+
+7.8.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+7.8.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \compute_core..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~87 debug messages>
+
+7.8.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \compute_core.
+Performed a total of 0 changes.
+
+7.8.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\compute_core'.
+Computing hashes of 146 cells of `\compute_core'.
+Finding duplicate cells in `\compute_core'.
+Removed a total of 0 cells.
+
+7.8.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+7.8.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \compute_core..
+
+7.8.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module compute_core.
+
+7.8.16. Finished fast OPT passes. (There is nothing left to do.)
+
+7.9. Executing FSM pass (extract and optimize FSM).
+
+7.9.1. Executing FSM_DETECT pass (finding FSMs in design).
+Found FSM state register compute_core.state.
+
+7.9.2. Executing FSM_EXTRACT pass (extracting FSM from design).
+Extracting FSM `\state' from module `\compute_core'.
+  found $dff cell for state register: $procdff$434
+  root of input selection tree: $0\state[2:0]
+  found reset state: 3'000 (guessed from mux tree)
+  found ctrl input: \rst_n
+  found state code: 3'000
+  found ctrl input: \blend_en
+  found ctrl input: \act_en
+  found ctrl input: $eq$rtl/m4/compute_core.sv:103$107_Y
+  found ctrl input: $eq$rtl/m4/compute_core.sv:86$98_Y
+  found ctrl input: $eq$rtl/m4/compute_core.sv:67$93_Y
+  found state code: 3'101
+  found state code: 3'100
+  found ctrl input: $eq$rtl/m4/compute_core.sv:103$108_Y
+  found state code: 3'011
+  found ctrl input: \last_chunk_q
+  found state code: 3'010
+  found ctrl input: \start
+  found state code: 3'001
+  found ctrl output: $eq$rtl/m4/compute_core.sv:133$116_Y
+  found ctrl output: \blend_en
+  found ctrl output: \act_en
+  found ctrl output: $eq$rtl/m4/compute_core.sv:103$107_Y
+  found ctrl output: $eq$rtl/m4/compute_core.sv:86$98_Y
+  found ctrl output: $eq$rtl/m4/compute_core.sv:67$93_Y
+  ctrl inputs: { $eq$rtl/m4/compute_core.sv:103$108_Y \last_chunk_q \start \rst_n }
+  ctrl outputs: { $eq$rtl/m4/compute_core.sv:133$116_Y $eq$rtl/m4/compute_core.sv:103$107_Y $eq$rtl/m4/compute_core.sv:86$98_Y $eq$rtl/m4/compute_core.sv:67$93_Y $0\state[2:0] \blend_en \act_en }
+  transition:      3'000 4'---0 ->      3'000 9'000100000
+  transition:      3'000 4'--01 ->      3'000 9'000100000
+  transition:      3'000 4'--11 ->      3'001 9'000100100
+  transition:      3'100 4'---0 ->      3'000 9'000000010
+  transition:      3'100 4'---1 ->      3'101 9'000010110
+  transition:      3'010 4'---0 ->      3'000 9'010000000
+  transition:      3'010 4'0--1 ->      3'010 9'010001000
+  transition:      3'010 4'1--1 ->      3'011 9'010001100
+  transition:      3'001 4'---0 ->      3'000 9'001000000
+  transition:      3'001 4'-0-1 ->      3'001 9'001000100
+  transition:      3'001 4'-1-1 ->      3'010 9'001001000
+  transition:      3'101 4'---0 ->      3'000 9'100000000
+  transition:      3'101 4'---1 ->      3'000 9'100000000
+  transition:      3'011 4'---0 ->      3'000 9'000000001
+  transition:      3'011 4'---1 ->      3'100 9'000010001
+
+7.9.3. Executing FSM_OPT pass (simple optimizations of FSMs).
+Optimizing FSM `$fsm$\state$464' from module `\compute_core'.
+  Merging pattern 4'---0 and 4'---1 from group (4 0 9'100000000).
+  Merging pattern 4'---1 and 4'---0 from group (4 0 9'100000000).
+
+7.9.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \compute_core..
+Removed 12 unused cells and 12 unused wires.
+<suppressed ~14 debug messages>
+
+7.9.5. Executing FSM_OPT pass (simple optimizations of FSMs).
+Optimizing FSM `$fsm$\state$464' from module `\compute_core'.
+  Removing unused output signal $0\state[2:0] [0].
+  Removing unused output signal $0\state[2:0] [1].
+  Removing unused output signal $0\state[2:0] [2].
+
+7.9.6. Executing FSM_RECODE pass (re-assigning FSM state encoding).
+Recoding FSM `$fsm$\state$464' from module `\compute_core' using `auto' encoding:
+  mapping auto encoding to `one-hot` for this FSM.
+  000 -> -----1
+  100 -> ----1-
+  010 -> ---1--
+  001 -> --1---
+  101 -> -1----
+  011 -> 1-----
+
+7.9.7. Executing FSM_INFO pass (dumping all available information on FSM cells).
+
+FSM `$fsm$\state$464' from module `compute_core':
+-------------------------------------
+
+  Information on FSM $fsm$\state$464 (\state):
+
+  Number of input signals:    4
+  Number of output signals:   6
+  Number of state bits:       6
+
+  Input signals:
+    0: \rst_n
+    1: \start
+    2: \last_chunk_q
+    3: $eq$rtl/m4/compute_core.sv:103$108_Y
+
+  Output signals:
+    0: \act_en
+    1: \blend_en
+    2: $eq$rtl/m4/compute_core.sv:67$93_Y
+    3: $eq$rtl/m4/compute_core.sv:86$98_Y
+    4: $eq$rtl/m4/compute_core.sv:103$107_Y
+    5: $eq$rtl/m4/compute_core.sv:133$116_Y
+
+  State encoding:
+    0:   6'-----1  <RESET STATE>
+    1:   6'----1-
+    2:   6'---1--
+    3:   6'--1---
+    4:   6'-1----
+    5:   6'1-----
+
+  Transition Table (state_in, ctrl_in, state_out, ctrl_out):
+      0:     0 4'---0   ->     0 6'000100
+      1:     0 4'--01   ->     0 6'000100
+      2:     0 4'--11   ->     3 6'000100
+      3:     1 4'---0   ->     0 6'000010
+      4:     1 4'---1   ->     4 6'000010
+      5:     2 4'---0   ->     0 6'010000
+      6:     2 4'0--1   ->     2 6'010000
+      7:     2 4'1--1   ->     5 6'010000
+      8:     3 4'---0   ->     0 6'001000
+      9:     3 4'-1-1   ->     2 6'001000
+     10:     3 4'-0-1   ->     3 6'001000
+     11:     4 4'----   ->     0 6'100000
+     12:     5 4'---0   ->     0 6'000001
+     13:     5 4'---1   ->     1 6'000001
+
+-------------------------------------
+
+7.9.8. Executing FSM_MAP pass (mapping FSMs to basic logic).
+Mapping FSM `$fsm$\state$464' from module `\compute_core'.
+
+7.10. Executing OPT pass (performing simple optimizations).
+
+7.10.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module compute_core.
+<suppressed ~3 debug messages>
+
+7.10.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\compute_core'.
+Computing hashes of 153 cells of `\compute_core'.
+Finding duplicate cells in `\compute_core'.
+Removed a total of 0 cells.
+
+7.10.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \compute_core..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~81 debug messages>
+
+7.10.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \compute_core.
+Performed a total of 0 changes.
+
+7.10.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\compute_core'.
+Computing hashes of 153 cells of `\compute_core'.
+Finding duplicate cells in `\compute_core'.
+Removed a total of 0 cells.
+
+7.10.6. Executing OPT_DFF pass (perform DFF optimizations).
+Adding SRST signal on $procdff$439 ($dff) from module compute_core (D = $procmux$236_Y, Q = \done, rval = 1'0).
+Adding SRST signal on $procdff$435 ($dff) from module compute_core (D = $procmux$187_Y, Q = \last_chunk_q, rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$514 ($sdff) from module compute_core (D = $procmux$187_Y, Q = \last_chunk_q).
+Adding SRST signal on $procdff$436 ($dff) from module compute_core (D = $add$rtl/m4/compute_core.sv:68$95_Y [2:0], Q = \flush_cnt, rval = 3'000).
+Adding SRST signal on $procdff$437 ($dff) from module compute_core (D = $procmux$230_Y, Q = \pre_act, rval = 40'0000000000000000000000000000000000000000).
+Adding EN signal on $auto$ff.cc:337:slice$521 ($sdff) from module compute_core (D = $add$rtl/m4/compute_core.sv:103$111_Y, Q = \pre_act).
+Adding SRST signal on $procdff$438 ($dff) from module compute_core (D = $procmux$242_Y, Q = \x_next_o, rval = 16'0000000000000000).
+Adding EN signal on $auto$ff.cc:337:slice$523 ($sdff) from module compute_core (D = \u_blend.x_next, Q = \x_next_o).
+Adding SRST signal on $flatten\u_blend.$procdff$440 ($dff) from module compute_core (D = $flatten\u_blend.$procmux$247_Y, Q = \u_blend.x_next, rval = 16'0000000000000000).
+Adding EN signal on $auto$ff.cc:337:slice$525 ($sdff) from module compute_core (D = \u_blend.sum [30:15], Q = \u_blend.x_next).
+Adding SRST signal on $flatten\u_tanh.$procdff$441 ($dff) from module compute_core (D = $flatten\u_tanh.$procmux$252_Y, Q = \u_tanh.act_out, rval = 16'0000000000000000).
+Adding EN signal on $auto$ff.cc:337:slice$527 ($sdff) from module compute_core (D = \u_tanh.y_q, Q = \u_tanh.act_out).
+Adding SRST signal on $flatten\u_mac.$procdff$460 ($dff) from module compute_core (D = $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$134_Y, Q = \u_mac.prod_ext_q[15], rval = 40'0000000000000000000000000000000000000000).
+Adding SRST signal on $flatten\u_mac.$procdff$459 ($dff) from module compute_core (D = $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$133_Y, Q = \u_mac.prod_ext_q[14], rval = 40'0000000000000000000000000000000000000000).
+Adding SRST signal on $flatten\u_mac.$procdff$458 ($dff) from module compute_core (D = $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$132_Y, Q = \u_mac.prod_ext_q[13], rval = 40'0000000000000000000000000000000000000000).
+Adding SRST signal on $flatten\u_mac.$procdff$457 ($dff) from module compute_core (D = $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$131_Y, Q = \u_mac.prod_ext_q[12], rval = 40'0000000000000000000000000000000000000000).
+Adding SRST signal on $flatten\u_mac.$procdff$456 ($dff) from module compute_core (D = $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$130_Y, Q = \u_mac.prod_ext_q[11], rval = 40'0000000000000000000000000000000000000000).
+Adding SRST signal on $flatten\u_mac.$procdff$455 ($dff) from module compute_core (D = $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$129_Y, Q = \u_mac.prod_ext_q[10], rval = 40'0000000000000000000000000000000000000000).
+Adding SRST signal on $flatten\u_mac.$procdff$454 ($dff) from module compute_core (D = $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$128_Y, Q = \u_mac.prod_ext_q[9], rval = 40'0000000000000000000000000000000000000000).
+Adding SRST signal on $flatten\u_mac.$procdff$453 ($dff) from module compute_core (D = $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$127_Y, Q = \u_mac.prod_ext_q[8], rval = 40'0000000000000000000000000000000000000000).
+Adding SRST signal on $flatten\u_mac.$procdff$452 ($dff) from module compute_core (D = $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$126_Y, Q = \u_mac.prod_ext_q[7], rval = 40'0000000000000000000000000000000000000000).
+Adding SRST signal on $flatten\u_mac.$procdff$451 ($dff) from module compute_core (D = $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$125_Y, Q = \u_mac.prod_ext_q[6], rval = 40'0000000000000000000000000000000000000000).
+Adding SRST signal on $flatten\u_mac.$procdff$450 ($dff) from module compute_core (D = $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$124_Y, Q = \u_mac.prod_ext_q[5], rval = 40'0000000000000000000000000000000000000000).
+Adding SRST signal on $flatten\u_mac.$procdff$449 ($dff) from module compute_core (D = $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$123_Y, Q = \u_mac.prod_ext_q[4], rval = 40'0000000000000000000000000000000000000000).
+Adding SRST signal on $flatten\u_mac.$procdff$448 ($dff) from module compute_core (D = $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$122_Y, Q = \u_mac.prod_ext_q[3], rval = 40'0000000000000000000000000000000000000000).
+Adding SRST signal on $flatten\u_mac.$procdff$447 ($dff) from module compute_core (D = $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$121_Y, Q = \u_mac.prod_ext_q[2], rval = 40'0000000000000000000000000000000000000000).
+Adding SRST signal on $flatten\u_mac.$procdff$446 ($dff) from module compute_core (D = $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$120_Y, Q = \u_mac.prod_ext_q[1], rval = 40'0000000000000000000000000000000000000000).
+Adding SRST signal on $flatten\u_mac.$procdff$445 ($dff) from module compute_core (D = $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$119_Y, Q = \u_mac.prod_ext_q[0], rval = 40'0000000000000000000000000000000000000000).
+Adding SRST signal on $flatten\u_mac.$procdff$443 ($dff) from module compute_core (D = $flatten\u_mac.$procmux$325_Y, Q = \u_mac.tree_q, rval = 40'0000000000000000000000000000000000000000).
+Adding EN signal on $auto$ff.cc:337:slice$577 ($sdff) from module compute_core (D = \u_mac.tree_sum, Q = \u_mac.tree_q).
+Adding SRST signal on $flatten\u_mac.$procdff$442 ($dff) from module compute_core (D = $flatten\u_mac.$procmux$317_Y, Q = \u_mac.sum_out, rval = 40'0000000000000000000000000000000000000000).
+Adding EN signal on $auto$ff.cc:337:slice$579 ($sdff) from module compute_core (D = $flatten\u_mac.$add$rtl/m2/mac_array.sv:68$156_Y, Q = \u_mac.sum_out).
+
+7.10.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \compute_core..
+Removed 49 unused cells and 58 unused wires.
+<suppressed ~50 debug messages>
+
+7.10.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module compute_core.
+<suppressed ~1 debug messages>
+
+7.10.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+7.10.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \compute_core..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~10 debug messages>
+
+7.10.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \compute_core.
+Performed a total of 0 changes.
+
+7.10.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\compute_core'.
+Computing hashes of 124 cells of `\compute_core'.
+Finding duplicate cells in `\compute_core'.
+Computing hashes of 108 cells of `\compute_core'.
+Finding duplicate cells in `\compute_core'.
+<suppressed ~48 debug messages>
+Removed a total of 16 cells.
+
+7.10.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+7.10.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \compute_core..
+Removed 0 unused cells and 16 unused wires.
+<suppressed ~1 debug messages>
+
+7.10.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module compute_core.
+
+7.10.16. Rerunning OPT passes. (Maybe there is more to do..)
+
+7.10.17. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \compute_core..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~10 debug messages>
+
+7.10.18. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \compute_core.
+Performed a total of 0 changes.
+
+7.10.19. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\compute_core'.
+Computing hashes of 108 cells of `\compute_core'.
+Finding duplicate cells in `\compute_core'.
+Removed a total of 0 cells.
+
+7.10.20. Executing OPT_DFF pass (perform DFF optimizations).
+
+7.10.21. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \compute_core..
+
+7.10.22. Executing OPT_EXPR pass (perform const folding).
+Optimizing module compute_core.
+
+7.10.23. Finished fast OPT passes. (There is nothing left to do.)
+
+7.11. Executing WREDUCE pass (reducing word size of cells).
+Removed top 1 bits (of 2) from port B of cell compute_core.$auto$fsm_map.cc:77:implement_pattern_cache$501 ($eq).
+Removed top 1 bits (of 2) from port B of cell compute_core.$auto$fsm_map.cc:77:implement_pattern_cache$492 ($eq).
+Removed top 1 bits (of 2) from port B of cell compute_core.$auto$fsm_map.cc:77:implement_pattern_cache$479 ($eq).
+Removed top 31 bits (of 32) from port B of cell compute_core.$add$rtl/m4/compute_core.sv:68$95 ($add).
+Removed top 29 bits (of 32) from port Y of cell compute_core.$add$rtl/m4/compute_core.sv:68$95 ($add).
+Removed top 1 bits (of 3) from port B of cell compute_core.$eq$rtl/m4/compute_core.sv:77$97 ($eq).
+Removed top 15 bits (of 40) from port A of cell compute_core.$add$rtl/m4/compute_core.sv:103$111 ($add).
+Removed top 1 bits (of 32) from port Y of cell compute_core.$flatten\u_blend.$add$rtl/m2/leak_blend.sv:22$172 ($add).
+Removed top 1 bits (of 32) from port A of cell compute_core.$flatten\u_blend.$add$rtl/m2/leak_blend.sv:22$172 ($add).
+Removed top 1 bits (of 32) from port B of cell compute_core.$flatten\u_blend.$add$rtl/m2/leak_blend.sv:22$172 ($add).
+Removed top 1 bits (of 32) from port Y of cell compute_core.$flatten\u_blend.$mul$rtl/m2/leak_blend.sv:21$171 ($mul).
+Removed top 1 bits (of 32) from port Y of cell compute_core.$flatten\u_blend.$mul$rtl/m2/leak_blend.sv:20$170 ($mul).
+Removed top 1 bits (of 16) from port B of cell compute_core.$flatten\u_tanh.$add$rtl/m2/tanh_pwl.sv:60$166 ($add).
+Removed top 22 bits (of 40) from port B of cell compute_core.$flatten\u_tanh.$lt$rtl/m2/tanh_pwl.sv:58$164 ($lt).
+Removed top 23 bits (of 40) from port B of cell compute_core.$flatten\u_tanh.$lt$rtl/m2/tanh_pwl.sv:55$162 ($lt).
+Removed top 1 bits (of 16) from port B of cell compute_core.$flatten\u_tanh.$sub$rtl/m2/tanh_pwl.sv:54$161 ($sub).
+Removed top 24 bits (of 40) from port B of cell compute_core.$flatten\u_tanh.$le$rtl/m2/tanh_pwl.sv:52$159 ($le).
+Removed top 23 bits (of 40) from port B of cell compute_core.$flatten\u_tanh.$le$rtl/m2/tanh_pwl.sv:49$158 ($le).
+Converting cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$134 ($mul) from unsigned to signed.
+Removed top 24 bits (of 40) from port A of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$134 ($mul).
+Removed top 24 bits (of 40) from port B of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$134 ($mul).
+Removed top 8 bits (of 40) from port Y of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$134 ($mul).
+Converting cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$133 ($mul) from unsigned to signed.
+Removed top 24 bits (of 40) from port A of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$133 ($mul).
+Removed top 24 bits (of 40) from port B of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$133 ($mul).
+Removed top 8 bits (of 40) from port Y of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$133 ($mul).
+Converting cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$132 ($mul) from unsigned to signed.
+Removed top 24 bits (of 40) from port A of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$132 ($mul).
+Removed top 24 bits (of 40) from port B of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$132 ($mul).
+Removed top 8 bits (of 40) from port Y of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$132 ($mul).
+Converting cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$131 ($mul) from unsigned to signed.
+Removed top 24 bits (of 40) from port A of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$131 ($mul).
+Removed top 24 bits (of 40) from port B of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$131 ($mul).
+Removed top 8 bits (of 40) from port Y of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$131 ($mul).
+Converting cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$130 ($mul) from unsigned to signed.
+Removed top 24 bits (of 40) from port A of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$130 ($mul).
+Removed top 24 bits (of 40) from port B of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$130 ($mul).
+Removed top 8 bits (of 40) from port Y of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$130 ($mul).
+Converting cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$129 ($mul) from unsigned to signed.
+Removed top 24 bits (of 40) from port A of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$129 ($mul).
+Removed top 24 bits (of 40) from port B of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$129 ($mul).
+Removed top 8 bits (of 40) from port Y of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$129 ($mul).
+Converting cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$128 ($mul) from unsigned to signed.
+Removed top 24 bits (of 40) from port A of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$128 ($mul).
+Removed top 24 bits (of 40) from port B of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$128 ($mul).
+Removed top 8 bits (of 40) from port Y of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$128 ($mul).
+Converting cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$127 ($mul) from unsigned to signed.
+Removed top 24 bits (of 40) from port A of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$127 ($mul).
+Removed top 24 bits (of 40) from port B of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$127 ($mul).
+Removed top 8 bits (of 40) from port Y of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$127 ($mul).
+Converting cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$126 ($mul) from unsigned to signed.
+Removed top 24 bits (of 40) from port A of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$126 ($mul).
+Removed top 24 bits (of 40) from port B of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$126 ($mul).
+Removed top 8 bits (of 40) from port Y of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$126 ($mul).
+Converting cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$125 ($mul) from unsigned to signed.
+Removed top 24 bits (of 40) from port A of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$125 ($mul).
+Removed top 24 bits (of 40) from port B of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$125 ($mul).
+Removed top 8 bits (of 40) from port Y of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$125 ($mul).
+Converting cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$124 ($mul) from unsigned to signed.
+Removed top 24 bits (of 40) from port A of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$124 ($mul).
+Removed top 24 bits (of 40) from port B of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$124 ($mul).
+Removed top 8 bits (of 40) from port Y of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$124 ($mul).
+Converting cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$123 ($mul) from unsigned to signed.
+Removed top 24 bits (of 40) from port A of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$123 ($mul).
+Removed top 24 bits (of 40) from port B of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$123 ($mul).
+Removed top 8 bits (of 40) from port Y of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$123 ($mul).
+Converting cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$122 ($mul) from unsigned to signed.
+Removed top 24 bits (of 40) from port A of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$122 ($mul).
+Removed top 24 bits (of 40) from port B of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$122 ($mul).
+Removed top 8 bits (of 40) from port Y of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$122 ($mul).
+Converting cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$121 ($mul) from unsigned to signed.
+Removed top 24 bits (of 40) from port A of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$121 ($mul).
+Removed top 24 bits (of 40) from port B of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$121 ($mul).
+Removed top 8 bits (of 40) from port Y of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$121 ($mul).
+Converting cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$120 ($mul) from unsigned to signed.
+Removed top 24 bits (of 40) from port A of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$120 ($mul).
+Removed top 24 bits (of 40) from port B of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$120 ($mul).
+Removed top 8 bits (of 40) from port Y of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$120 ($mul).
+Converting cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$119 ($mul) from unsigned to signed.
+Removed top 24 bits (of 40) from port A of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$119 ($mul).
+Removed top 24 bits (of 40) from port B of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$119 ($mul).
+Removed top 8 bits (of 40) from port Y of cell compute_core.$flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$119 ($mul).
+Removed top 29 bits (of 32) from wire compute_core.$add$rtl/m4/compute_core.sv:68$95_Y.
+
+7.12. Executing PEEPOPT pass (run peephole optimizers).
+
+7.13. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \compute_core..
+Removed 0 unused cells and 1 unused wires.
+<suppressed ~1 debug messages>
+
+7.14. Executing ALUMACC pass (create $alu and $macc cells).
+Extracting $alu and $macc cells in module compute_core:
+  creating $macc model for $flatten\u_tanh.$sub$rtl/m2/tanh_pwl.sv:54$161 ($sub).
+  creating $macc model for $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$133 ($mul).
+  creating $macc model for $flatten\u_tanh.$add$rtl/m2/tanh_pwl.sv:60$166 ($add).
+  creating $macc model for $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$132 ($mul).
+  creating $macc model for $flatten\u_mac.$add$rtl/m2/mac_array.sv:68$156 ($add).
+  creating $macc model for $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$131 ($mul).
+  creating $macc model for $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$130 ($mul).
+  creating $macc model for $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$129 ($mul).
+  creating $macc model for $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$128 ($mul).
+  creating $macc model for $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$127 ($mul).
+  creating $macc model for $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$126 ($mul).
+  creating $macc model for $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$125 ($mul).
+  creating $macc model for $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$124 ($mul).
+  creating $macc model for $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$123 ($mul).
+  creating $macc model for $flatten\u_blend.$mul$rtl/m2/leak_blend.sv:20$170 ($mul).
+  creating $macc model for $flatten\u_blend.$mul$rtl/m2/leak_blend.sv:21$171 ($mul).
+  creating $macc model for $flatten\u_blend.$add$rtl/m2/leak_blend.sv:22$172 ($add).
+  creating $macc model for $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$122 ($mul).
+  creating $macc model for $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$134 ($mul).
+  creating $macc model for $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$137 ($add).
+  creating $macc model for $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$141 ($add).
+  creating $macc model for $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$142 ($add).
+  creating $macc model for $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$143 ($add).
+  creating $macc model for $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$119 ($mul).
+  creating $macc model for $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$144 ($add).
+  creating $macc model for $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$145 ($add).
+  creating $macc model for $add$rtl/m4/compute_core.sv:68$95 ($add).
+  creating $macc model for $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$146 ($add).
+  creating $macc model for $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$147 ($add).
+  creating $macc model for $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$148 ($add).
+  creating $macc model for $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$149 ($add).
+  creating $macc model for $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$140 ($add).
+  creating $macc model for $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$120 ($mul).
+  creating $macc model for $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$150 ($add).
+  creating $macc model for $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$151 ($add).
+  creating $macc model for $add$rtl/m4/compute_core.sv:103$111 ($add).
+  creating $macc model for $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$139 ($add).
+  creating $macc model for $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$138 ($add).
+  creating $macc model for $flatten\u_blend.$sub$rtl/m2/leak_blend.sv:19$169 ($sub).
+  creating $macc model for $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$121 ($mul).
+  merging $macc model for $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$137 into $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$138.
+  merging $macc model for $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$138 into $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$139.
+  merging $macc model for $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$150 into $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$151.
+  merging $macc model for $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$149 into $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$151.
+  merging $macc model for $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$148 into $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$151.
+  merging $macc model for $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$147 into $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$151.
+  merging $macc model for $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$146 into $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$151.
+  merging $macc model for $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$145 into $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$151.
+  merging $macc model for $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$144 into $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$151.
+  merging $macc model for $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$143 into $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$151.
+  merging $macc model for $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$142 into $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$151.
+  merging $macc model for $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$141 into $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$151.
+  merging $macc model for $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$140 into $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$151.
+  merging $macc model for $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$139 into $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$151.
+  merging $macc model for $flatten\u_blend.$mul$rtl/m2/leak_blend.sv:20$170 into $flatten\u_blend.$add$rtl/m2/leak_blend.sv:22$172.
+  merging $macc model for $flatten\u_blend.$mul$rtl/m2/leak_blend.sv:21$171 into $flatten\u_blend.$add$rtl/m2/leak_blend.sv:22$172.
+  creating $alu model for $macc $add$rtl/m4/compute_core.sv:68$95.
+  creating $alu model for $macc $add$rtl/m4/compute_core.sv:103$111.
+  creating $alu model for $macc $flatten\u_blend.$sub$rtl/m2/leak_blend.sv:19$169.
+  creating $alu model for $macc $flatten\u_mac.$add$rtl/m2/mac_array.sv:68$156.
+  creating $alu model for $macc $flatten\u_tanh.$add$rtl/m2/tanh_pwl.sv:60$166.
+  creating $alu model for $macc $flatten\u_tanh.$sub$rtl/m2/tanh_pwl.sv:54$161.
+  creating $macc cell for $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$122: $auto$alumacc.cc:382:replace_macc$586
+  creating $macc cell for $flatten\u_blend.$add$rtl/m2/leak_blend.sv:22$172: $auto$alumacc.cc:382:replace_macc$587
+  creating $macc cell for $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$121: $auto$alumacc.cc:382:replace_macc$588
+  creating $macc cell for $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$120: $auto$alumacc.cc:382:replace_macc$589
+  creating $macc cell for $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$123: $auto$alumacc.cc:382:replace_macc$590
+  creating $macc cell for $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$124: $auto$alumacc.cc:382:replace_macc$591
+  creating $macc cell for $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$125: $auto$alumacc.cc:382:replace_macc$592
+  creating $macc cell for $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$126: $auto$alumacc.cc:382:replace_macc$593
+  creating $macc cell for $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$127: $auto$alumacc.cc:382:replace_macc$594
+  creating $macc cell for $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$128: $auto$alumacc.cc:382:replace_macc$595
+  creating $macc cell for $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$129: $auto$alumacc.cc:382:replace_macc$596
+  creating $macc cell for $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$130: $auto$alumacc.cc:382:replace_macc$597
+  creating $macc cell for $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$131: $auto$alumacc.cc:382:replace_macc$598
+  creating $macc cell for $flatten\u_mac.$add$rtl/m2/mac_array.sv:56$151: $auto$alumacc.cc:382:replace_macc$599
+  creating $macc cell for $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$132: $auto$alumacc.cc:382:replace_macc$600
+  creating $macc cell for $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$134: $auto$alumacc.cc:382:replace_macc$601
+  creating $macc cell for $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$133: $auto$alumacc.cc:382:replace_macc$602
+  creating $macc cell for $flatten\u_mac.$mul$rtl/m2/mac_array.sv:37$119: $auto$alumacc.cc:382:replace_macc$603
+  creating $alu model for $flatten\u_tanh.$le$rtl/m2/tanh_pwl.sv:52$159 ($le): new $alu
+  creating $alu model for $flatten\u_tanh.$lt$rtl/m2/tanh_pwl.sv:55$162 ($lt): new $alu
+  creating $alu model for $flatten\u_tanh.$lt$rtl/m2/tanh_pwl.sv:58$164 ($lt): new $alu
+  creating $alu model for $flatten\u_tanh.$le$rtl/m2/tanh_pwl.sv:49$158 ($le): new $alu
+  creating $alu cell for $flatten\u_tanh.$le$rtl/m2/tanh_pwl.sv:49$158: $auto$alumacc.cc:512:replace_alu$608
+  creating $alu cell for $flatten\u_tanh.$lt$rtl/m2/tanh_pwl.sv:58$164: $auto$alumacc.cc:512:replace_alu$619
+  creating $alu cell for $flatten\u_tanh.$lt$rtl/m2/tanh_pwl.sv:55$162: $auto$alumacc.cc:512:replace_alu$626
+  creating $alu cell for $flatten\u_tanh.$le$rtl/m2/tanh_pwl.sv:52$159: $auto$alumacc.cc:512:replace_alu$633
+  creating $alu cell for $flatten\u_tanh.$sub$rtl/m2/tanh_pwl.sv:54$161: $auto$alumacc.cc:512:replace_alu$644
+  creating $alu cell for $flatten\u_tanh.$add$rtl/m2/tanh_pwl.sv:60$166: $auto$alumacc.cc:512:replace_alu$647
+  creating $alu cell for $flatten\u_mac.$add$rtl/m2/mac_array.sv:68$156: $auto$alumacc.cc:512:replace_alu$650
+  creating $alu cell for $flatten\u_blend.$sub$rtl/m2/leak_blend.sv:19$169: $auto$alumacc.cc:512:replace_alu$653
+  creating $alu cell for $add$rtl/m4/compute_core.sv:103$111: $auto$alumacc.cc:512:replace_alu$656
+  creating $alu cell for $add$rtl/m4/compute_core.sv:68$95: $auto$alumacc.cc:512:replace_alu$659
+  created 10 $alu and 18 $macc cells.
+
+7.15. Executing SHARE pass (SAT-based resource sharing).
+Found 2 cells in module compute_core that may be considered for resource sharing.
+  Analyzing resource sharing options for $flatten\u_blend.$mul$rtl/m2/leak_blend.sv:21$171 ($mul):
+    Found cell that is never activated: $flatten\u_blend.$mul$rtl/m2/leak_blend.sv:21$171
+    Cell is never active. Sharing is pointless, we simply remove it.
+  Analyzing resource sharing options for $flatten\u_blend.$mul$rtl/m2/leak_blend.sv:20$170 ($mul):
+    Found cell that is never activated: $flatten\u_blend.$mul$rtl/m2/leak_blend.sv:20$170
+    Cell is never active. Sharing is pointless, we simply remove it.
+Removing 2 cells in module compute_core:
+  Removing cell $flatten\u_blend.$mul$rtl/m2/leak_blend.sv:20$170 ($mul).
+  Removing cell $flatten\u_blend.$mul$rtl/m2/leak_blend.sv:21$171 ($mul).
+
+7.16. Executing OPT pass (performing simple optimizations).
+
+7.16.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module compute_core.
+
+7.16.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\compute_core'.
+Computing hashes of 118 cells of `\compute_core'.
+Finding duplicate cells in `\compute_core'.
+Removed a total of 0 cells.
+
+7.16.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \compute_core..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~10 debug messages>
+
+7.16.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \compute_core.
+Performed a total of 0 changes.
+
+7.16.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\compute_core'.
+Computing hashes of 118 cells of `\compute_core'.
+Finding duplicate cells in `\compute_core'.
+Removed a total of 0 cells.
+
+7.16.6. Executing OPT_DFF pass (perform DFF optimizations).
+
+7.16.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \compute_core..
+Removed 14 unused cells and 18 unused wires.
+<suppressed ~15 debug messages>
+
+7.16.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module compute_core.
+
+7.16.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+7.16.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \compute_core..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~10 debug messages>
+
+7.16.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \compute_core.
+Performed a total of 0 changes.
+
+7.16.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\compute_core'.
+Computing hashes of 104 cells of `\compute_core'.
+Finding duplicate cells in `\compute_core'.
+Removed a total of 0 cells.
+
+7.16.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+7.16.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \compute_core..
+
+7.16.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module compute_core.
+
+7.16.16. Finished fast OPT passes. (There is nothing left to do.)
+
+7.17. Executing MEMORY pass.
+
+7.17.1. Executing OPT_MEM pass (optimize memories).
+Performed a total of 0 transformations.
+
+7.17.2. Executing OPT_MEM_PRIORITY pass (removing unnecessary memory write priority relations).
+Performed a total of 0 transformations.
+
+7.17.3. Executing OPT_MEM_FEEDBACK pass (finding memory read-to-write feedback paths).
+
+7.17.4. Executing MEMORY_BMUX2ROM pass (converting muxes to ROMs).
+
+7.17.5. Executing MEMORY_DFF pass (merging $dff cells to $memrd).
+
+7.17.6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \compute_core..
+
+7.17.7. Executing MEMORY_SHARE pass (consolidating $memrd/$memwr cells).
+
+7.17.8. Executing OPT_MEM_WIDEN pass (optimize memories where all ports are wide).
+Performed a total of 0 transformations.
+
+7.17.9. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \compute_core..
+
+7.17.10. Executing MEMORY_COLLECT pass (generating $mem cells).
+
+7.18. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \compute_core..
+
+7.19. Executing OPT pass (performing simple optimizations).
+
+7.19.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module compute_core.
+<suppressed ~14 debug messages>
+
+7.19.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\compute_core'.
+Computing hashes of 192 cells of `\compute_core'.
+Finding duplicate cells in `\compute_core'.
+Computing hashes of 132 cells of `\compute_core'.
+Finding duplicate cells in `\compute_core'.
+<suppressed ~180 debug messages>
+Removed a total of 60 cells.
+
+7.19.3. Executing OPT_DFF pass (perform DFF optimizations).
+
+7.19.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \compute_core..
+Removed 0 unused cells and 94 unused wires.
+<suppressed ~1 debug messages>
+
+7.19.5. Finished fast OPT passes.
+
+7.20. Executing MEMORY_MAP pass (converting memories to logic and flip-flops).
+
+7.21. Executing OPT pass (performing simple optimizations).
+
+7.21.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module compute_core.
+
+7.21.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\compute_core'.
+Computing hashes of 132 cells of `\compute_core'.
+Finding duplicate cells in `\compute_core'.
+Removed a total of 0 cells.
+
+7.21.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \compute_core..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~5 debug messages>
+
+7.21.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \compute_core.
+Performed a total of 0 changes.
+
+7.21.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\compute_core'.
+Computing hashes of 132 cells of `\compute_core'.
+Finding duplicate cells in `\compute_core'.
+Removed a total of 0 cells.
+
+7.21.6. Executing OPT_SHARE pass.
+
+7.21.7. Executing OPT_DFF pass (perform DFF optimizations).
+
+7.21.8. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \compute_core..
+
+7.21.9. Executing OPT_EXPR pass (perform const folding).
+Optimizing module compute_core.
+
+7.21.10. Finished fast OPT passes. (There is nothing left to do.)
+
+7.22. Executing TECHMAP pass (map to technology primitives).
+
+7.22.1. Executing Verilog-2005 frontend: /share/techmap.v
+Parsing Verilog input from `/share/techmap.v' to AST representation.
+Generating RTLIL representation for module `\_90_simplemap_bool_ops'.
+Generating RTLIL representation for module `\_90_simplemap_reduce_ops'.
+Generating RTLIL representation for module `\_90_simplemap_logic_ops'.
+Generating RTLIL representation for module `\_90_simplemap_compare_ops'.
+Generating RTLIL representation for module `\_90_simplemap_various'.
+Generating RTLIL representation for module `\_90_simplemap_registers'.
+Generating RTLIL representation for module `\_90_shift_ops_shr_shl_sshl_sshr'.
+Generating RTLIL representation for module `\_90_shift_shiftx'.
+Generating RTLIL representation for module `\_90_fa'.
+Generating RTLIL representation for module `\_90_lcu_brent_kung'.
+Generating RTLIL representation for module `\_90_alu'.
+Generating RTLIL representation for module `\_90_macc'.
+Generating RTLIL representation for module `\_90_alumacc'.
+Generating RTLIL representation for module `$__div_mod_u'.
+Generating RTLIL representation for module `$__div_mod_trunc'.
+Generating RTLIL representation for module `\_90_div'.
+Generating RTLIL representation for module `\_90_mod'.
+Generating RTLIL representation for module `$__div_mod_floor'.
+Generating RTLIL representation for module `\_90_divfloor'.
+Generating RTLIL representation for module `\_90_modfloor'.
+Generating RTLIL representation for module `\_90_pow'.
+Generating RTLIL representation for module `\_90_demux'.
+Generating RTLIL representation for module `\_90_lut'.
+Generating RTLIL representation for module `$connect'.
+Generating RTLIL representation for module `$input_port'.
+Successfully finished Verilog frontend.
+
+7.22.2. Continuing TECHMAP pass.
+Using extmapper simplemap for cells of type $not.
+Using template $paramod$3ef7d3dd227da7627a99c5e5a6a4deb817573e39\_90_alu for cells of type $alu.
+Using template $paramod$8564e08858861972522ded49d95b45394219a278\_90_alu for cells of type $alu.
+Using template $paramod$b52b1c34c6942a4262a8b287ee6ae3a092dfc180\_90_alu for cells of type $alu.
+Using template $paramod$71c9f7f7b786b0a4a2cee4ece81b6578d46b2b84\_90_alu for cells of type $alu.
+Using template $paramod$175e67c02b86e96b1288b9dc100122520d7240d8\_90_alu for cells of type $alu.
+Using template $paramod$ba698a254f9a5947e85cbe7beae6b161eefc5386\_90_alu for cells of type $alu.
+Using extmapper simplemap for cells of type $reduce_or.
+Using extmapper simplemap for cells of type $reduce_and.
+Using extmapper simplemap for cells of type $xor.
+Using template $paramod$6694d39cad831bc5688fe7ffaed39b79bdf33392\_90_alu for cells of type $alu.
+Using template $paramod$2fbcb34684f6679eb93572499327a47617602411\_90_alu for cells of type $alu.
+Using template $paramod$b429cffabeb32207ee0b356f1f47c8ecd0af65f3\_90_alu for cells of type $alu.
+Using template $paramod$ab14aab76fb0d3dd16c8515c4fa00f62972cf0a7\_90_alu for cells of type $alu.
+Using extmapper maccmap for cells of type $macc_v2.
+  add \w_row [15:0] * \x_chunk [15:0] (16x16 bits, signed)
+  add \w_row [239:224] * \x_chunk [239:224] (16x16 bits, signed)
+  add \w_row [255:240] * \x_chunk [255:240] (16x16 bits, signed)
+  add \w_row [223:208] * \x_chunk [223:208] (16x16 bits, signed)
+  add \u_mac.prod_ext_q[0] (40 bits, signed)
+  add \u_mac.prod_ext_q[15] (40 bits, signed)
+  add \u_mac.prod_ext_q[14] (40 bits, signed)
+  add \u_mac.prod_ext_q[13] (40 bits, signed)
+  add \u_mac.prod_ext_q[12] (40 bits, signed)
+  add \u_mac.prod_ext_q[11] (40 bits, signed)
+  add \u_mac.prod_ext_q[10] (40 bits, signed)
+  add \u_mac.prod_ext_q[9] (40 bits, signed)
+  add \u_mac.prod_ext_q[8] (40 bits, signed)
+  add \u_mac.prod_ext_q[7] (40 bits, signed)
+  add \u_mac.prod_ext_q[6] (40 bits, signed)
+  add \u_mac.prod_ext_q[5] (40 bits, signed)
+  add \u_mac.prod_ext_q[4] (40 bits, signed)
+  add \u_mac.prod_ext_q[3] (40 bits, signed)
+  add \u_mac.prod_ext_q[2] (40 bits, signed)
+  add \u_mac.prod_ext_q[1] (40 bits, signed)
+  add \w_row [207:192] * \x_chunk [207:192] (16x16 bits, signed)
+  add \w_row [191:176] * \x_chunk [191:176] (16x16 bits, signed)
+  add \w_row [175:160] * \x_chunk [175:160] (16x16 bits, signed)
+  add \w_row [159:144] * \x_chunk [159:144] (16x16 bits, signed)
+  add \w_row [143:128] * \x_chunk [143:128] (16x16 bits, signed)
+  add \w_row [127:112] * \x_chunk [127:112] (16x16 bits, signed)
+  add \w_row [111:96] * \x_chunk [111:96] (16x16 bits, signed)
+  add \w_row [95:80] * \x_chunk [95:80] (16x16 bits, signed)
+  add \w_row [79:64] * \x_chunk [79:64] (16x16 bits, signed)
+  add \w_row [31:16] * \x_chunk [31:16] (16x16 bits, signed)
+  add \w_row [47:32] * \x_chunk [47:32] (16x16 bits, signed)
+  add \u_blend.one_minus_a * \x_prev_i (16x16 bits, signed)
+  add \leak_a * \u_tanh.act_out (16x16 bits, signed)
+  add \w_row [63:48] * \x_chunk [63:48] (16x16 bits, signed)
+Using extmapper simplemap for cells of type $sdffe.
+Using extmapper simplemap for cells of type $sdff.
+Using extmapper simplemap for cells of type $reduce_bool.
+Using extmapper simplemap for cells of type $and.
+Using extmapper simplemap for cells of type $eq.
+Using extmapper simplemap for cells of type $dff.
+Using extmapper simplemap for cells of type $logic_and.
+Using extmapper simplemap for cells of type $logic_or.
+Using extmapper simplemap for cells of type $mux.
+Using template $paramod\_90_fa\WIDTH=32'00000000000000000000000000100000 for cells of type $fa.
+Using template $paramod$fbc7873bff55778c0b3173955b7e4bce1d9d6834\_90_alu for cells of type $alu.
+Using template $paramod\_90_fa\WIDTH=32'00000000000000000000000000011111 for cells of type $fa.
+Using template $paramod\_90_fa\WIDTH=32'00000000000000000000000000011110 for cells of type $fa.
+Using template $paramod$ebf89ea36a793f0f77858f212141d47c833068ad\_90_alu for cells of type $alu.
+Using template $paramod\_90_fa\WIDTH=32'00000000000000000000000000101000 for cells of type $fa.
+Using template $paramod$445c63d4194be6438b67f4f941870a6ab959ba80\_90_alu for cells of type $alu.
+Using extmapper simplemap for cells of type $pos.
+Using template $paramod\_90_fa\WIDTH=32'00000000000000000000000000000011 for cells of type $fa.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=32'00000000000000000000000000000011 for cells of type $lcu.
+Using template $paramod\_90_fa\WIDTH=32'00000000000000000000000000011000 for cells of type $fa.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=32'00000000000000000000000000011000 for cells of type $lcu.
+Using template $paramod\_90_fa\WIDTH=32'00000000000000000000000000011001 for cells of type $fa.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=32'00000000000000000000000000011001 for cells of type $lcu.
+Using template $paramod\_90_fa\WIDTH=32'00000000000000000000000000000010 for cells of type $fa.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=32'00000000000000000000000000000010 for cells of type $lcu.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=32'00000000000000000000000000101000 for cells of type $lcu.
+Using template $paramod\_90_fa\WIDTH=32'00000000000000000000000000000001 for cells of type $fa.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=32'00000000000000000000000000000001 for cells of type $lcu.
+Using extmapper simplemap for cells of type $or.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=32'00000000000000000000000000100000 for cells of type $lcu.
+Using template $paramod\_90_lcu_brent_kung\WIDTH=32'00000000000000000000000000011111 for cells of type $lcu.
+No more expansions possible.
+<suppressed ~7307 debug messages>
+
+7.23. Executing OPT pass (performing simple optimizations).
+
+7.23.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module compute_core.
+<suppressed ~18548 debug messages>
+
+7.23.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\compute_core'.
+Computing hashes of 47764 cells of `\compute_core'.
+Finding duplicate cells in `\compute_core'.
+Computing hashes of 45136 cells of `\compute_core'.
+Finding duplicate cells in `\compute_core'.
+Computing hashes of 43798 cells of `\compute_core'.
+Finding duplicate cells in `\compute_core'.
+Computing hashes of 42479 cells of `\compute_core'.
+Finding duplicate cells in `\compute_core'.
+Computing hashes of 41805 cells of `\compute_core'.
+Finding duplicate cells in `\compute_core'.
+Computing hashes of 40929 cells of `\compute_core'.
+Finding duplicate cells in `\compute_core'.
+Computing hashes of 40453 cells of `\compute_core'.
+Finding duplicate cells in `\compute_core'.
+Computing hashes of 40215 cells of `\compute_core'.
+Finding duplicate cells in `\compute_core'.
+Computing hashes of 40107 cells of `\compute_core'.
+Finding duplicate cells in `\compute_core'.
+Computing hashes of 39999 cells of `\compute_core'.
+Finding duplicate cells in `\compute_core'.
+Computing hashes of 39945 cells of `\compute_core'.
+Finding duplicate cells in `\compute_core'.
+Computing hashes of 39893 cells of `\compute_core'.
+Finding duplicate cells in `\compute_core'.
+Computing hashes of 39841 cells of `\compute_core'.
+Finding duplicate cells in `\compute_core'.
+Computing hashes of 39815 cells of `\compute_core'.
+Finding duplicate cells in `\compute_core'.
+Computing hashes of 39807 cells of `\compute_core'.
+Finding duplicate cells in `\compute_core'.
+Computing hashes of 39799 cells of `\compute_core'.
+Finding duplicate cells in `\compute_core'.
+Computing hashes of 39795 cells of `\compute_core'.
+Finding duplicate cells in `\compute_core'.
+Computing hashes of 39789 cells of `\compute_core'.
+Finding duplicate cells in `\compute_core'.
+Computing hashes of 39783 cells of `\compute_core'.
+Finding duplicate cells in `\compute_core'.
+Computing hashes of 39780 cells of `\compute_core'.
+Finding duplicate cells in `\compute_core'.
+Computing hashes of 39774 cells of `\compute_core'.
+Finding duplicate cells in `\compute_core'.
+<suppressed ~23970 debug messages>
+Removed a total of 7990 cells.
+
+7.23.3. Executing OPT_DFF pass (perform DFF optimizations).
+
+7.23.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \compute_core..
+Removed 1408 unused cells and 4622 unused wires.
+<suppressed ~1409 debug messages>
+
+7.23.5. Finished fast OPT passes.
+
+7.24. Executing ABC pass (technology mapping using ABC).
+
+7.24.1. Extracting gate netlist of module `\compute_core' to `<abc-temp-dir>/input.blif'..

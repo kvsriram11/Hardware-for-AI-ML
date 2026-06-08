@@ -1,0 +1,105 @@
+=== cProfile of minimalESN canonical run (N=1000) ===
+Python: 3.12.10
+NumPy: 1.26.4
+BLAS threads forced to 1
+Canonical validation MSE: 1.022954e-06
+
+--- Top 40 by cumulative time ---
+         140429 function calls in 1.830 seconds
+
+   Ordered by: cumulative time
+   List reduced from 78 to 40 due to restriction <40>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.022    0.022    1.830    1.830 benchmark.py:125(run_full_minimalesn)
+        1    0.002    0.002    0.955    0.955 benchmark.py:43(normalize_spectral)
+        1    0.946    0.946    0.952    0.952 _decomp.py:117(eig)
+     4000    0.620    0.000    0.668    0.000 benchmark.py:48(state_update)
+        1    0.043    0.043    0.418    0.418 benchmark.py:56(collect_states)
+     7900    0.050    0.000    0.108    0.000 shape_base.py:219(vstack)
+     7901    0.025    0.000    0.053    0.000 shape_base.py:81(atleast_2d)
+        1    0.027    0.027    0.053    0.053 benchmark.py:69(train_readout)
+        1    0.024    0.024    0.025    0.025 _basic.py:52(solve)
+     7900    0.005    0.000    0.016    0.000 shape_base.py:215(_vhstack_dispatcher)
+        1    0.002    0.002    0.011    0.011 benchmark.py:36(make_esn)
+     7900    0.006    0.000    0.011    0.000 shape_base.py:207(_arrays_for_stack_dispatcher)
+    15800    0.011    0.000    0.011    0.000 {method 'reshape' of 'numpy.ndarray' objects}
+    19703    0.011    0.000    0.011    0.000 {built-in method numpy.asanyarray}
+        2    0.009    0.004    0.009    0.004 {method 'rand' of 'numpy.random.mtrand.RandomState' objects}
+        1    0.002    0.002    0.006    0.006 _decomp.py:35(_make_complex_eigvecs)
+     7900    0.005    0.000    0.005    0.000 {built-in method builtins.hasattr}
+    19702    0.005    0.000    0.005    0.000 {method 'append' of 'list' objects}
+        1    0.003    0.003    0.003    0.003 {built-in method numpy.array}
+     7904    0.002    0.000    0.002    0.000 {built-in method builtins.len}
+        3    0.000    0.000    0.002    0.001 _util.py:275(_asarray_validated)
+    10002    0.002    0.000    0.002    0.000 multiarray.py:741(dot)
+        3    0.002    0.001    0.002    0.001 function_base.py:564(asarray_chkfinite)
+     7908    0.002    0.000    0.002    0.000 {built-in method builtins.isinstance}
+     7901    0.001    0.000    0.001    0.000 multiarray.py:153(concatenate)
+     7901    0.001    0.000    0.001    0.000 shape_base.py:77(_atleast_2d_dispatcher)
+        1    0.001    0.001    0.001    0.001 twodim_base.py:158(eye)
+        5    0.000    0.000    0.000    0.000 {method 'reduce' of 'numpy.ufunc' objects}
+        3    0.000    0.000    0.000    0.000 {method 'all' of 'numpy.ndarray' objects}
+        3    0.000    0.000    0.000    0.000 _methods.py:61(_all)
+        1    0.000    0.000    0.000    0.000 contextlib.py:78(inner)
+        1    0.000    0.000    0.000    0.000 {function SeedSequence.generate_state at 0x00000290DD933600}
+        4    0.000    0.000    0.000    0.000 {built-in method numpy.zeros}
+        2    0.000    0.000    0.000    0.000 fromnumeric.py:71(_wrapreduction)
+        1    0.000    0.000    0.000    0.000 {built-in method builtins.max}
+        1    0.000    0.000    0.000    0.000 fromnumeric.py:2421(all)
+        1    0.000    0.000    0.000    0.000 numeric.py:615(flatnonzero)
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+        1    0.000    0.000    0.000    0.000 lapack.py:982(_compute_lwork)
+        1    0.000    0.000    0.000    0.000 random.py:889(getrandbits)
+
+
+
+--- Top 40 by tottime ---
+         140429 function calls in 1.830 seconds
+
+   Ordered by: internal time
+   List reduced from 78 to 40 due to restriction <40>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.946    0.946    0.952    0.952 _decomp.py:117(eig)
+     4000    0.620    0.000    0.668    0.000 benchmark.py:48(state_update)
+     7900    0.050    0.000    0.108    0.000 shape_base.py:219(vstack)
+        1    0.043    0.043    0.418    0.418 benchmark.py:56(collect_states)
+        1    0.027    0.027    0.053    0.053 benchmark.py:69(train_readout)
+     7901    0.025    0.000    0.053    0.000 shape_base.py:81(atleast_2d)
+        1    0.024    0.024    0.025    0.025 _basic.py:52(solve)
+        1    0.022    0.022    1.830    1.830 benchmark.py:125(run_full_minimalesn)
+    15800    0.011    0.000    0.011    0.000 {method 'reshape' of 'numpy.ndarray' objects}
+    19703    0.011    0.000    0.011    0.000 {built-in method numpy.asanyarray}
+        2    0.009    0.004    0.009    0.004 {method 'rand' of 'numpy.random.mtrand.RandomState' objects}
+     7900    0.006    0.000    0.011    0.000 shape_base.py:207(_arrays_for_stack_dispatcher)
+     7900    0.005    0.000    0.005    0.000 {built-in method builtins.hasattr}
+    19702    0.005    0.000    0.005    0.000 {method 'append' of 'list' objects}
+     7900    0.005    0.000    0.016    0.000 shape_base.py:215(_vhstack_dispatcher)
+        1    0.003    0.003    0.003    0.003 {built-in method numpy.array}
+        1    0.002    0.002    0.006    0.006 _decomp.py:35(_make_complex_eigvecs)
+        1    0.002    0.002    0.011    0.011 benchmark.py:36(make_esn)
+        1    0.002    0.002    0.955    0.955 benchmark.py:43(normalize_spectral)
+     7904    0.002    0.000    0.002    0.000 {built-in method builtins.len}
+    10002    0.002    0.000    0.002    0.000 multiarray.py:741(dot)
+        3    0.002    0.001    0.002    0.001 function_base.py:564(asarray_chkfinite)
+     7908    0.002    0.000    0.002    0.000 {built-in method builtins.isinstance}
+     7901    0.001    0.000    0.001    0.000 multiarray.py:153(concatenate)
+     7901    0.001    0.000    0.001    0.000 shape_base.py:77(_atleast_2d_dispatcher)
+        1    0.001    0.001    0.001    0.001 twodim_base.py:158(eye)
+        5    0.000    0.000    0.000    0.000 {method 'reduce' of 'numpy.ufunc' objects}
+        1    0.000    0.000    0.000    0.000 {function SeedSequence.generate_state at 0x00000290DD933600}
+        4    0.000    0.000    0.000    0.000 {built-in method numpy.zeros}
+        3    0.000    0.000    0.002    0.001 _util.py:275(_asarray_validated)
+        1    0.000    0.000    0.000    0.000 {built-in method builtins.max}
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+        1    0.000    0.000    0.000    0.000 {built-in method nt.urandom}
+        1    0.000    0.000    0.000    0.000 lapack.py:982(_compute_lwork)
+        2    0.000    0.000    0.000    0.000 fromnumeric.py:71(_wrapreduction)
+        4    0.000    0.000    0.000    0.000 blas.py:384(getter)
+        2    0.000    0.000    0.000    0.000 _ufunc_config.py:33(seterr)
+        3    0.000    0.000    0.000    0.000 {method 'all' of 'numpy.ndarray' objects}
+        1    0.000    0.000    0.000    0.000 {built-in method builtins.abs}
+        1    0.000    0.000    0.000    0.000 contextlib.py:78(inner)
+
+

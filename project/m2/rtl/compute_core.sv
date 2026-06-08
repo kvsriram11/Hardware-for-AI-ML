@@ -1,288 +1,145 @@
-// =============================================================================
-// compute_core.sv
+//==========================================================================
+// compute_core.sv — ESN state-update compute core for one neuron stream.
 //
-// ESN reservoir state-update compute core (single-neuron, Option α).
+// Purpose:
+//   Compute x_next[i] = leak_blend(x_prev[i], tanh(MAC(W_row_i, x_prev) + Win_term))
+//   for one neuron i. The host streams weight rows + x vector + Win term
+//   through AXI; this module fires the MAC array, tanh, and leak blend.
 //
-// Project   : Hardware Accelerator for Reservoir State Update in ESNs
-// Course    : ECE 510 — Hardware for AI/ML, Spring 2026, Portland State Univ.
-// Author    : Venkata Sriram Kamarajugadda
-// Milestone : M2
+// For M2 verification: a small N (default 16) is used so the testbench
+// can run one full neuron update in ~10 cycles. N is a parameter so the
+// same RTL scales to N=1000 for M3/M4.
 //
-// -----------------------------------------------------------------------------
-// PURPOSE
-// -----------------------------------------------------------------------------
-// Computes ONE neuron's reservoir state update of an Echo State Network:
+// FSM: IDLE -> MAC -> FLUSH -> ACTIVATE -> BLEND -> DONE -> IDLE
 //
-//     acc = Σ_{k=0}^{N-1} w[k] * x_prev[k]   (dot product)
-//     pre = acc + win_u                       (input projection)
-//     act = tanh(pre)                         (PWL approx)
-//     x_new = (1 - a) * x_prev_self + a * act (leak blend)
-//
-// All datapath elements are Q15 except internal accumulator and adder
-// stages, which are Q30 in 32-bit signed format. This module instantiates:
-//
-//     q15_mac    — serial MAC (one weight × one state per cycle)
-//     q15_tanh   — combinational 7-segment PWL tanh
-//     q15_blend  — combinational leak-rate blend
-//
-// The reservoir-level loop (computing N neurons per timestep) is HANDLED
-// EXTERNALLY by repeated invocation of this core. The core processes one
-// neuron per "start..done" transaction.
-//
-// -----------------------------------------------------------------------------
-// FSM
-// -----------------------------------------------------------------------------
-//
-//   S_IDLE     →  wait for `start` pulse
-//   S_LOAD     →  register leak_rate, win_u, x_prev_self; clear MAC accumulator
-//   S_ACCUM    →  consume (w, x) stream; advance MAC each valid cycle
-//   S_ADDU     →  add win_u to the MAC accumulator (one cycle)
-//   S_NL       →  feed accumulator through tanh and blend (combinational); register x_new
-//   S_DONE     →  assert x_new_valid + done for one cycle; return to S_IDLE
-//
-// -----------------------------------------------------------------------------
-// CLOCK / RESET
-// -----------------------------------------------------------------------------
-// Single clock domain: clk.
-// Reset: synchronous, active-high.
-//
-// -----------------------------------------------------------------------------
-// PORTS
-// -----------------------------------------------------------------------------
-//   Name           Dir   Width        Purpose
-//   ----           ---   -----        -------
-//   clk            in    1            System clock
-//   rst            in    1            Synchronous active-high reset
-//   start          in    1            Pulse high for 1 cycle to begin update
-//   N_minus_1      in    16           Dot-product length minus 1 (e.g. 999)
-//   leak_rate      in    16  signed   Q15 leak rate a, in [0, +1.0)
-//   win_u          in    32  signed   Q30 pre-computed Win*u(t) for this neuron
-//   x_prev_self    in    16  signed   Q15 previous state x_prev[i] for this neuron
-//   w_data         in    16  signed   Q15 weight w[k]
-//   w_valid        in    1            Weight valid this cycle
-//   x_data         in    16  signed   Q15 previous state x_prev[k]
-//   x_valid        in    1            x_prev valid this cycle
-//   busy           out   1            High while computing (S_LOAD..S_NL)
-//   x_new          out   16  signed   Q15 updated state for this neuron
-//   x_new_valid    out   1            Pulse high when x_new is valid
-//   done           out   1            Pulse high when computation complete
-// =============================================================================
-
+// Ports:
+//   clk        : in   single-clock
+//   rst_n      : in   active-low sync reset
+//   start      : in   pulse to begin one neuron update
+//   leak_a     : in   Q-format leak coefficient
+//   x_prev_i   : in   prior state for neuron i
+//   win_term_i : in   pre-computed Win @ [1,u] scalar for neuron i
+//   w_row      : in   MAC_WIDTH lane bus, current chunk of W row
+//   x_chunk    : in   MAC_WIDTH lane bus, current chunk of x_prev vector
+//   chunk_valid: in   1 when w_row/x_chunk are valid this cycle
+//   last_chunk : in   1 on the final chunk of the row
+//   x_next_o   : out  computed next state for neuron i (DATA_W signed)
+//   done       : out  1-cycle pulse when x_next_o is valid
+//==========================================================================
+`timescale 1ns/1ps
+`default_nettype none
 module compute_core #(
-    parameter int DATA_W = 16,
-    parameter int ACC_W  = 32
+    parameter int DATA_W    = 16,
+    parameter int MAC_WIDTH = 16,
+    parameter int ACC_W     = 40,
+    parameter int FRAC_W    = 15
 ) (
-    input  logic                       clk,
-    input  logic                       rst,
-
-    // Control
-    input  logic                       start,
-    input  logic [15:0]                N_minus_1,
-    input  logic signed [DATA_W-1:0]   leak_rate,
-    input  logic signed [ACC_W-1:0]    win_u,
-    input  logic signed [DATA_W-1:0]   x_prev_self,
-
-    // Streamed dot-product operands
-    input  logic signed [DATA_W-1:0]   w_data,
-    input  logic                       w_valid,
-    input  logic signed [DATA_W-1:0]   x_data,
-    input  logic                       x_valid,
-
-    // Status / output
-    output logic                       busy,
-    output logic                       accepting_data,  // high in S_ACCUM
-    output logic signed [DATA_W-1:0]   x_new,
-    output logic                       x_new_valid,
-    output logic                       done
+    input  wire                                 clk,
+    input  wire                                 rst_n,
+    input  wire                                 start,
+    input  wire signed [DATA_W-1:0]             leak_a,
+    input  wire signed [DATA_W-1:0]             x_prev_i,
+    input  wire signed [ACC_W-1:0]              win_term_i,
+    input  wire signed [MAC_WIDTH*DATA_W-1:0]   w_row,
+    input  wire signed [MAC_WIDTH*DATA_W-1:0]   x_chunk,
+    input  wire                                 chunk_valid,
+    input  wire                                 last_chunk,
+    output reg  signed [DATA_W-1:0]             x_next_o,
+    output reg                                  done
 );
 
-    // -------------------------------------------------------------------------
-    // FSM state encoding
-    // -------------------------------------------------------------------------
-    typedef enum logic [2:0] {
-        S_IDLE  = 3'd0,
-        S_LOAD  = 3'd1,
-        S_ACCUM = 3'd2,
-        S_ADDU  = 3'd3,
-        S_NL    = 3'd4,
-        S_DONE  = 3'd5
-    } state_t;
-
-    state_t state, next_state;
-
-    // -------------------------------------------------------------------------
-    // Registered control / data
-    // -------------------------------------------------------------------------
-    logic signed [DATA_W-1:0] leak_rate_reg;
-    logic signed [ACC_W-1:0]  win_u_reg;
-    logic signed [DATA_W-1:0] x_prev_self_reg;
-    logic [15:0]              k_counter;
-    logic [15:0]              N_minus_1_reg;
-
-    // -------------------------------------------------------------------------
-    // q15_mac instance
-    // -------------------------------------------------------------------------
-    logic                     mac_clr;
-    logic                     mac_en;
-    logic signed [ACC_W-1:0]  mac_acc;
-
-    // En only when both operands valid AND we're in S_ACCUM
-    assign mac_en  = (state == S_ACCUM) && w_valid && x_valid;
-    // Clear pulse fires in S_LOAD to zero the accumulator
-    assign mac_clr = (state == S_LOAD);
-
-    q15_mac u_mac (
-        .clk    (clk),
-        .rst    (rst),
-        .clr    (mac_clr),
-        .en     (mac_en),
-        .w      (w_data),
-        .x      (x_data),
-        .acc    (mac_acc)
-    );
-
-    // -------------------------------------------------------------------------
-    // After dot product, add win_u to mac_acc.
-    // We do this by writing the sum into a holding register in S_ADDU.
-    // -------------------------------------------------------------------------
-    logic signed [ACC_W-1:0]  pre_act;   // mac_acc + win_u
-
-    always_ff @(posedge clk) begin
-        if (rst)
-            pre_act <= '0;
-        else if (state == S_ADDU)
-            pre_act <= mac_acc + win_u_reg;
+`ifdef __ICARUS__
+    initial begin
+        $dumpfile("waves.vcd");
+        $dumpvars(0, compute_core);
     end
+`endif
 
-    // -------------------------------------------------------------------------
-    // q15_tanh — combinational
-    // -------------------------------------------------------------------------
-    logic signed [DATA_W-1:0] tanh_out;
-
-    q15_tanh u_tanh (
-        .acc       (pre_act),
-        .tanh_out  (tanh_out)
-    );
-
-    // -------------------------------------------------------------------------
-    // q15_blend — combinational
-    // -------------------------------------------------------------------------
-    logic signed [DATA_W-1:0] blend_out;
-
-    q15_blend u_blend (
-        .x_prev     (x_prev_self_reg),
-        .tanh_out   (tanh_out),
-        .leak_rate  (leak_rate_reg),
-        .x_new      (blend_out)
-    );
-
-    // -------------------------------------------------------------------------
-    // Output register: capture blend_out in S_NL, present in S_DONE
-    // -------------------------------------------------------------------------
-    logic signed [DATA_W-1:0] x_new_reg;
-    logic                     x_new_valid_reg;
-    logic                     done_reg;
-
+    // FSM
+    typedef enum logic [2:0] {S_IDLE, S_MAC, S_FLUSH, S_ACTIVATE, S_BLEND, S_DONE} state_t;
+    state_t state, next_state;
+    reg last_chunk_q;
+    reg [2:0] flush_cnt;
     always_ff @(posedge clk) begin
-        if (rst) begin
-            x_new_reg       <= '0;
-            x_new_valid_reg <= 1'b0;
-            done_reg        <= 1'b0;
+        if (!rst_n) begin
+            state <= S_IDLE;
+            last_chunk_q <= 1'b0;
+            flush_cnt <= 0;
         end else begin
-            // Default: deassert valid/done; only pulse for 1 cycle
-            x_new_valid_reg <= 1'b0;
-            done_reg        <= 1'b0;
-
-            if (state == S_NL) begin
-                x_new_reg <= blend_out;
-            end
-            if (state == S_DONE) begin
-                x_new_valid_reg <= 1'b1;
-                done_reg        <= 1'b1;
-            end
+            state <= next_state;
+            if (chunk_valid && last_chunk) last_chunk_q <= 1'b1;
+            else if (state == S_IDLE)      last_chunk_q <= 1'b0;
+            if (state == S_FLUSH) flush_cnt <= flush_cnt + 1;
+            else                  flush_cnt <= 0;
         end
     end
-
-    assign x_new       = x_new_reg;
-    assign x_new_valid = x_new_valid_reg;
-    assign done        = done_reg;
-    assign busy        = (state != S_IDLE) && (state != S_DONE);
-    assign accepting_data = (state == S_ACCUM);
-
-    // -------------------------------------------------------------------------
-    // FSM — sequential state register
-    // -------------------------------------------------------------------------
-    always_ff @(posedge clk) begin
-        if (rst)
-            state <= S_IDLE;
-        else
-            state <= next_state;
-    end
-
-    // -------------------------------------------------------------------------
-    // FSM — next-state logic
-    // -------------------------------------------------------------------------
     always_comb begin
         next_state = state;
-        unique case (state)
-            S_IDLE: begin
-                if (start)
-                    next_state = S_LOAD;
-            end
-            S_LOAD: begin
-                next_state = S_ACCUM;
-            end
-            S_ACCUM: begin
-                // Stay in S_ACCUM until k_counter has been advanced past
-                // N_minus_1_reg.  The counter increments only on valid
-                // (w_valid && x_valid) cycles, so this naturally stalls
-                // if the stream isn't ready.
-                if (mac_en && (k_counter == N_minus_1_reg))
-                    next_state = S_ADDU;
-            end
-            S_ADDU: begin
-                next_state = S_NL;
-            end
-            S_NL: begin
-                next_state = S_DONE;
-            end
-            S_DONE: begin
-                next_state = S_IDLE;
-            end
-            default: next_state = S_IDLE;
+        case (state)
+            S_IDLE:     if (start) next_state = S_MAC;
+            S_MAC:      if (last_chunk_q) next_state = S_FLUSH;
+            S_FLUSH:    if (flush_cnt == 3'd3) next_state = S_ACTIVATE; // drain MAC pipeline
+            S_ACTIVATE: next_state = S_BLEND;
+            S_BLEND:    next_state = S_DONE;
+            S_DONE:     next_state = S_IDLE;
+            default:    next_state = S_IDLE;
         endcase
     end
 
-    // -------------------------------------------------------------------------
-    // Registered datapath captures
-    // -------------------------------------------------------------------------
+    // MAC array
+    wire mac_en  = (state == S_MAC) || (state == S_FLUSH);
+    wire mul_en  = (state == S_MAC) && chunk_valid;
+    wire mac_clr = (state == S_IDLE) && start;
+    wire signed [ACC_W-1:0] mac_sum;
+    mac_array #(
+        .DATA_W(DATA_W), .MAC_WIDTH(MAC_WIDTH), .ACC_W(ACC_W)
+    ) u_mac (
+        .clk(clk), .rst_n(rst_n),
+        .en(mac_en), .mul_en(mul_en),
+        .w_in(w_row), .x_in(x_chunk),
+        .acc_clr(mac_clr), .sum_out(mac_sum)
+    );
+
+    // Pre-activation = MAC sum + Win term (latched at S_ACTIVATE entry)
+    reg signed [ACC_W-1:0] pre_act;
     always_ff @(posedge clk) begin
-        if (rst) begin
-            leak_rate_reg   <= '0;
-            win_u_reg       <= '0;
-            x_prev_self_reg <= '0;
-            N_minus_1_reg   <= '0;
-            k_counter       <= '0;
-        end else begin
-            unique case (state)
-                S_IDLE: begin
-                    if (start) begin
-                        // Capture configuration when start pulses
-                        leak_rate_reg   <= leak_rate;
-                        win_u_reg       <= win_u;
-                        x_prev_self_reg <= x_prev_self;
-                        N_minus_1_reg   <= N_minus_1;
-                        k_counter       <= '0;
-                    end
-                end
-                S_ACCUM: begin
-                    if (mac_en) begin
-                        k_counter <= k_counter + 16'd1;
-                    end
-                end
-                default: ;  // hold
-            endcase
-        end
+        if (!rst_n)               pre_act <= '0;
+        else if (state == S_FLUSH && flush_cnt == 3'd3) pre_act <= (mac_sum >>> FRAC_W) + win_term_i;
     end
 
+    // tanh
+    wire act_en = (state == S_ACTIVATE);
+    wire signed [DATA_W-1:0] tanh_out;
+    tanh_pwl #(
+        .DATA_W(DATA_W), .ACC_W(ACC_W), .FRAC_W(FRAC_W)
+    ) u_tanh (
+        .clk(clk), .rst_n(rst_n),
+        .en(act_en), .pre_in(pre_act), .act_out(tanh_out)
+    );
+
+    // leak blend
+    wire blend_en = (state == S_BLEND);
+    wire signed [DATA_W-1:0] blend_out;
+    leak_blend #(.DATA_W(DATA_W)) u_blend (
+        .clk(clk), .rst_n(rst_n),
+        .en(blend_en),
+        .a(leak_a),
+        .x_prev(x_prev_i),
+        .z(tanh_out),
+        .x_next(blend_out)
+    );
+
+    // output capture
+    always_ff @(posedge clk) begin
+        if (!rst_n) begin
+            x_next_o <= '0;
+            done     <= 1'b0;
+        end else if (state == S_DONE) begin
+            x_next_o <= blend_out;
+            done     <= 1'b1;
+        end else begin
+            done <= 1'b0;
+        end
+    end
 endmodule
+`default_nettype wire

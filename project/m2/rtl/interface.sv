@@ -1,328 +1,182 @@
-// =============================================================================
-// interface.sv
+//==========================================================================
+// interface.sv — AXI4-Lite slave for control/status + AXI4-Stream sink/source
 //
-// AXI4-Lite + AXI4-Stream interface wrapper around compute_core.
+// Register map (AXI4-Lite, byte-addressed, 32-bit data):
+//   0x00 CTRL   [0]=start, [1]=soft_rst, [2]=mode_run
+//   0x04 STATUS [0]=busy, [1]=done, [2]=err
+//   0x08 LEAK_A signed Q1.(DATA_W-1) leak coefficient
+//   0x0C WIN_T  signed ACC_W-truncated Win term (low 32 bits)
+//   0x10 XPREV  signed DATA_W x_prev[i] (sign-extended to 32)
+//   0x14 XNEXT  signed DATA_W x_next captured from compute_core (read-only)
 //
-// Project   : Hardware Accelerator for Reservoir State Update in ESNs
-// Course    : ECE 510 — Hardware for AI/ML, Spring 2026, Portland State Univ.
-// Author    : Venkata Sriram Kamarajugadda
-// Milestone : M2
+// AXI4-Stream:
+//   s_axis (W_ROW || X_CHUNK packed) carries one chunk per beat:
+//     tdata[MAC_WIDTH*DATA_W-1            : 0]                = x_chunk
+//     tdata[2*MAC_WIDTH*DATA_W-1 : MAC_WIDTH*DATA_W]          = w_row chunk
+//     tlast = 1 on the final chunk of the row.
 //
-// -----------------------------------------------------------------------------
-// PROTOCOL CONFORMANCE
-// -----------------------------------------------------------------------------
-// Implements:
-//   - AXI4-Lite slave port for configuration and status (5 channels:
-//     AW, W, B, AR, R) per ARM IHI 0022 §B1.
-//   - AXI4-Stream slave port for streamed (weight, x_prev) operand pairs
-//     per ARM IHI 0051 §2 (TVALID/TREADY handshake honored).
-//
-// Reset: synchronous, active-high (rst). All registers reset to 0.
-// Single clock domain: clk.
-//
-// -----------------------------------------------------------------------------
-// DESIGN PATTERN — COMBINATIONAL READY, REGISTERED EVERYTHING ELSE
-// -----------------------------------------------------------------------------
-// AXI4-Lite slaves should NOT register the *ready signals through a normal
-// always_ff. If awready is registered, it doesn't change until a clock edge,
-// which means a master driving awvalid on cycle N cannot complete the
-// handshake until cycle N+1 at the earliest. Worse, if the FSM checks
-// "if (awvalid && awready)" inside the same always_ff that updates
-// awready, the registered value of awready (still 0 after reset) prevents
-// the handshake from ever being detected.
-//
-// Standard pattern used here:
-//   - awready / wready / arready are COMBINATIONAL outputs derived from FSM
-//     state and any capture flags.
-//   - bvalid / rvalid / rdata are REGISTERED.
-//   - Registered captures (awaddr_reg, etc.) and FSM state update on the
-//     rising edge.
-//
-// -----------------------------------------------------------------------------
-// AXI4-LITE REGISTER MAP (32-bit aligned, byte-addressable)
-// -----------------------------------------------------------------------------
-//
-//   Address  Name        Access  Description
-//   -------  ----------  ------  -----------------------------------------
-//   0x00     CTRL        W       bit[0] = start pulse (self-clearing)
-//   0x04     STATUS      R       bit[0] = busy, bit[1] = done (sticky)
-//   0x08     N_MINUS_1   W       Dot-product length minus 1 (low 16 bits)
-//   0x0C     LEAK_RATE   W       Q15 leak rate (low 16 bits)
-//   0x10     WIN_U       W       Q30 input projection (full 32 bits)
-//   0x14     X_PREV      W       Q15 x_prev_self for this neuron (low 16)
-//   0x18     X_NEW       R       Q15 x_new captured from last update
-//
-// -----------------------------------------------------------------------------
-// AXI4-STREAM PACKING
-// -----------------------------------------------------------------------------
-// Each TDATA beat (32 bits) = { x_data[15:0], w_data[15:0] }
-//   tdata[31:16] = x_prev[k]
-//   tdata[15:0]  = w[k]
-// =============================================================================
-
+// Single clock, active-low sync reset. AXI handshakes: TVALID/TREADY,
+// AW/W/B/AR/R per AXI4-Lite spec section A2.
+//==========================================================================
+`timescale 1ns/1ps
+`default_nettype none
 module interface_axi #(
-    parameter int AXIL_ADDR_W = 8,
-    parameter int AXIL_DATA_W = 32,
-    parameter int AXIS_DATA_W = 32
+    parameter int DATA_W    = 16,
+    parameter int MAC_WIDTH = 16,
+    parameter int ACC_W     = 40,
+    parameter int FRAC_W    = 15,
+    parameter int AXIL_AW   = 8,
+    parameter int AXIL_DW   = 32,
+    parameter int AXIS_DW   = 2*MAC_WIDTH*DATA_W
 ) (
-    input  logic                          clk,
-    input  logic                          rst,
+    input  wire                       clk,
+    input  wire                       rst_n,
 
     // AXI4-Lite slave
-    input  logic [AXIL_ADDR_W-1:0]        s_axil_awaddr,
-    input  logic                          s_axil_awvalid,
-    output logic                          s_axil_awready,
+    input  wire [AXIL_AW-1:0]         s_axil_awaddr,
+    input  wire                       s_axil_awvalid,
+    output reg                        s_axil_awready,
+    input  wire [AXIL_DW-1:0]         s_axil_wdata,
+    input  wire [AXIL_DW/8-1:0]       s_axil_wstrb,
+    input  wire                       s_axil_wvalid,
+    output reg                        s_axil_wready,
+    output reg  [1:0]                 s_axil_bresp,
+    output reg                        s_axil_bvalid,
+    input  wire                       s_axil_bready,
+    input  wire [AXIL_AW-1:0]         s_axil_araddr,
+    input  wire                       s_axil_arvalid,
+    output reg                        s_axil_arready,
+    output reg  [AXIL_DW-1:0]         s_axil_rdata,
+    output reg  [1:0]                 s_axil_rresp,
+    output reg                        s_axil_rvalid,
+    input  wire                       s_axil_rready,
 
-    input  logic [AXIL_DATA_W-1:0]        s_axil_wdata,
-    input  logic [(AXIL_DATA_W/8)-1:0]    s_axil_wstrb,
-    input  logic                          s_axil_wvalid,
-    output logic                          s_axil_wready,
-
-    output logic [1:0]                    s_axil_bresp,
-    output logic                          s_axil_bvalid,
-    input  logic                          s_axil_bready,
-
-    input  logic [AXIL_ADDR_W-1:0]        s_axil_araddr,
-    input  logic                          s_axil_arvalid,
-    output logic                          s_axil_arready,
-
-    output logic [AXIL_DATA_W-1:0]        s_axil_rdata,
-    output logic [1:0]                    s_axil_rresp,
-    output logic                          s_axil_rvalid,
-    input  logic                          s_axil_rready,
-
-    // AXI4-Stream slave
-    input  logic [AXIS_DATA_W-1:0]        s_axis_tdata,
-    input  logic                          s_axis_tvalid,
-    output logic                          s_axis_tready,
-    input  logic                          s_axis_tlast       // ignored
+    // AXI4-Stream sink (W rows + x chunks)
+    input  wire [AXIS_DW-1:0]         s_axis_tdata,
+    input  wire                       s_axis_tvalid,
+    output wire                       s_axis_tready,
+    input  wire                       s_axis_tlast
 );
 
-    // -------------------------------------------------------------------------
-    // Register addresses
-    // -------------------------------------------------------------------------
-    localparam logic [7:0] ADDR_CTRL      = 8'h00;
-    localparam logic [7:0] ADDR_STATUS    = 8'h04;
-    localparam logic [7:0] ADDR_N_MINUS_1 = 8'h08;
-    localparam logic [7:0] ADDR_LEAK_RATE = 8'h0C;
-    localparam logic [7:0] ADDR_WIN_U     = 8'h10;
-    localparam logic [7:0] ADDR_X_PREV    = 8'h14;
-    localparam logic [7:0] ADDR_X_NEW     = 8'h18;
-
-    localparam logic [1:0] RESP_OKAY = 2'b00;
-
-    // -------------------------------------------------------------------------
-    // Configuration registers (written by AXI4-Lite)
-    // -------------------------------------------------------------------------
-    logic [15:0]        reg_n_minus_1;
-    logic signed [15:0] reg_leak_rate;
-    logic signed [31:0] reg_win_u;
-    logic signed [15:0] reg_x_prev;
-
-    logic               start_pulse;     // single-cycle pulse to compute_core
-
-    // -------------------------------------------------------------------------
-    // compute_core instance
-    // -------------------------------------------------------------------------
-    logic signed [15:0] core_w_data;
-    logic               core_w_valid;
-    logic signed [15:0] core_x_data;
-    logic               core_x_valid;
-
-    logic               core_busy;
-    logic               core_accepting_data;
-    logic               core_done;
-    logic               core_x_new_valid;
-    logic signed [15:0] core_x_new;
-
-    compute_core u_core (
-        .clk         (clk),
-        .rst         (rst),
-        .start       (start_pulse),
-        .N_minus_1   (reg_n_minus_1),
-        .leak_rate   (reg_leak_rate),
-        .win_u       (reg_win_u),
-        .x_prev_self (reg_x_prev),
-
-        .w_data      (core_w_data),
-        .w_valid     (core_w_valid),
-        .x_data      (core_x_data),
-        .x_valid     (core_x_valid),
-
-        .busy           (core_busy),
-        .accepting_data (core_accepting_data),
-        .x_new          (core_x_new),
-        .x_new_valid    (core_x_new_valid),
-        .done           (core_done)
-    );
-
-    // -------------------------------------------------------------------------
-    // Latch x_new and sticky 'done' status
-    // -------------------------------------------------------------------------
-    logic signed [15:0] reg_x_new;
-    logic               sticky_done;
-
-    always_ff @(posedge clk) begin
-        if (rst) begin
-            reg_x_new   <= '0;
-            sticky_done <= 1'b0;
-        end else begin
-            if (core_x_new_valid)
-                reg_x_new <= core_x_new;
-            if (core_done)
-                sticky_done <= 1'b1;
-            else if (start_pulse)
-                sticky_done <= 1'b0;
-        end
+`ifdef __ICARUS__
+    initial begin
+        $dumpfile("waves.vcd");
+        $dumpvars(0, interface_axi);
     end
+`endif
 
-    // =========================================================================
-    // AXI4-LITE WRITE — combinational ready, registered B response
-    //
-    // The slave can accept AW and W in either order (AXI4-Lite §B1.5).
-    // We use two capture flags to remember when each side has been
-    // accepted, and complete the write (latching into the register file
-    // and asserting B) when both have arrived.
-    //
-    // ready signals:
-    //   awready = 1 when we don't already have an awaddr captured AND we're
-    //             not in the middle of a B response.
-    //   wready  = 1 when we don't already have wdata captured AND we're
-    //             not in the middle of a B response.
-    // =========================================================================
-    logic [7:0]         awaddr_q;     // captured AW address
-    logic               aw_q_valid;   // we have a valid captured AW
+    // ---- Control/status registers ----
+    reg start_pulse, busy_q, done_q;
+    reg signed [DATA_W-1:0] leak_a_q;
+    reg signed [ACC_W-1:0]  win_term_q;
+    reg signed [DATA_W-1:0] x_prev_q;
+    reg signed [DATA_W-1:0] x_next_q;
 
-    logic [31:0]        wdata_q;      // captured W data
-    logic               w_q_valid;    // we have a valid captured W
-
-    logic               b_pending;    // bvalid is high, waiting for bready
-
-    // Combinational ready: accept new AW/W only when slot is empty and no
-    // outstanding B response is pending.
-    assign s_axil_awready = !aw_q_valid && !b_pending;
-    assign s_axil_wready  = !w_q_valid  && !b_pending;
-
-    // Detect when this cycle's transfers occur
-    logic aw_xfer;  // address transfer this cycle
-    logic w_xfer;   // data transfer this cycle
-    assign aw_xfer = s_axil_awvalid && s_axil_awready;
-    assign w_xfer  = s_axil_wvalid  && s_axil_wready;
-
-    // Decoded write address (from this cycle's transfer or latched)
-    logic [7:0] write_addr;
-    logic [31:0] write_data;
-    assign write_addr = aw_q_valid ? awaddr_q : s_axil_awaddr;
-    assign write_data = w_q_valid  ? wdata_q  : s_axil_wdata;
-
-    // The write completes when both AW and W are available
-    // (either both transfer this cycle OR a previously captured one + the other transferring now)
-    logic write_complete;
-    assign write_complete = (aw_q_valid || aw_xfer) && (w_q_valid || w_xfer)
-                            && !b_pending;
-
+    // ---- AXI4-Lite write FSM ----
+    typedef enum logic [1:0] {AW_IDLE, AW_DATA, AW_RESP} aw_state_t;
+    aw_state_t aw_state;
+    reg [AXIL_AW-1:0] aw_addr;
     always_ff @(posedge clk) begin
-        if (rst) begin
-            aw_q_valid    <= 1'b0;
-            awaddr_q      <= '0;
-            w_q_valid     <= 1'b0;
-            wdata_q       <= '0;
-            b_pending     <= 1'b0;
-            s_axil_bvalid <= 1'b0;
-            s_axil_bresp  <= RESP_OKAY;
-
-            reg_n_minus_1 <= '0;
-            reg_leak_rate <= '0;
-            reg_win_u     <= '0;
-            reg_x_prev    <= '0;
-            start_pulse   <= 1'b0;
-        end else begin
-            // Default: pulse signals only fire one cycle
+        if (!rst_n) begin
+            aw_state <= AW_IDLE; s_axil_awready <= 1'b0; s_axil_wready <= 1'b0;
+            s_axil_bvalid <= 1'b0; s_axil_bresp <= 2'b00;
+            leak_a_q <= '0; win_term_q <= '0; x_prev_q <= '0;
             start_pulse <= 1'b0;
-
-            // Capture AW if accepted but no W yet (or both this cycle and we'll consume in same cycle below)
-            if (aw_xfer && !write_complete) begin
-                awaddr_q   <= s_axil_awaddr;
-                aw_q_valid <= 1'b1;
-            end
-            if (w_xfer && !write_complete) begin
-                wdata_q   <= s_axil_wdata;
-                w_q_valid <= 1'b1;
-            end
-
-            // Complete the write
-            if (write_complete) begin
-                // Apply write to register file
-                unique case (write_addr)
-                    ADDR_CTRL: begin
-                        if (write_data[0]) start_pulse <= 1'b1;
-                    end
-                    ADDR_N_MINUS_1: reg_n_minus_1 <= write_data[15:0];
-                    ADDR_LEAK_RATE: reg_leak_rate <= write_data[15:0];
-                    ADDR_WIN_U:     reg_win_u     <= write_data[31:0];
-                    ADDR_X_PREV:    reg_x_prev    <= write_data[15:0];
-                    default: ; // unmapped: silent write
-                endcase
-
-                // Clear capture flags, raise B response
-                aw_q_valid    <= 1'b0;
-                w_q_valid     <= 1'b0;
-                b_pending     <= 1'b1;
-                s_axil_bvalid <= 1'b1;
-                s_axil_bresp  <= RESP_OKAY;
-            end
-
-            // Drop B once accepted by master
-            if (s_axil_bvalid && s_axil_bready) begin
-                s_axil_bvalid <= 1'b0;
-                b_pending     <= 1'b0;
-            end
-        end
-    end
-
-    // =========================================================================
-    // AXI4-LITE READ — combinational arready, registered R response
-    // =========================================================================
-    logic       r_pending;
-
-    assign s_axil_arready = !r_pending;
-
-    logic ar_xfer;
-    assign ar_xfer = s_axil_arvalid && s_axil_arready;
-
-    always_ff @(posedge clk) begin
-        if (rst) begin
-            r_pending     <= 1'b0;
-            s_axil_rvalid <= 1'b0;
-            s_axil_rresp  <= RESP_OKAY;
-            s_axil_rdata  <= '0;
         end else begin
-            if (ar_xfer) begin
-                // Combinational decode of read data
-                unique case (s_axil_araddr[7:0])
-                    ADDR_STATUS: s_axil_rdata <= {30'h0, sticky_done, core_busy};
-                    ADDR_X_NEW:  s_axil_rdata <= {{16{reg_x_new[15]}}, reg_x_new};
-                    default:     s_axil_rdata <= 32'h0;
-                endcase
-                s_axil_rvalid <= 1'b1;
-                s_axil_rresp  <= RESP_OKAY;
-                r_pending     <= 1'b1;
-            end
-
-            if (s_axil_rvalid && s_axil_rready) begin
-                s_axil_rvalid <= 1'b0;
-                r_pending     <= 1'b0;
-            end
+            start_pulse <= 1'b0;
+            case (aw_state)
+                AW_IDLE: begin
+                    s_axil_awready <= 1'b1;
+                    if (s_axil_awvalid && s_axil_awready) begin
+                        aw_addr <= s_axil_awaddr;
+                        s_axil_awready <= 1'b0;
+                        s_axil_wready <= 1'b1;
+                        aw_state <= AW_DATA;
+                    end
+                end
+                AW_DATA: if (s_axil_wvalid && s_axil_wready) begin
+                    case (aw_addr[7:0])
+                        8'h00: if (s_axil_wdata[0]) start_pulse <= 1'b1;
+                        8'h08: leak_a_q   <= s_axil_wdata[DATA_W-1:0];
+                        8'h0C: win_term_q <= {{(ACC_W-AXIL_DW){s_axil_wdata[AXIL_DW-1]}}, s_axil_wdata};
+                        8'h10: x_prev_q   <= s_axil_wdata[DATA_W-1:0];
+                        default: ;
+                    endcase
+                    s_axil_wready <= 1'b0;
+                    s_axil_bvalid <= 1'b1;
+                    s_axil_bresp  <= 2'b00;
+                    aw_state <= AW_RESP;
+                end
+                AW_RESP: if (s_axil_bvalid && s_axil_bready) begin
+                    s_axil_bvalid <= 1'b0;
+                    aw_state <= AW_IDLE;
+                end
+                default: aw_state <= AW_IDLE;
+            endcase
         end
     end
 
-    // =========================================================================
-    // AXI4-STREAM SLAVE
-    // =========================================================================
-    assign s_axis_tready = core_accepting_data;
-    assign core_w_data   = s_axis_tdata[15:0];
-    assign core_x_data   = s_axis_tdata[31:16];
-    assign core_w_valid  = s_axis_tvalid && s_axis_tready;
-    assign core_x_valid  = s_axis_tvalid && s_axis_tready;
+    // ---- AXI4-Lite read FSM ----
+    typedef enum logic [0:0] {AR_IDLE, AR_RESP} ar_state_t;
+    ar_state_t ar_state;
+    always_ff @(posedge clk) begin
+        if (!rst_n) begin
+            ar_state <= AR_IDLE; s_axil_arready <= 1'b0;
+            s_axil_rvalid <= 1'b0; s_axil_rresp <= 2'b00; s_axil_rdata <= '0;
+        end else case (ar_state)
+            AR_IDLE: begin
+                s_axil_arready <= 1'b1;
+                if (s_axil_arvalid && s_axil_arready) begin
+                    s_axil_arready <= 1'b0;
+                    s_axil_rvalid  <= 1'b1;
+                    s_axil_rresp   <= 2'b00;
+                    case (s_axil_araddr[7:0])
+                        8'h04: s_axil_rdata <= {29'd0, 1'b0, done_q, busy_q};
+                        8'h08: s_axil_rdata <= {{(AXIL_DW-DATA_W){leak_a_q[DATA_W-1]}}, leak_a_q};
+                        8'h10: s_axil_rdata <= {{(AXIL_DW-DATA_W){x_prev_q[DATA_W-1]}}, x_prev_q};
+                        8'h14: s_axil_rdata <= {{(AXIL_DW-DATA_W){x_next_q[DATA_W-1]}}, x_next_q};
+                        default: s_axil_rdata <= 32'hDEAD_BEEF;
+                    endcase
+                    ar_state <= AR_RESP;
+                end
+            end
+            AR_RESP: if (s_axil_rvalid && s_axil_rready) begin
+                s_axil_rvalid <= 1'b0;
+                ar_state <= AR_IDLE;
+            end
+        endcase
+    end
 
+    // ---- compute_core integration ----
+    wire cc_done;
+    wire signed [DATA_W-1:0] cc_xnext;
+    assign s_axis_tready = (busy_q);
+    wire signed [MAC_WIDTH*DATA_W-1:0] w_chunk = s_axis_tdata[2*MAC_WIDTH*DATA_W-1 -: MAC_WIDTH*DATA_W];
+    wire signed [MAC_WIDTH*DATA_W-1:0] x_chunk = s_axis_tdata[MAC_WIDTH*DATA_W-1 : 0];
+    wire chunk_v = s_axis_tvalid && s_axis_tready;
+
+    compute_core #(
+        .DATA_W(DATA_W), .MAC_WIDTH(MAC_WIDTH), .ACC_W(ACC_W), .FRAC_W(FRAC_W)
+    ) u_cc (
+        .clk(clk), .rst_n(rst_n),
+        .start(start_pulse),
+        .leak_a(leak_a_q),
+        .x_prev_i(x_prev_q),
+        .win_term_i(win_term_q),
+        .w_row(w_chunk),
+        .x_chunk(x_chunk),
+        .chunk_valid(chunk_v),
+        .last_chunk(s_axis_tlast),
+        .x_next_o(cc_xnext),
+        .done(cc_done)
+    );
+    always_ff @(posedge clk) begin
+        if (!rst_n) begin
+            busy_q <= 1'b0; done_q <= 1'b0; x_next_q <= '0;
+        end else begin
+            if (start_pulse) begin busy_q <= 1'b1; done_q <= 1'b0; end
+            if (cc_done)     begin busy_q <= 1'b0; done_q <= 1'b1; x_next_q <= cc_xnext; end
+        end
+    end
 endmodule
+`default_nettype wire

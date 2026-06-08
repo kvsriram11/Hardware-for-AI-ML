@@ -1,0 +1,11 @@
+{
+  "platform": "Intel i7-1165G7 (Tigerlake), Win11 + MSYS2 MINGW64",
+  "compiler": "gcc 16.1.0 (-O3 -march=native)",
+  "blas": "OpenBLAS 0.3.33 (OPENBLAS_NUM_THREADS=1)",
+  "sweep": [
+    {"N": 100,  "per_step_median_s": 0.0000012,  "full_run_median_s": 0.005753, "updates_per_sec_isolated": 833327, "gflops_sustained": 17.417, "final_state_l2_norm": 4.611791667},
+    {"N": 500,  "per_step_median_s": 0.0000163,  "full_run_median_s": 0.063208, "updates_per_sec_isolated": 61350,  "gflops_sustained": 30.951, "final_state_l2_norm": 11.329666814},
+    {"N": 1000, "per_step_median_s": 0.0001034,  "full_run_median_s": 0.384041, "updates_per_sec_isolated": 9671,   "gflops_sustained": 19.429, "final_state_l2_norm": 16.586226898},
+    {"N": 2000, "per_step_median_s": 0.0003400,  "full_run_median_s": 1.074568, "updates_per_sec_isolated": 2941,   "gflops_sustained": 23.582, "final_state_l2_norm": 22.679666463}
+  ]
+}

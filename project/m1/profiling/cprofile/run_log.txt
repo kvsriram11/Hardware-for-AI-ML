@@ -1,0 +1,73 @@
+Loading data from reference/minimalESN/MackeyGlass_t17.txt
+Data length: 10000
+NumPy: 1.26.4
+Platform: win32, Python: 3.12.10
+BLAS threads: OPENBLAS_NUM_THREADS=1
+
+=== KERNEL TIMING SWEEP ===
+
+--- N=100 ---
+  spectral_norm:          4.738 ms (one-shot)
+  state_update/step:     89.000 us
+  state_update_total(4000 steps):    356.000 ms
+  readout_train:          0.935 ms (one-shot)
+  projected_total:      361.672 ms
+  KERNEL SHARES: state=98.4%, spectral=1.3%, readout=0.3%
+
+--- N=500 ---
+  spectral_norm:        181.329 ms (one-shot)
+  state_update/step:    139.800 us
+  state_update_total(4000 steps):    559.200 ms
+  readout_train:         15.616 ms (one-shot)
+  projected_total:      756.145 ms
+  KERNEL SHARES: state=74.0%, spectral=24.0%, readout=2.1%
+
+--- N=1000 ---
+  spectral_norm:        751.718 ms (one-shot)
+  state_update/step:    224.900 us
+  state_update_total(4000 steps):    899.601 ms
+  readout_train:         59.933 ms (one-shot)
+  projected_total:     1711.251 ms
+  KERNEL SHARES: state=52.6%, spectral=43.9%, readout=3.5%
+
+--- N=2000 ---
+  spectral_norm:       6239.727 ms (one-shot)
+  state_update/step:    916.600 us
+  state_update_total(4000 steps):   3666.400 ms
+  readout_train:        316.410 ms (one-shot)
+  projected_total:    10222.537 ms
+  KERNEL SHARES: state=35.9%, spectral=61.0%, readout=3.1%
+
+--- N=5000 ---
+  spectral_norm:      41200.612 ms (one-shot)
+  state_update/step:   4571.400 us
+  state_update_total(4000 steps):  18285.600 ms
+  readout_train:       2679.325 ms (one-shot)
+  projected_total:    62165.536 ms
+  KERNEL SHARES: state=29.4%, spectral=66.3%, readout=4.3%
+
+Wrote profiling\cprofile\sweep_data.csv
+Wrote profiling\cprofile\sweep_data.json
+
+=== FULL CPROFILE: N=1000 canonical minimalESN run ===
+Canonical MSE = 1.022954e-06
+Wrote profiling\cprofile\project_profile.txt
+
+=== HEADLINE TIMING: full minimalESN run at N=1000, median of 10 ===
+  run 1: 2.0326s (MSE=1.023e-06)
+  run 2: 1.7504s (MSE=6.198e-07)
+  run 3: 1.6401s (MSE=3.310e-06)
+  run 4: 1.6636s (MSE=4.776e-07)
+  run 5: 1.7233s (MSE=1.085e-06)
+  run 6: 1.6738s (MSE=1.036e-06)
+  run 7: 1.6793s (MSE=8.813e-07)
+  run 8: 1.6992s (MSE=2.529e-05)
+  run 9: 1.6799s (MSE=3.804e-05)
+  run 10: 1.6395s (MSE=4.697e-06)
+
+  MEDIAN: 1.6799s
+  MIN:    1.6395s
+  MAX:    2.0326s
+Wrote profiling\cprofile\headline_n1000.json
+
+=== DONE ===
